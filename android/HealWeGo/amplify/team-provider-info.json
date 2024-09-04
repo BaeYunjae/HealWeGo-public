@@ -1,0 +1,38 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-healwego-dev-5db46-authRole",
+      "UnauthRoleArn": "arn:aws:iam::211125538943:role/amplify-healwego-dev-5db46-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::211125538943:role/amplify-healwego-dev-5db46-authRole",
+      "Region": "ap-northeast-2",
+      "DeploymentBucketName": "amplify-healwego-dev-5db46-deployment",
+      "UnauthRoleName": "amplify-healwego-dev-5db46-unauthRole",
+      "StackName": "amplify-healwego-dev-5db46",
+      "StackId": "arn:aws:cloudformation:ap-northeast-2:211125538943:stack/amplify-healwego-dev-5db46/eb5d3e60-6a71-11ef-8742-0689a26f14b3",
+      "AmplifyAppId": "d1rhtiz7gl1ei"
+    },
+    "categories": {
+      "auth": {
+        "healwego7ba5a11d": {}
+      }
+    }
+  },
+  "healwego": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-healwego-healwego-0e657-authRole",
+      "UnauthRoleArn": "arn:aws:iam::211125538943:role/amplify-healwego-healwego-0e657-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::211125538943:role/amplify-healwego-healwego-0e657-authRole",
+      "Region": "ap-northeast-2",
+      "DeploymentBucketName": "amplify-healwego-healwego-0e657-deployment",
+      "UnauthRoleName": "amplify-healwego-healwego-0e657-unauthRole",
+      "StackName": "amplify-healwego-healwego-0e657",
+      "StackId": "arn:aws:cloudformation:ap-northeast-2:211125538943:stack/amplify-healwego-healwego-0e657/be3aef30-6a86-11ef-ab59-0a8473a87a35",
+      "AmplifyAppId": "d3948h3wkbun6n"
+    },
+    "categories": {
+      "auth": {
+        "healwego7ba5a11d": {}
+      }
+    }
+  }
+}
