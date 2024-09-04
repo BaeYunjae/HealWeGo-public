@@ -38,10 +38,10 @@
 
 ## Template
 
-[부모 브랜치/Type] 기능
+Type/부모 브랜치/기능
 
-        ex) [android/Feat] 로그인
-		    [morai/Fix] 경로 추정
+        ex) Feat/Android/로그인
+		    Fix/Morai/경로 추정
 
 ## 설명
 1. Type
@@ -58,10 +58,10 @@
 
 ## Template
 
-        type: 소기능
+        [type] 소기능
 
-        ex) feat: 로그인 버튼 구현
-		test: DB 업데이트 테스트 코드 작성
+        ex) [feat] 로그인 버튼 구현
+		    [test] DB 업데이트 테스트 코드 작성
 
 ## 설명
 1. Type
