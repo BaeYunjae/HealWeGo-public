@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class PathSelect extends AppCompatActivity
         implements OnMapReadyCallback,
@@ -155,14 +156,15 @@ public class PathSelect extends AppCompatActivity
             }
         });
 
-
-
         Button btn2 = findViewById(R.id.dest_button);
         btn2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
+
                 Intent intent2 = new Intent(PathSelect.this, DestSelect.class);
+
                 intent2.putExtra("start_locationName", start_text.getText().toString());
+
                 startActivity(intent2);
             }
         });
@@ -170,14 +172,33 @@ public class PathSelect extends AppCompatActivity
         Button complete_btn = findViewById(R.id.complete_button);
         complete_btn.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View view){
-                Intent intent = new Intent(PathSelect.this,MapPath.class);
-                startActivity(intent);
+            public void onClick(View view) {
+                String dest = (String) dest_text.getText();
+                String start = (String) start_text.getText();
+
+
+                if(!Objects.equals(dest, "Please Select dest") && !Objects.equals(start, "Please Select start")){
+                    Intent intent = new Intent(PathSelect.this, AloneSetActivity.class);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(PathSelect.this, "모두 설정하세요", Toast.LENGTH_SHORT).show();
+                }
+
+
+
             }
         });
-
     }
-
+    // 마커가 하나라도 있으면 스크롤을 비활성화하는 함수
+    private void disableScrollIfMarkersExist() {
+        if (!markerPositions.isEmpty()) {
+            // 마커가 하나라도 있으면 스크롤 비활성화
+            mMap.getUiSettings().setScrollGesturesEnabled(false);
+        } else {
+            // 마커가 없으면 스크롤 활성화
+            mMap.getUiSettings().setScrollGesturesEnabled(true);
+        }
+    }
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         Log.d(TAG, "onMapReady :");
@@ -186,7 +207,6 @@ public class PathSelect extends AppCompatActivity
 
         //런타임 퍼미션 요청 대화상자나 GPS 활성 요청 대화상자 보이기전에
         //지도의 초기위치를 서울로 이동
-        setDefaultLocation();
 
         //런타임 퍼미션 처리
         // 1. 위치 퍼미션을 가지고 있는지 체크합니다.
@@ -205,49 +225,63 @@ public class PathSelect extends AppCompatActivity
             Intent getIntent = getIntent();
             String destLocationName = getIntent.getStringExtra("dest_locationName");
             String startLocationName = getIntent.getStringExtra("start_locationName");
+            // 두 위치가 있는 경
 
-            // 두 위치가 있는 경우
             if (destLocationName != null && startLocationName != null) {
-                LatLng destLatLng = getLatLngFromLocationName(destLocationName);
-                LatLng startLatLng = getLatLngFromLocationName(startLocationName);
 
-                if (destLatLng != null && startLatLng != null) {
-                    // 두 위치 모두 표시할 수 있도록 카메라 위치를 조정
-                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                    builder.include(destLatLng);
-                    builder.include(startLatLng);
-                    LatLngBounds bounds = builder.build();
+                // destLocationName만 있는 경우
+                if( (!destLocationName.equals("Please Select dest") && !startLocationName.equals("Please Select start"))){
 
-                    // 마커 추가
-                    addMarker(destLatLng, destLocationName);
-                    addMarker(startLatLng, startLocationName);
+                    LatLng destLatLng = getLatLngFromLocationName(destLocationName);
+                    LatLng startLatLng = getLatLngFromLocationName(startLocationName);
 
-                    // 카메라 이동 및 줌 조정
-                    int padding = 100; // 경계에 패딩 추가
-                    CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                    mMap.moveCamera(cu);
+                    if (destLatLng != null && startLatLng   != null) {
+                        // 두 위치 모두 표시할 수 있도록 카메라 위치를 조정
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                        builder.include(destLatLng);
+                        builder.include(startLatLng);
+                        LatLngBounds bounds = builder.build();
+
+                        // 마커 추가
+                        addMarker(destLatLng, destLocationName,false);
+                        addMarker(startLatLng, startLocationName,true);
+
+                        // 카메라 이동 및 줌 조정
+                        int padding = 100; // 경계에 패딩 추가
+                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                        mMap.moveCamera(cu);
+                    }
                 }
+
+                else if (!destLocationName.equals("Please Select dest")) {
+
+                    LatLng destLatLng = getLatLngFromLocationName(destLocationName);
+                    if (destLatLng != null) {
+                        addMarker(destLatLng, destLocationName,false);
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destLatLng, 15));
+                    }
+                }
+                // startLocationName만 있는 경우
+                else {
+                    LatLng startLatLng = getLatLngFromLocationName(startLocationName);
+
+                    if (startLatLng != null) {
+                        addMarker(startLatLng, startLocationName,true);
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 15));
+                    }
+                }
+                Log.w(TAG, String.valueOf(markerPositions.size()));
+                Log.w(TAG, destLocationName );
+                Log.w(TAG, startLocationName );
+
             }
-            // destLocationName만 있는 경우
-            else if (destLocationName != null) {
-                LatLng destLatLng = getLatLngFromLocationName(destLocationName);
-                if (destLatLng != null) {
-                    addMarker(destLatLng, destLocationName);
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destLatLng, 15));
-                }
-            }
-            // startLocationName만 있는 경우
-            else if (startLocationName != null) {
-                LatLng startLatLng = getLatLngFromLocationName(startLocationName);
-                if (startLatLng != null) {
-                    addMarker(startLatLng, startLocationName);
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 15));
-                }
-            } else {
+            else {
                 // 내 위치로 이동
                 setDefaultLocation();
             }
+
             startLocationUpdates(); // 3. 위치 업데이트 시작
+            disableScrollIfMarkersExist();
 
 
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
@@ -360,6 +394,60 @@ public class PathSelect extends AppCompatActivity
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.moveCamera(cameraUpdate);
     }
+    // 현재 위치로 이동하는 함수
+    private void moveToCurrentLocation() {
+        if (mCurrentLocatiion != null) {
+            LatLng currentLatLng = new LatLng(mCurrentLocatiion.getLatitude(), mCurrentLocatiion.getLongitude());
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
+        } else {
+            // 기본 위치로 이동 (예: 서울)
+            setDefaultLocation();
+        }
+    }
+
+    // 마커 상태에 따라 카메라 위치 조정
+    private void updateCameraPosition() {
+        if (markerPositions.isEmpty()) {
+            // 마커가 없으면 현재 위치로 이동
+            moveToCurrentLocation();
+        } else if (markerPositions.size() == 1) {
+            // 마커가 하나만 있으면 해당 마커로 카메라 이동
+            LatLng markerPosition = markerPositions.get(0);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerPosition, 15));
+        } else {
+            // 마커가 두 개 이상일 경우 모든 마커가 보이도록 카메라 조정
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (LatLng position : markerPositions) {
+                builder.include(position);
+            }
+            LatLngBounds bounds = builder.build();
+
+            // 패딩을 추가하여 기본 LatLngBounds로 카메라 업데이트
+            int padding = 100; // 화면 패딩 (px)
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+            // 먼저 카메라를 bounds로 이동
+            mMap.moveCamera(cameraUpdate);
+
+            // 카메라를 위로 조금 더 이동하여 마커들이 아래에 배치되도록 조정
+            mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+                @Override
+                public void onCameraIdle() {
+                    // 카메라 현재 중심점을 얻음
+                    LatLng center = mMap.getCameraPosition().target;
+
+                    // 중심점을 위쪽으로 약간 이동 (위도값을 증가시킴)
+                    LatLng adjustedCenter = new LatLng(center.latitude + 0.005, center.longitude); // 화면 절반 이동 예시
+
+                    // 카메라를 다시 이동
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(adjustedCenter, mMap.getCameraPosition().zoom));
+
+                    // 리스너 제거 (카메라 움직임 중복 방지)
+                    mMap.setOnCameraIdleListener(null);
+                }
+            });
+        }
+    }
 
     private void disableScrollIfTwoMarkers() {
         if (markerPositions.size() == 3) {
@@ -420,19 +508,29 @@ public class PathSelect extends AppCompatActivity
     }
 
     // 마커 추가하는 함수
-    private void addMarker(LatLng latLng, String title) {
+    private void addMarker(LatLng latLng, String title, boolean isStartLocation) {
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        markerOptions.title(title);
-        mMap.addMarker(markerOptions);
+
+        if (isStartLocation) {
+            // 출발지 마커는 빨간색
+            markerOptions.title("출발지");
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        } else {
+            // 도착지 마커는 파란색
+            markerOptions.title("도착지");
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+        }
+        Marker marker  = mMap.addMarker(markerOptions);
         // 마커 위치를 리스트에 추가
+        assert marker != null;
         markerPositions.add(latLng);
 
         // 모든 마커가 보이도록 카메라 조정
         adjustCameraToMarkers(markerPositions);
         disableScrollIfTwoMarkers();
+
     }
-    
     @Override
     protected void onStart() {
         super.onStart();
@@ -507,17 +605,10 @@ public class PathSelect extends AppCompatActivity
     }
     
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
-// 따라다니는 마커를 제거 (기존 마커를 추가하지 않음)
-        if (currentMarker != null) {
-            currentMarker.remove();
-            currentMarker = null;  // 마커를 완전히 제거하고 null로 초기화
-        }
 
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-        // 카메라를 사용자의 현재 위치로 이동
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
-        mMap.moveCamera(cameraUpdate);
+
 
     }
     
@@ -536,7 +627,6 @@ public class PathSelect extends AppCompatActivity
         markerOptions.snippet(markerSnippet);
         markerOptions.draggable(true);
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        currentMarker = mMap.addMarker(markerOptions);
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 15);
         mMap.moveCamera(cameraUpdate);
