@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/layout_select_path"
+    tools:context=".PathSelect" >
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MapsActivity" />
+
+    <Button
+        android:id="@+id/complete_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="16dp"
+        android:padding="16dp"
+        android:backgroundTint="@color/lightteal"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:textColor="@color/black"
+        android:text="경로 설정"
+        android:textSize="30sp"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/white_rectangle"
+        android:layout_margin="10dp"
+        android:padding="16dp">
+
+        <!-- 첫 번째 레이아웃 (출발지 정보) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="@drawable/border"
+
+            >
+
+            <!-- 출발지 정보 텍스트뷰 -->
+            <TextView
+                android:id="@+id/start_textview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="출발지를 설정하세요"
+                android:textSize="20sp"
+                android:gravity="center_vertical"
+                android:padding="8dp"/>
+
+            <!-- 버튼 -->
+            <Button
+                android:id="@+id/start_button"
+                android:layout_width="wrap_content"
+                android:backgroundTint="@color/lightteal"
+                android:layout_height="wrap_content"
+                android:text="출발지 설정"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"/>
+        </LinearLayout>
+
+        <!-- 두 번째 레이아웃 (도착지 정보) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="@drawable/border"
+            android:layout_marginTop="10dp"
+            >
+
+            <!-- 도착지 정보 텍스트뷰 -->
+            <TextView
+                android:id="@+id/dest_textview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="도착지를 설정하세요"
+
+                android:textSize="20sp"
+                android:gravity="center_vertical"
+                android:padding="8dp"/>
+
+            <!-- 버튼 -->
+            <Button
+                android:id="@+id/dest_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="도착지 설정"
+                android:textSize="16sp"
+                android:layout_gravity="center_vertical"
+                android:backgroundTint="@color/lightteal"
+                android:textColor="@color/black"
+                android:layout_marginStart="10dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>
