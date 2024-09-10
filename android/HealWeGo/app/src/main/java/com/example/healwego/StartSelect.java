@@ -1,6 +1,5 @@
 package com.example.healwego;
 
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -127,7 +126,9 @@ public class StartSelect extends AppCompatActivity
 
         Intent getintent = getIntent();
         String  destLocationName = getintent.getStringExtra("dest_locationName");
-
+        Log.w(TAG, "recieve        " + destLocationName);
+        Log.w(TAG, "recieve        " + destLocationName);
+        Log.w(TAG, "recieve        " + destLocationName);
 
         Button btn = findViewById(R.id.button);
         btn.setOnClickListener(new View.OnClickListener(){
@@ -282,6 +283,31 @@ public class StartSelect extends AppCompatActivity
             public void onMapClick(LatLng latLng) {
 
                 Log.d( TAG, "onMapClick :");
+            }
+        });
+
+        // 터치한 위치로 마커 이동
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                Log.d(TAG, "onMapClick : " + latLng);
+
+                // 현재 마커가 있으면 위치를 업데이트하고, 없으면 새 마커를 추가합니다.
+                if (currentMarker != null) {
+                    currentMarker.setPosition(latLng);
+                } else {
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+                    markerOptions.title("터치한 위치");
+                    currentMarker = mMap.addMarker(markerOptions);
+                }
+
+                // 마커에 터치한 위치의 주소를 설정
+                String address = getCurrentAddress(latLng);
+                currentMarker.setSnippet(address);
+                currentMarker.showInfoWindow();
+                mFusedLocationClient.removeLocationUpdates(locationCallback);
+
             }
         });
     }
