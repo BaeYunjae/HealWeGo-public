@@ -1,6 +1,24 @@
 {
+  "api": {
+    "healwego": {
+      "dependsOn": [],
+      "output": {
+        "authConfig": {
+          "additionalAuthenticationProviders": [],
+          "defaultAuthentication": {
+            "apiKeyConfig": {
+              "apiKeyExpirationDays": 7
+            },
+            "authenticationType": "API_KEY"
+          }
+        }
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "AppSync"
+    }
+  },
   "auth": {
-    "healwego7ba5a11d": {
+    "healwegod7296f30": {
       "customAuth": false,
       "dependsOn": [],
       "frontendAuthConfig": {
