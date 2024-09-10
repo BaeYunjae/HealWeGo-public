@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!-- internet access permission -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -26,6 +27,13 @@
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
+        <meta-data
+
+            android:name="com.google.android.geo.API_KEY"
+
+            android:value="AIzaSyAaJ7GGeksOIz2wcBStD1WAIhsWqBU1fE0" />
+
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" />
@@ -48,6 +56,11 @@
             android:exported="true">
         </activity>
         <activity android:name=".PaymentCompleteActivity" />
+
+        <activity android:name=".PathSelect"/>
+        <activity android:name=".MapPath"/>
+        <activity android:name=".DestSelect"/>
+        <activity android:name=".StartSelect"/>
     </application>
 
 </manifest>
