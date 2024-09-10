@@ -39,6 +39,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ReserveMainActivity">
+        </activity>
+        <activity android:name=".ChatListActivity">
+        </activity>
+        <!-- 외부 애플리케이션에서 호출 가능하려면 exported true로 변경 -->
+        <activity android:name=".AloneSetActivity"
+            android:exported="true">
+        </activity>
+        <activity android:name=".PaymentCompleteActivity" />
     </application>
 
 </manifest>
