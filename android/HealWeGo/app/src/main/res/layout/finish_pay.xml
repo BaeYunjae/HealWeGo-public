@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PaymentCompleteActivity">
+
+    <!-- 로고 이미지 -->
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_marginTop="32dp"
+        android:contentDescription="HealWeGo Logo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/logo" />
+
+    <!-- 결제 금액 -->
+
+    <!-- 결제 완료 메시지 -->
+
+    <TextView
+        android:id="@+id/paymentAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="16,000원"
+        android:textColor="@android:color/black"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logoImage"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/paymentCompleteMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="자동 결제 완료"
+        android:textSize="25sp"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/paymentAmount"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- 여행 떠나기 문구 -->
+    <TextView
+        android:id="@+id/nextMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="이제 여행을 떠나 볼까요?"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/paymentCompleteMessage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="110dp" />
+
+    <!-- 확인 버튼 -->
+    <Button
+        android:id="@+id/confirmButton"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="확인"
+        android:textSize="20dp"
+        android:backgroundTint="@color/teal"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/nextMessage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="5dp"
+        app:layout_constraintWidth_percent="0.6" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
