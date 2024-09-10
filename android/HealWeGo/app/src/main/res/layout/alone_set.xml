@@ -1,0 +1,89 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- 로고 -->
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="100dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:srcCompat="@drawable/logo" />
+
+    <!-- 출발시간 제목 -->
+    <TextView
+        android:id="@+id/startTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="출발 시간 선택"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="50dp"
+        android:layout_marginRight="150dp"
+        app:layout_constraintTop_toBottomOf="@id/logoImage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- 출발시간 선택을 위한 Spinner -->
+    <Spinner
+        android:id="@+id/timeSpinner"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/spinner_background"
+        app:layout_constraintTop_toBottomOf="@id/startTimeLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- 예상 결제 요금 -->
+    <TextView
+        android:id="@+id/paymentLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="예상 결제 요금"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        android:layout_marginRight="150dp"
+        app:layout_constraintTop_toBottomOf="@id/timeSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"/>
+
+    <!-- 예상 금액 -->
+    <TextView
+        android:id="@+id/paymentAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="16,000원"
+        android:textSize="30sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/paymentLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:textStyle="bold"/>
+
+    <!-- 확인 버튼 -->
+    <Button
+        android:id="@+id/confirmButton"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="확인"
+        android:textSize="20dp"
+        android:backgroundTint="@color/teal"
+        android:textColor="@android:color/white"
+        android:padding="5dp"
+        app:layout_constraintTop_toBottomOf="@id/paymentAmount"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
