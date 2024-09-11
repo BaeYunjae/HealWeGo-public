@@ -70,25 +70,26 @@ public class MapPath extends AppCompatActivity
     Location mCurrentLocatiion;
     LatLng currentPosition;
 
+    /*
+    0 : 탑승 안한 상태
+    1 : 탑승 중
+    2 : 비상 정지 상태
+     */
+    int state = 0;
+
+
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest locationRequest;
     private Location location;
     private View mLayout;  // Snackbar 사용하기 위해서는 View가 필요합니다.
     // (참고로 Toast에서는 Context가 필요했습니다.)
 
+    boolean firstCameraUpdate = false;
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        // 현재 상태를 저장 (dest와 location 데이터를 저장)
-        TextView dest_textview = findViewById(R.id.dest_textview);
-        TextView start_textview = findViewById(R.id.start_textview);
-
-        // TextView에 있는 값을 저장
-        outState.putString("dest_locationName", dest_textview.getText().toString());
-        outState.putString("start_locationName", start_textview.getText().toString());
     }
-
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -118,69 +119,90 @@ public class MapPath extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // SearchView와 Google Map 연결
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        Button leftBtn = findViewById(R.id.leftButton);
+        Button rightBtn = findViewById(R.id.rightButton);
 
-
-        // UI 요소 초기화
-        TextView dest_text = findViewById(R.id.dest_textview);
-        TextView start_text = findViewById(R.id.start_textview);
-        String destLocationName = "";
-        String startLocationName ="";
-        // 저장된 상태가 있으면 복구
-        if (savedInstanceState != null) {
-            dest_text.setText(savedInstanceState.getString("dest_locationName", "목적지를 설정하세요"));
-            start_text.setText(savedInstanceState.getString("start_locationName", "출발지를 설정하세요"));
-        } else {
-            // Intent로부터 데이터 받기
-            Intent getintent = getIntent();
-            destLocationName = getintent.getStringExtra("dest_locationName");
-            startLocationName = getintent.getStringExtra("start_locationName");
-
-            // 기존 출발지와 목적지를 그대로 유지
-            if (destLocationName != null) {
-                dest_text.setText(destLocationName);
+        // leftButton 클릭 이벤트 처리
+        leftBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 여기에 leftButton을 눌렀을 때 실행할 코드를 작성합니다.
+                // 필요에 따라 지도의 카메라 이동, 마커 추가, 상태 변경 등의 작업을 여기에 추가
+                handleLeftButtonClick();
             }
-            if (startLocationName != null) {
-                start_text.setText(startLocationName);
-            }
-        }
+        });
 
+        // rightButton 클릭 이벤트 처리
+        rightBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 여기에 rightButton을 눌렀을 때 실행할 코드를 작성합니다.
+                // 필요에 따라 지도의 카메라 이동, 마커 추가, 상태 변경 등의 작업을 여기에 추가
+                handleRightButtonClick();
+            }
+        });
     }
+    // Left Button 클릭 시 수행할 작업을 위한 함수
+    private void handleLeftButtonClick() {
+        Button btn = findViewById(R.id.leftButton);
+        if (state == 0){
+            state = 1;
+            btn.setText("하차");
+        }
+        else if(state == 1){
+            /*
+            도착했는지 MQTT 확인
+             */
+            new AlertDialog.Builder(this)
+                    .setMessage("이용해 주셔서 감사합니다")  // 메시지 설정
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Yes를 눌렀을 때 동작
+                            Intent intent = new Intent(MapPath.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+                    })
+                    .show();  // 다이얼로그 표시
 
-    private void searchLocation(String location) {
-        Geocoder geocoder = new Geocoder(this);
-        List<Address> addressList = null;
 
-        try {
-            // 지오코더를 통해 입력한 위치명을 주소로 변환
-            addressList = geocoder.getFromLocationName(location, 1);
-
-            if (addressList != null && !addressList.isEmpty()) {
-                Address address = addressList.get(0);
-                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-
-                // 마커 위치 업데이트
-                if (currentMarker != null) {
-                    currentMarker.setPosition(latLng);  // 마커의 위치를 검색된 위치로 업데이트
-                    currentMarker.setTitle(location);   // 마커 제목 업데이트
-                    // 마커의 스니펫(설명)에 위도와 경도를 표시
-                    currentMarker.setSnippet("위도: " + latLng.latitude + ", 경도: " + latLng.longitude);
-                    currentMarker.showInfoWindow();  // 마커의 정보 창 표시
-                }
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-
-                Toast.makeText(getApplicationContext(), location + " 찾았습니다!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getApplicationContext(), "위치를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "검색 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+        }else if(state == 2){
+            Toast.makeText(this, "이동부터 하세요", Toast.LENGTH_LONG).show();
         }
     }
 
+    // Right Button 클릭 시 수행할 작업을 위한 함수
+    private void handleRightButtonClick() {
+
+        Button btn = findViewById(R.id.rightButton);
+        if (state == 0){
+            Toast.makeText(this, "탑승부터 하세요", Toast.LENGTH_LONG).show();
+        }
+        else if(state == 1){
+            new AlertDialog.Builder(this)
+                    .setTitle("주의")  // 타이틀 설정
+                    .setMessage("차량을 정지하시겠습니까?")  // 메시지 설정
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Yes를 눌렀을 때 동작
+                            state = 2;
+                            btn.setText("이동 재개");
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // No를 눌렀을 때는 아무 동작도 하지 않음
+                            dialog.dismiss(); // 다이얼로그 닫기
+                        }
+                    })
+                    .show();  // 다이얼로그 표시
+        }else if(state == 2){
+            state = 1;
+            btn.setText("비상 정지");
+        }
+    }
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         Log.d(TAG, "onMapReady :");
@@ -253,6 +275,9 @@ public class MapPath extends AppCompatActivity
             startLocationUpdates(); // 3. 위치 업데이트 시작
 
 
+            drawPath("{{1,2,37.56,126.97},{2,1,37.80,126.97}}");
+
+
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
 
             // 3-1. 사용자가 퍼미션 거부를 한 적이 있는 경우에는
@@ -278,29 +303,9 @@ public class MapPath extends AppCompatActivity
             }
 
         }
-        // 카메라가 이동을 멈출 때 마커를 중앙으로 이동시키는 리스너 추가
-        mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
-            @Override
-            public void onCameraIdle() {
-                // 카메라의 중앙 위치를 가져옴
-                LatLng centerPosition = mMap.getCameraPosition().target;
 
-            }
-        });
-        mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
-            @Override
-            public void onCameraMoveStarted(int reason) {
-                if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
-                    // 사용자가 지도를 움직이기 시작하면 위치 업데이트를 일시 중지
-                    mFusedLocationClient.removeLocationUpdates(locationCallback);
-                     }
-            }
-        });
 
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        // 현재 오동작을 해서 주석처리
-        //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -328,18 +333,26 @@ public class MapPath extends AppCompatActivity
                 setCurrentLocation(location, markerTitle, markerSnippet);
                 mCurrentLocatiion = location;
             }
-
-
         }
-
     };
     private List<LatLng> markerPositions = new ArrayList<>();
+
+
 
     private void adjustCameraToMarkers(List<LatLng> markerPositions) {
         if (markerPositions == null || markerPositions.isEmpty()) {
             return;
         }
 
+        Log.w(TAG, markerPositions.toString() );
+        Log.w(TAG, markerPositions.toString() );
+        Log.w(TAG, markerPositions.toString() );
+        Log.w(TAG, markerPositions.toString() );
+        Log.w(TAG, markerPositions.toString() );
+        Log.w(TAG, markerPositions.toString() );
+        Log.w(TAG, markerPositions.toString() );
+        Log.w(TAG, markerPositions.toString() );
+        Log.w(TAG, markerPositions.toString() );
         // LatLngBounds를 생성하여 모든 마커를 포함
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (LatLng position : markerPositions) {
@@ -348,20 +361,12 @@ public class MapPath extends AppCompatActivity
         LatLngBounds bounds = builder.build();
 
         // 화면 크기에 맞게 카메라 업데이트 (패딩을 추가하여 경계를 벗어나지 않게 설정)
-        int padding = 100; // 패딩은 원하는 대로 설정 (px 단위)
+        int padding = 500; // 패딩은 원하는 대로 설정 (px 단위)
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.moveCamera(cameraUpdate);
     }
 
-    private void disableScrollIfTwoMarkers() {
-        if (markerPositions.size() == 3) {
-            // 마커가 2개일 경우 스크롤 제스처 비활성화
-            mMap.getUiSettings().setScrollGesturesEnabled(false);
-        } else {
-            // 마커가 2개가 아닐 경우 스크롤 제스처 활성화
-            mMap.getUiSettings().setScrollGesturesEnabled(true);
-        }
-    }
+
     private void startLocationUpdates() {
 
         if (!checkLocationServicesStatus()) {
@@ -399,6 +404,37 @@ public class MapPath extends AppCompatActivity
         return null;
     }
 
+    private void drawPath(String pathString) {
+        // Step 1: 문자열을 {}를 기준으로 분리하여 각 데이터 묶음을 추출
+        pathString = pathString.replaceAll("[{}]", ""); // {} 제거
+        String[] pathDataArray = pathString.split(","); // 쉼표로 나눈다
+
+        // Step 2: 경로를 저장할 리스트 생성
+        List<LatLng> pathLatLngList = new ArrayList<>();
+
+        // Step 3: 파싱된 데이터를 처리
+        for (int i = 0; i < pathDataArray.length; i += 4) {
+            // 순서 (사용하지 않을 경우 생략 가능)
+            String order = pathDataArray[i].trim();
+            // index (사용하지 않을 경우 생략 가능)
+            String index = pathDataArray[i + 1].trim();
+            // 위도
+            double latitude = Double.parseDouble(pathDataArray[i + 2].trim());
+            // 경도
+            double longitude = Double.parseDouble(pathDataArray[i + 3].trim());
+
+            // 위도, 경도 값을 LatLng 객체로 변환
+            LatLng latLng = new LatLng(latitude, longitude);
+            pathLatLngList.add(latLng);
+
+            // 마커를 해당 위도, 경도에 추가
+            addMarker(latLng, "Marker at " + latitude + ", " + longitude);
+        }
+        adjustCameraToMarkers(pathLatLngList);
+
+
+    }
+
     // 마커 추가하는 함수
     private void addMarker(LatLng latLng, String title) {
         MarkerOptions markerOptions = new MarkerOptions();
@@ -409,7 +445,6 @@ public class MapPath extends AppCompatActivity
         markerPositions.add(latLng);
         // 모든 마커가 보이도록 카메라 조정
         adjustCameraToMarkers(markerPositions);
-        disableScrollIfTwoMarkers();
     }
 
     @Override
@@ -482,10 +517,13 @@ public class MapPath extends AppCompatActivity
         }
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-        // 카메라를 사용자의 현재 위치로 이동
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
-        mMap.moveCamera(cameraUpdate);
 
+        if (firstCameraUpdate) {
+            // 카메라를 사용자의 현재 위치로 이동
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
+            mMap.moveCamera(cameraUpdate);
+            firstCameraUpdate=true;
+        }
     }
 
 
@@ -495,7 +533,6 @@ public class MapPath extends AppCompatActivity
         String markerTitle = "위치정보 가져올 수 없음";
         String markerSnippet = "위치 퍼미션과 GPS 활성 요부 확인하세요";
 
-
         if (currentMarker != null) currentMarker.remove();
 
         MarkerOptions markerOptions = new MarkerOptions();
@@ -504,7 +541,6 @@ public class MapPath extends AppCompatActivity
         markerOptions.snippet(markerSnippet);
         markerOptions.draggable(true);
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        currentMarker = mMap.addMarker(markerOptions);
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 15);
         mMap.moveCamera(cameraUpdate);
