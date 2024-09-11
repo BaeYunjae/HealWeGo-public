@@ -1,5 +1,6 @@
 package com.example.healwego;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -34,13 +35,17 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "혼자가기 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
 
         // AloneSetActivity로 이동
-        Intent intent = new Intent(MainActivity.this, AloneSetActivity.class);
+        Intent intent = new Intent(MainActivity.this, PathSelect.class);
         startActivity(intent);
     }
 
     // 함께가기 버튼 클릭 리스너
     public void onButton2Clicked(View v) {
         Toast.makeText(this, "함께가기 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
+
+        // AloneSetActivity로 이동
+        Intent intent = new Intent(MainActivity.this, ChatListActivity.class);
+        startActivity(intent);
     }
 
     // 이미지 클릭 리스너 (을왕리 해수욕장 클릭)
