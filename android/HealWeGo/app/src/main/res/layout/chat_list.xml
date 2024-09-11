@@ -45,7 +45,7 @@
                 android:layout_width="330dp"
                 android:layout_height="150dp"
                 android:layout_marginBottom="30dp"
-                android:background="@color/teal"
+                android:background="@color/palecyan"
                 android:onClick="onButton1Clicked"
                 android:text="을왕리 해수욕장\n목적지: 을왕리\n탑승장소: 서울역\n탑승시간: 오후 3시\n 2/4 \n #힐링 #여성만"
                 android:textSize="18sp" />
@@ -56,7 +56,7 @@
                 android:layout_width="330dp"
                 android:layout_height="150dp"
                 android:layout_marginBottom="30dp"
-                android:background="@color/teal"
+                android:background="@color/palecyan"
                 android:onClick="onButton1Clicked"
                 android:text="을왕리 해수욕장\n목적지: 을왕리\n탑승장소: 서울역\n탑승시간: 오후 3시\n 3/4\n#익스트림 #20대만"
                 android:textSize="18sp" />
@@ -67,7 +67,7 @@
                 android:layout_width="330dp"
                 android:layout_height="150dp"
                 android:layout_marginBottom="30dp"
-                android:background="@color/teal"
+                android:background="@color/palecyan"
                 android:onClick="onButton1Clicked"
                 android:text="을왕리 해수욕장\n목적지: 을왕리\n탑승장소: 서울역\n탑승시간: 오후 3시\n혼자 가기"
                 android:textSize="18sp" />
@@ -105,7 +105,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.615"
             app:layout_constraintStart_toStartOf="parent"
             tools:layout_editor_absoluteY="160dp">
 
@@ -147,5 +146,20 @@
         </LinearLayout>
 
     </HorizontalScrollView>
+
+    <android.widget.Button
+        android:id="@+id/wantCreateButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="220dp"
+        android:layout_marginBottom="20dp"
+        android:text="방 만들기"
+        android:textSize="20dp"
+        android:background="@drawable/tag_button"
+        android:backgroundTint="@color/teal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
