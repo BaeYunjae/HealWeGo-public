@@ -1,34 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/layout_select_path"
     tools:context=".PathSelect" >
-
-    <fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MapsActivity" />
-
-    <Button
-        android:id="@+id/complete_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|bottom"
-        android:layout_marginBottom="16dp"
-        android:padding="16dp"
-        android:backgroundTint="@color/lightteal"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:textColor="@color/black"
-        android:text="경로 설정"
-        android:textSize="30sp"
-        />
-
     <LinearLayout
+        android:id="@+id/info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -52,10 +30,12 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="출발지를 설정하세요"
+                android:text="Please Select start"
                 android:textSize="20sp"
                 android:gravity="center_vertical"
-                android:padding="8dp"/>
+                android:padding="8dp"
+                android:maxLines="1"
+                android:ellipsize="end"/>
 
             <!-- 버튼 -->
             <Button
@@ -86,11 +66,13 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="도착지를 설정하세요"
+                android:text="Please Select dest"
 
                 android:textSize="20sp"
                 android:gravity="center_vertical"
-                android:padding="8dp"/>
+                android:padding="8dp"
+                android:maxLines="1"
+                android:ellipsize="end"/>
 
             <!-- 버튼 -->
             <Button
@@ -106,4 +88,31 @@
         </LinearLayout>
 
     </LinearLayout>
-</FrameLayout>
+
+
+    <fragment
+        android:layout_below="@id/info"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MapsActivity" />
+
+    <Button
+        android:id="@+id/complete_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:padding="16dp"
+        android:backgroundTint="@color/lightteal"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:textColor="@color/black"
+        android:text="경로 설정"
+        android:textSize="30sp"
+        />
+
+
+
+</RelativeLayout>

@@ -283,6 +283,30 @@ public class DestSelect extends AppCompatActivity
                 Log.d( TAG, "onMapClick :");
             }
         });
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                Log.d(TAG, "onMapClick : " + latLng);
+
+                // 현재 마커가 있으면 위치를 업데이트하고, 없으면 새 마커를 추가합니다.
+                if (currentMarker != null) {
+                    currentMarker.setPosition(latLng);
+                } else {
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+                    markerOptions.title("터치한 위치");
+                    currentMarker = mMap.addMarker(markerOptions);
+                }
+
+                // 마커에 터치한 위치의 주소를 설정
+                String address = getCurrentAddress(latLng);
+                currentMarker.setSnippet(address);
+                currentMarker.showInfoWindow();
+                mFusedLocationClient.removeLocationUpdates(locationCallback);
+
+            }
+        });
     }
 
     LocationCallback locationCallback = new LocationCallback() {

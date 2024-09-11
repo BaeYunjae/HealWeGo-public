@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/layout_select_dest"
-    tools:context=".DestSelect" >
+    android:id="@+id/layout_select_together_start"
+    tools:context=".TogetherSelectStart">
 
     <fragment
         android:layout_width="match_parent"
@@ -21,9 +21,9 @@
         android:layout_marginBottom="16dp"
         android:padding="16dp"
         android:layout_marginStart="15dp"
-        android:backgroundTint="@color/lightteal"
         android:layout_marginEnd="15dp"
-        android:text="목적지로 설정"
+        android:backgroundTint="@color/lightteal"
+        android:text="출발지로 설정"
         android:textColor="@color/black"
         android:textSize="30sp"
         />
