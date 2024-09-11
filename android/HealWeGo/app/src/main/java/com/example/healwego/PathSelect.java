@@ -54,6 +54,7 @@ public class PathSelect extends AppCompatActivity
 
     private GoogleMap mMap;
     private Marker currentMarker = null;
+    private List<LatLng> markerPositions = new ArrayList<>();
 
     private static final String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -183,12 +184,10 @@ public class PathSelect extends AppCompatActivity
                 }else{
                     Toast.makeText(PathSelect.this, "모두 설정하세요", Toast.LENGTH_SHORT).show();
                 }
-
-
-
             }
         });
     }
+
     // 마커가 하나라도 있으면 스크롤을 비활성화하는 함수
     private void disableScrollIfMarkersExist() {
         if (!markerPositions.isEmpty()) {
@@ -199,15 +198,14 @@ public class PathSelect extends AppCompatActivity
             mMap.getUiSettings().setScrollGesturesEnabled(true);
         }
     }
+
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         Log.d(TAG, "onMapReady :");
 
         mMap = googleMap;
-
         //런타임 퍼미션 요청 대화상자나 GPS 활성 요청 대화상자 보이기전에
         //지도의 초기위치를 서울로 이동
-
         //런타임 퍼미션 처리
         // 1. 위치 퍼미션을 가지고 있는지 체크합니다.
         int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
@@ -375,13 +373,11 @@ public class PathSelect extends AppCompatActivity
         }
 
     };
-    private List<LatLng> markerPositions = new ArrayList<>();
 
     private void adjustCameraToMarkers(List<LatLng> markerPositions) {
         if (markerPositions == null || markerPositions.isEmpty()) {
             return;
         }
-
         // LatLngBounds를 생성하여 모든 마커를 포함
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (LatLng position : markerPositions) {
@@ -449,48 +445,30 @@ public class PathSelect extends AppCompatActivity
         }
     }
 
-    private void disableScrollIfTwoMarkers() {
-        if (markerPositions.size() == 3) {
-            // 마커가 2개일 경우 스크롤 제스처 비활성화
-            mMap.getUiSettings().setScrollGesturesEnabled(false);
-        } else {
-            // 마커가 2개가 아닐 경우 스크롤 제스처 활성화
-            mMap.getUiSettings().setScrollGesturesEnabled(true);
-        }
-    }
+
     private void startLocationUpdates() {
-
         if (!checkLocationServicesStatus()) {
-
             Log.d(TAG, "startLocationUpdates : call showDialogForLocationServiceSetting");
             showDialogForLocationServiceSetting();
         }else {
-
             int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION);
             int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION);
 
-
-
             if (hasFineLocationPermission != PackageManager.PERMISSION_GRANTED ||
                     hasCoarseLocationPermission != PackageManager.PERMISSION_GRANTED   ) {
-
                 Log.d(TAG, "startLocationUpdates : 퍼미션 안가지고 있음");
                 return;
             }
 
-
             Log.d(TAG, "startLocationUpdates : call mFusedLocationClient.requestLocationUpdates");
-
             mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-
             if (checkPermission())
                 mMap.setMyLocationEnabled(true);
-
         }
-
     }
+
     // 위치명으로 LatLng 가져오기
     private LatLng getLatLngFromLocationName(String locationName) {
         Geocoder geocoder = new Geocoder(this);
@@ -528,35 +506,24 @@ public class PathSelect extends AppCompatActivity
 
         // 모든 마커가 보이도록 카메라 조정
         adjustCameraToMarkers(markerPositions);
-        disableScrollIfTwoMarkers();
-
     }
+
     @Override
     protected void onStart() {
         super.onStart();
-
         Log.d(TAG, "onStart");
-
         if (checkPermission()) {
-
             Log.d(TAG, "onStart : call mFusedLocationClient.requestLocationUpdates");
             mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
-
             if (mMap!=null)
                 mMap.setMyLocationEnabled(true);
-
         }
-
-
     }
     
     @Override
     protected void onStop() {
-
         super.onStop();
-
         if (mFusedLocationClient != null) {
-
             Log.d(TAG, "onStop : call stopLocationUpdates");
             mFusedLocationClient.removeLocationUpdates(locationCallback);
         }
