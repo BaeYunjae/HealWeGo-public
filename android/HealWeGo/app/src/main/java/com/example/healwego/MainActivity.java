@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     public void onButton1Clicked(View v) {
         Toast.makeText(this, "혼자가기 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
 
-        // AloneSetActivity로 이동
+        // PathSelect로 이동
         Intent intent = new Intent(MainActivity.this, PathSelect.class);
         startActivity(intent);
     }
@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
     public void onButton2Clicked(View v) {
         Toast.makeText(this, "함께가기 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
 
-        // AloneSetActivity로 이동
-        Intent intent = new Intent(MainActivity.this, ChatListActivity.class);
+        // TogetherSelectStart로 이동
+        Intent intent = new Intent(MainActivity.this, TogetherSelectStart.class);
         startActivity(intent);
     }
 
