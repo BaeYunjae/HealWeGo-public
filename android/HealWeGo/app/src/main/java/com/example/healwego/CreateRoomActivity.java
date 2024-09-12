@@ -71,7 +71,7 @@ public class CreateRoomActivity extends AppCompatActivity {
         buttonFindDestination.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CreateRoomActivity.this, DestSelect.class);
+                Intent intent = new Intent(CreateRoomActivity.this, TogetherSelectDest.class);
                 startActivity(intent);
             }
         });
@@ -94,6 +94,7 @@ public class CreateRoomActivity extends AppCompatActivity {
             }
         });
     }
+
 
     // 방 생성 정보 확인 다이얼로그
     private void showConfirmationDialog() {
@@ -122,17 +123,16 @@ public class CreateRoomActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("방 생성 정보 확인")
                 .setMessage(roomInfo)
-                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // ChatActivity로 이동하며 방 제목 전달
-                        Intent intent = new Intent(CreateRoomActivity.this, ChatActivity.class);
-                        intent.putExtra("roomTitle", roomTitle);  // 방 제목 전달
-                        startActivity(intent);
-                    }
+                .setPositiveButton("확인", (dialog, which) -> {
+                    // 방 생성 후 ChatActivity로 이동하며 방장 여부(isHost)를 전달
+                    Intent intent = new Intent(CreateRoomActivity.this, ChatActivity.class);
+                    intent.putExtra("roomTitle", roomTitle);
+                    intent.putExtra("isHost", true);  // 방장은 항상 true로 전달
+                    startActivity(intent);
                 })
-                .setNegativeButton("취소", null)  // 취소 버튼 클릭 시 아무 동작도 하지 않음
+                .setNegativeButton("취소", null)
                 .show();
+
     }
 
     // 입력값 검증 메소드
