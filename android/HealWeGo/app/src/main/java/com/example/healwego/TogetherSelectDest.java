@@ -136,7 +136,7 @@ public class TogetherSelectDest extends AppCompatActivity
                     String locationName = getCurrentAddress(markerPosition);  // 현재 마커 위치의 주소
 
                     // Intent에 데이터를 추가하고 다른 액티비티로 전달
-                    Intent intent = new Intent(TogetherSelectDest.this, PathSelect.class);
+                    Intent intent = new Intent(TogetherSelectDest.this, CreateRoomActivity.class);
                     intent.putExtra("start_locationName", startLocationName);  // 마커 위치 주소를 전달
                     intent.putExtra("dest_locationName", locationName);  // 기존 목적지 정보 전달
                     startActivity(intent);

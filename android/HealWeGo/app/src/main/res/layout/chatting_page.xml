@@ -101,8 +101,8 @@
         android:id="@+id/nav_view"
         android:layout_width="280dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@color/teal"
-        app:headerLayout="@layout/nav_header"/>
+        android:layout_gravity="end"
+        android:background="@color/palecyan"
+        app:headerLayout="@layout/nav_header_parti"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>
