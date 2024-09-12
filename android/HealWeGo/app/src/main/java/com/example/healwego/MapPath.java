@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +23,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -139,6 +141,17 @@ public class MapPath extends AppCompatActivity
                 // 여기에 rightButton을 눌렀을 때 실행할 코드를 작성합니다.
                 // 필요에 따라 지도의 카메라 이동, 마커 추가, 상태 변경 등의 작업을 여기에 추가
                 handleRightButtonClick();
+            }
+        });
+
+        // 홈버튼클릭 이벤트처리
+        ImageButton homeBtn = findViewById(R.id.backToHomeButton);
+        homeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 예약 후 홈 페이지로 돌아갑니다.
+                Intent intent = new Intent(MapPath.this, ReserveMainActivity.class);
+                startActivity(intent);
             }
         });
     }

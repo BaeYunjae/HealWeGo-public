@@ -12,24 +12,39 @@
         android:id="@+id/map"
         tools:context=".MapsActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
-    <LinearLayout
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="top"
         android:background="@drawable/teal_rectangle">
+
+        <!-- 차량 위치 확인 텍스트 -->
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/titleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="차량 위치 확인"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:gravity="center"
             android:textStyle="bold"
             android:padding="10dp"
-            />
+            android:layout_centerInParent="true" />
 
-    </LinearLayout>
+        <!-- 홈 버튼 -->
+        <ImageButton
+            android:id="@+id/backToHomeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/home"
+            android:background="@null"
+            android:contentDescription="Back to Home"
+            android:padding="8dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"/>
+
+    </RelativeLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
