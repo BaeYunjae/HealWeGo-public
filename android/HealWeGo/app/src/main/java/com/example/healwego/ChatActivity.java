@@ -96,9 +96,9 @@ public class ChatActivity extends AppCompatActivity {
             // 방장이면 GO 버튼
             readyButton.setText("GO");
             readyButton.setOnClickListener(v -> {
-                // 방장이 GO 버튼을 누르면 MapPath로 이동
-                Intent mapIntent = new Intent(ChatActivity.this, MapPath.class);
-                startActivity(mapIntent);  // MapPath로 화면 전환
+                // 방장이 GO 버튼을 누르면 PaymentCompleteActivity(자동결제 완료 페이지)로 이동
+                Intent payIntent = new Intent(ChatActivity.this, PaymentCompleteActivity.class);
+                startActivity(payIntent);  // PaymentCompleteActivity로 화면 전환
             });
         } else {
             // 참여자면 READY -> CANCEL 상태로 토글
