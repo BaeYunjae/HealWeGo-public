@@ -115,6 +115,8 @@ public class CreateRoomActivity extends AppCompatActivity {
         int minAge = Integer.parseInt(minAgeStr); // 최소 나이
         int maxAge = Integer.parseInt(maxAgeStr); // 최대 나이
 
+        // 도착지 정보 추가 필요
+
         // 방 정보 구성
         String roomInfo = "방 제목: " + roomTitle + "\n출발 시간: " + selectedTime +
                 "\n성별 필터: " + genderFilter + "\n나이 필터: " + minAge + " ~ " + maxAge;

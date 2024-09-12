@@ -22,6 +22,7 @@ public class ChatListActivity extends AppCompatActivity {
         ImageButton filterButton = findViewById(R.id.filterButton);
         filterButton.setOnClickListener(v -> showFilterDialog());
 
+        // 방 선택 시 정보로 ChatActivity를 그린다
         // 첫 번째 방 선택 시 ChatActivity로 이동
         Button chatroom1 = findViewById(R.id.chatroom1);
         chatroom1.setOnClickListener(v -> {
