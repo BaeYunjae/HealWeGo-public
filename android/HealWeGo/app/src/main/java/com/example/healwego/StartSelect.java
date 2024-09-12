@@ -126,9 +126,6 @@ public class StartSelect extends AppCompatActivity
 
         Intent getintent = getIntent();
         String  destLocationName = getintent.getStringExtra("dest_locationName");
-        Log.w(TAG, "recieve        " + destLocationName);
-        Log.w(TAG, "recieve        " + destLocationName);
-        Log.w(TAG, "recieve        " + destLocationName);
 
         Button btn = findViewById(R.id.button);
         btn.setOnClickListener(new View.OnClickListener(){
@@ -185,7 +182,6 @@ public class StartSelect extends AppCompatActivity
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-        Log.d(TAG, "onMapReady :");
 
         mMap = googleMap;
 
@@ -273,16 +269,11 @@ public class StartSelect extends AppCompatActivity
 
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
-
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        // 현재 오동작을 해서 주석처리
-        //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
             public void onMapClick(LatLng latLng) {
 
-                Log.d( TAG, "onMapClick :");
             }
         });
 
@@ -290,8 +281,6 @@ public class StartSelect extends AppCompatActivity
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                Log.d(TAG, "onMapClick : " + latLng);
-
                 // 현재 마커가 있으면 위치를 업데이트하고, 없으면 새 마커를 추가합니다.
                 if (currentMarker != null) {
                     currentMarker.setPosition(latLng);
@@ -331,8 +320,6 @@ public class StartSelect extends AppCompatActivity
                 String markerSnippet = "위도:" + String.valueOf(location.getLatitude())
                         + " 경도:" + String.valueOf(location.getLongitude());
 
-                Log.d(TAG, "onLocationResult : " + markerSnippet);
-
 
                 //현재 위치에 마커 생성하고 이동
                 setCurrentLocation(location, markerTitle, markerSnippet);
@@ -350,8 +337,6 @@ public class StartSelect extends AppCompatActivity
     private void startLocationUpdates() {
 
         if (!checkLocationServicesStatus()) {
-
-            Log.d(TAG, "startLocationUpdates : call showDialogForLocationServiceSetting");
             showDialogForLocationServiceSetting();
         }else {
 
@@ -365,12 +350,8 @@ public class StartSelect extends AppCompatActivity
             if (hasFineLocationPermission != PackageManager.PERMISSION_GRANTED ||
                     hasCoarseLocationPermission != PackageManager.PERMISSION_GRANTED   ) {
 
-                Log.d(TAG, "startLocationUpdates : 퍼미션 안가지고 있음");
                 return;
             }
-
-
-            Log.d(TAG, "startLocationUpdates : call mFusedLocationClient.requestLocationUpdates");
 
             mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
 
@@ -386,11 +367,8 @@ public class StartSelect extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        Log.d(TAG, "onStart");
-
         if (checkPermission()) {
 
-            Log.d(TAG, "onStart : call mFusedLocationClient.requestLocationUpdates");
             mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
 
             if (mMap!=null)
@@ -408,9 +386,7 @@ public class StartSelect extends AppCompatActivity
         super.onStop();
 
         if (mFusedLocationClient != null) {
-
-            Log.d(TAG, "onStop : call stopLocationUpdates");
-            mFusedLocationClient.removeLocationUpdates(locationCallback);
+             mFusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
 
@@ -630,12 +606,7 @@ public class StartSelect extends AppCompatActivity
                 //사용자가 GPS 활성 시켰는지 검사
                 if (checkLocationServicesStatus()) {
                     if (checkLocationServicesStatus()) {
-
-                        Log.d(TAG, "onActivityResult : GPS 활성화 되있음");
-
-
                         needRequest = true;
-
                         return;
                     }
                 }

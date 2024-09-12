@@ -90,7 +90,7 @@ public class PathSelect extends AppCompatActivity
         outState.putString("dest_locationName", dest_textview.getText().toString());
         outState.putString("start_locationName", start_textview.getText().toString());
     }
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -390,61 +390,6 @@ public class PathSelect extends AppCompatActivity
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.moveCamera(cameraUpdate);
     }
-    // 현재 위치로 이동하는 함수
-    private void moveToCurrentLocation() {
-        if (mCurrentLocatiion != null) {
-            LatLng currentLatLng = new LatLng(mCurrentLocatiion.getLatitude(), mCurrentLocatiion.getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
-        } else {
-            // 기본 위치로 이동 (예: 서울)
-            setDefaultLocation();
-        }
-    }
-
-    // 마커 상태에 따라 카메라 위치 조정
-    private void updateCameraPosition() {
-        if (markerPositions.isEmpty()) {
-            // 마커가 없으면 현재 위치로 이동
-            moveToCurrentLocation();
-        } else if (markerPositions.size() == 1) {
-            // 마커가 하나만 있으면 해당 마커로 카메라 이동
-            LatLng markerPosition = markerPositions.get(0);
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerPosition, 15));
-        } else {
-            // 마커가 두 개 이상일 경우 모든 마커가 보이도록 카메라 조정
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-            for (LatLng position : markerPositions) {
-                builder.include(position);
-            }
-            LatLngBounds bounds = builder.build();
-
-            // 패딩을 추가하여 기본 LatLngBounds로 카메라 업데이트
-            int padding = 100; // 화면 패딩 (px)
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-
-            // 먼저 카메라를 bounds로 이동
-            mMap.moveCamera(cameraUpdate);
-
-            // 카메라를 위로 조금 더 이동하여 마커들이 아래에 배치되도록 조정
-            mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
-                @Override
-                public void onCameraIdle() {
-                    // 카메라 현재 중심점을 얻음
-                    LatLng center = mMap.getCameraPosition().target;
-
-                    // 중심점을 위쪽으로 약간 이동 (위도값을 증가시킴)
-                    LatLng adjustedCenter = new LatLng(center.latitude + 0.005, center.longitude); // 화면 절반 이동 예시
-
-                    // 카메라를 다시 이동
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(adjustedCenter, mMap.getCameraPosition().zoom));
-
-                    // 리스너 제거 (카메라 움직임 중복 방지)
-                    mMap.setOnCameraIdleListener(null);
-                }
-            });
-        }
-    }
-
 
     private void startLocationUpdates() {
         if (!checkLocationServicesStatus()) {
@@ -519,7 +464,7 @@ public class PathSelect extends AppCompatActivity
                 mMap.setMyLocationEnabled(true);
         }
     }
-    
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -528,7 +473,7 @@ public class PathSelect extends AppCompatActivity
             mFusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
-    
+
     public String getCurrentAddress(LatLng latlng) {
 
         //지오코더... GPS를 주소로 변환
@@ -563,14 +508,14 @@ public class PathSelect extends AppCompatActivity
         }
 
     }
-    
+
     public boolean checkLocationServicesStatus() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
-    
+
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
 
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -578,7 +523,7 @@ public class PathSelect extends AppCompatActivity
 
 
     }
-    
+
     public void setDefaultLocation() {
         //디폴트 위치, Seoul
         LatLng DEFAULT_LOCATION = new LatLng(37.56, 126.97);
