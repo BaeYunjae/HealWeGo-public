@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         // Toast 메시지 표시
         Toast.makeText(this, "을왕리 해수욕장이 눌렸어요.", Toast.LENGTH_SHORT).show();
 
+        // 추천 장소별 정보 페이지로 가야 함 (아직 구현 안 함) - 앱 자체 안에 넣어? 아니면 DB? 서버에 장소 이름을 API로 보내
         // ReserveActivity로 이동
         Intent intent = new Intent(MainActivity.this, ReserveMainActivity.class);
         startActivity(intent);
