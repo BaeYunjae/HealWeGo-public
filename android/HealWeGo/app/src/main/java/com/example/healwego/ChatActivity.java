@@ -2,6 +2,7 @@ package com.example.healwego;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -122,6 +123,14 @@ public class ChatActivity extends AppCompatActivity {
         // 화살표 버튼 설정 (Drawer 닫기)
         backToChatButton = headerView.findViewById(R.id.backToChatButton);
         backToChatButton.setOnClickListener(v -> drawerLayout.closeDrawer(navigationView));
+
+        // 나가기 버튼 설정
+        ImageButton exitButton = headerView.findViewById(R.id.exitButton);
+        exitButton.setOnClickListener(v -> {
+            Intent chatListIntent = new Intent(ChatActivity.this, ChatListActivity.class);
+            startActivity(chatListIntent);  // PaymentCompleteActivity로 화면 전환
+        });
+
     }
 
     // 참여자 데이터 클래스

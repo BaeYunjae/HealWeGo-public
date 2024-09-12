@@ -38,18 +38,43 @@
         android:textColor="@android:color/black"
         app:layout_constraintTop_toBottomOf="@id/participantRecyclerView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomButton"/>
 
-    <!-- GO 버튼 -->
-    <Button
-        android:id="@+id/readyButton"
+    <LinearLayout
+        android:id="@+id/bottomButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="GO"
-        android:textSize="18sp"
-        android:backgroundTint="@color/darkteal"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/totalAmountTextView"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 퇴장하기 이미지 버튼 -->
+        <ImageButton
+            android:id="@+id/exitButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/exit"
+            android:background="@null"
+            android:contentDescription="Exit"
+            android:layout_weight="0.1"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- GO 버튼 -->
+        <Button
+            android:id="@+id/readyButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="GO"
+            android:textSize="18sp"
+            android:backgroundTint="@color/darkteal"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp" />
+    </LinearLayout>
+
 
     <!-- 화살표 버튼 (채팅 화면으로 돌아가는 버튼) -->
     <ImageButton

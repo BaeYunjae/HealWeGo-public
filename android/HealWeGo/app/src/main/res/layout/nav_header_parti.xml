@@ -34,22 +34,47 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="예상 결제 요금: 16,000원"
-        android:textSize="18sp"
         android:textColor="@android:color/black"
-        app:layout_constraintTop_toBottomOf="@id/participantRecyclerView"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/participantRecyclerView"
+        app:layout_constraintBottom_toTopOf="@id/bottomButton"/>
 
-    <!-- READY 버튼 -->
-    <Button
-        android:id="@+id/readyButton"
+    <LinearLayout
+        android:id="@+id/bottomButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="READY"
-        android:textSize="18sp"
-        android:backgroundTint="@color/lightteal"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/totalAmountTextView"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 퇴장하기 이미지 버튼 -->
+        <ImageButton
+            android:id="@+id/exitButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/exit"
+            android:background="@null"
+            android:contentDescription="Exit"
+            android:layout_weight="0.1"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- READY 버튼 -->
+        <Button
+            android:id="@+id/readyButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="READY"
+            android:textSize="18sp"
+            android:backgroundTint="@color/lightteal"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp" />
+
+    </LinearLayout>
 
     <!-- 화살표 버튼 (채팅 화면으로 돌아가는 버튼) -->
     <ImageButton
