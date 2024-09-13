@@ -51,6 +51,10 @@ public class TogetherSelectDest extends AppCompatActivity
 
     private GoogleMap mMap;
     private Marker currentMarker = null;
+    private boolean isSearchLocation = false; // 검색으로 설정된 위치인지 확인하는 플래그
+    private boolean isMapDragged = false; // 화면 스크롤로 설정된 위치인지 확인하는 플래그
+
+    private String searchQuery = ""; // 검색된 지명을 저장하는 변수
 
     private static final String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -124,8 +128,28 @@ public class TogetherSelectDest extends AppCompatActivity
             }
         });
         Intent getintent = getIntent();
-        String  startLocationName = getintent.getStringExtra("start_locationName");
+        String  information = getintent.getStringExtra("information");
 
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // 검색어를 제출했을 때 위치 검색
+                searchQuery = query; // 검색어 저장
+                isSearchLocation = true; // 검색으로 설정된 위치임을 나타냄
+                isMapDragged = false;
+                searchLocation(query);
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // 검색어가 변경될 때 처리 (필요 시 구현)
+                return false;
+            }
+        });
+
+        assert information != null;
         Button btn = findViewById(R.id.button);
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -133,12 +157,23 @@ public class TogetherSelectDest extends AppCompatActivity
                 if (currentMarker != null) {
                     // 마커의 위치에서 주소를 가져옴
                     LatLng markerPosition = currentMarker.getPosition();
-                    String locationName = getCurrentAddress(markerPosition);  // 현재 마커 위치의 주소
-
+                    String locationName;
+                    if (isSearchLocation) {
+                        // 검색된 위치일 경우 검색어를 locationName에 저장
+                        locationName = searchQuery;
+                    } else {
+                        // 스크롤이나 터치로 지정한 마커의 주소를 locationName에 저장
+                        if (currentMarker != null) {
+                            markerPosition = currentMarker.getPosition();
+                            locationName = getCurrentAddress(markerPosition);  // 현재 마커 위치의 주소
+                        } else {
+                            Toast.makeText(TogetherSelectDest.this, "현재 위치가 설정되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
                     // Intent에 데이터를 추가하고 다른 액티비티로 전달
                     Intent intent = new Intent(TogetherSelectDest.this, CreateRoomActivity.class);
-                    intent.putExtra("start_locationName", startLocationName);  // 마커 위치 주소를 전달
-                    intent.putExtra("dest_locationName", locationName);  // 기존 목적지 정보 전달
+                    intent.putExtra("saveInformation", information+"|"+locationName);  // 마커 위치 주소를 전달
                     startActivity(intent);
                 } else {
                     Toast.makeText(TogetherSelectDest.this, "현재 위치가 설정되지 않았습니다.", Toast.LENGTH_SHORT).show();
@@ -250,6 +285,7 @@ public class TogetherSelectDest extends AppCompatActivity
                     currentMarker.setSnippet(address);
                     currentMarker.showInfoWindow();
 
+
                 } else {
                     // 마커가 없으면 새로운 마커 생성
                     MarkerOptions markerOptions = new MarkerOptions();
@@ -257,14 +293,19 @@ public class TogetherSelectDest extends AppCompatActivity
                     markerOptions.title("중앙 위치");
                     currentMarker = mMap.addMarker(markerOptions);
                 }
+
+                if (isMapDragged) {
+                    isSearchLocation = false;
+                }
             }
         });
         mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
             public void onCameraMoveStarted(int reason) {
                 if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
-                    // 사용자가 지도를 움직이기 시작하면 위치 업데이트를 일시 중지
-                    mFusedLocationClient.removeLocationUpdates(locationCallback);
+                    // 사용자가 지도 스크롤을 시작했음을 표시
+                    isMapDragged = true;
+                    Log.d(TAG, "Map dragged by user");
                 }
             }
         });
@@ -279,8 +320,25 @@ public class TogetherSelectDest extends AppCompatActivity
 
             @Override
             public void onMapClick(LatLng latLng) {
+                Log.d(TAG, "onMapClick : " + latLng);
 
-                Log.d( TAG, "onMapClick :");
+                // 터치로 설정한 위치일 경우 isSearchLocation을 false로 설정
+                isSearchLocation = false;
+
+                if (currentMarker != null) {
+                    currentMarker.setPosition(latLng);
+                } else {
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+                    markerOptions.title("터치한 위치");
+                    currentMarker = mMap.addMarker(markerOptions);
+                }
+
+                // 마커에 터치한 위치의 주소를 설정
+                String address = getCurrentAddress(latLng);
+                currentMarker.setSnippet(address);
+                currentMarker.showInfoWindow();
+                mFusedLocationClient.removeLocationUpdates(locationCallback);
             }
         });
 
@@ -288,7 +346,8 @@ public class TogetherSelectDest extends AppCompatActivity
             @Override
             public void onMapClick(LatLng latLng) {
                 Log.d(TAG, "onMapClick : " + latLng);
-
+                isSearchLocation = false;
+                isMapDragged = true;
                 // 현재 마커가 있으면 위치를 업데이트하고, 없으면 새 마커를 추가합니다.
                 if (currentMarker != null) {
                     currentMarker.setPosition(latLng);
