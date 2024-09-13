@@ -66,6 +66,7 @@
         android:background="@drawable/tag_button"
         android:text="목적지 찾기"
         android:textSize="20sp"
+        android:maxLines="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
