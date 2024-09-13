@@ -1,11 +1,14 @@
 package com.example.healwego;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -22,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Objects;
 
 public class CreateRoomActivity extends AppCompatActivity {
 
@@ -30,6 +34,7 @@ public class CreateRoomActivity extends AppCompatActivity {
     private RadioGroup radioGroupGender;
     private Button buttonCreateRoom, buttonCancel, buttonFindDestination;
     private String selectedTime;
+    private RadioButton radioAll,radioMale,radioFemale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +50,10 @@ public class CreateRoomActivity extends AppCompatActivity {
         buttonCreateRoom = findViewById(R.id.buttonCreateRoom);
         buttonCancel = findViewById(R.id.buttonCancel);
         buttonFindDestination = findViewById(R.id.buttonFindDestination);
+        radioAll = findViewById(R.id.radioAll);
+        radioMale = findViewById(R.id.radioMale);
+        radioFemale = findViewById(R.id.radioFemale);
+
 
         // Spinner에 시간 목록 설정
         ArrayList<String> availableTimes = getAvailableTimes();
@@ -54,6 +63,43 @@ public class CreateRoomActivity extends AppCompatActivity {
 
         // 기본 선택된 시간으로 첫 번째 항목 설정
         selectedTime = availableTimes.get(0);
+
+
+        Intent getintent = getIntent();
+        String  information = getintent.getStringExtra("saveInformation");
+        if(information!=null){
+            Log.w(TAG, information );
+            Log.w(TAG, information );
+            Log.w(TAG, information );
+            Log.w(TAG, information );
+            Log.w(TAG, information );
+            String[] parts = information.split("\\|");
+
+// 각 요소에 접근하여 필요한 값들을 할당합니다.
+            String title = parts[0];            // 제목
+            String time = parts[1];             // 시간
+            String radio1 = parts[2];           // 첫 번째 라디오 버튼 상태
+            String radio2 = parts[3];           // 두 번째 라디오 버튼 상태
+            String radio3 = parts[4];           // 세 번째 라디오 버튼 상태
+            String minAge = parts[5];
+            String maxAge = parts[6];// 나이 (비어 있을 수 있음)
+            String address = parts[7];          // 주소
+
+            editRoomTitle.setText(title);
+            int position = ((ArrayAdapter<String>) timeSpinner.getAdapter()).getPosition(time);
+
+// Set the Spinner to the selected time
+            if (position != -1) {
+                timeSpinner.setSelection(position);
+            }
+            buttonFindDestination.setText(address);
+            radioAll.setChecked(Objects.equals(radio1, "true"));
+            radioMale.setChecked(Objects.equals(radio2, "true"));
+            radioFemale.setChecked(Objects.equals(radio3, "true"));
+            editMinAge.setText(minAge);
+            editMaxAge.setText(maxAge);
+
+        }
 
         // 방 제목 입력 후 엔터를 누르면 키보드를 숨김
         editRoomTitle.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -72,6 +118,10 @@ public class CreateRoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CreateRoomActivity.this, TogetherSelectDest.class);
+                intent.putExtra("information", editRoomTitle.getText()+"|"+
+                       timeSpinner.getSelectedItem().toString()+"|"+radioAll.isChecked()+"|"+radioMale.isChecked()+"|"+radioFemale.isChecked()
+                        +"|"+editMinAge.getText()+"|"+editMaxAge.getText()
+                );  // 마커 위치 주소를 전달
                 startActivity(intent);
             }
         });
