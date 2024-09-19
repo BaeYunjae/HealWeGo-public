@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 버튼이 선택되었을 때 배경 색 (darkteal) -->
+    <item android:state_selected="true" android:drawable="@drawable/select_tag_button" />
+    <!-- 기본 배경 스타일 (tag_button 스타일 유지) -->
+    <item android:drawable="@drawable/tag_button" />
+</selector>
