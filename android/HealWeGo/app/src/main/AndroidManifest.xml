@@ -66,6 +66,8 @@
         <activity android:name=".ChatActivity" />
         <activity android:name=".TogetherSelectStart" />
         <activity android:name=".TogetherSelectDest" />
+        <activity android:name=".MemInfoActivity" />
+        <activity android:name=".CardInfoActivity" />
 
     </application>
 
