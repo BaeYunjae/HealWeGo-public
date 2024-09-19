@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    >
+
+    <!-- 회원가입 제목 -->
+    <TextView
+        android:id="@+id/tv_card_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="카드 정보 등록"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="35dp" />
+
+    <!-- 카드번호 입력란 -->
+    <LinearLayout
+        android:id="@+id/ll_card_number"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="50dp"
+        app:layout_constraintTop_toBottomOf="@+id/tv_card_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <EditText
+            android:id="@+id/et_card_number_1"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="0000"
+            android:inputType="number"
+            android:maxLength="4"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:backgroundTint="@color/black"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - "
+            android:textSize="18sp"
+            android:gravity="center" />
+
+        <EditText
+            android:id="@+id/et_card_number_2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="0000"
+            android:inputType="numberPassword"
+            android:maxLength="4"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:backgroundTint="@color/black" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - "
+            android:textSize="18sp"
+            android:gravity="center" />
+
+        <EditText
+            android:id="@+id/et_card_number_3"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="0000"
+            android:inputType="numberPassword"
+            android:maxLength="4"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:backgroundTint="@color/black" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - "
+            android:textSize="18sp"
+            android:gravity="center" />
+
+        <EditText
+            android:id="@+id/et_card_number_4"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="0000"
+            android:inputType="numberPassword"
+            android:maxLength="4"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:backgroundTint="@color/black" />
+    </LinearLayout>
+
+    <!-- 유효기간 및 CVC -->
+    <LinearLayout
+        android:id="@+id/ll_card_details"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/ll_card_number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="25dp">
+
+        <!-- 유효기간 -->
+        <EditText
+            android:id="@+id/et_expiration_date"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="MM/YY"
+            android:inputType="date"
+            android:maxLength="5"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:backgroundTint="@color/black" />
+
+        <!-- CVC -->
+        <EditText
+            android:id="@+id/et_cvc"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="CVC"
+            android:inputType="numberPassword"
+            android:maxLength="3"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:backgroundTint="@color/black"
+            android:layout_marginStart="16dp" />
+    </LinearLayout>
+
+    <!-- 완료 버튼 -->
+    <Button
+        android:id="@+id/btn_complete"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="완료"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/teal"
+        android:textSize="18sp"
+        android:layout_marginTop="50dp"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/ll_card_details"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
