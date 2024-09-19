@@ -93,6 +93,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import javax.net.ssl.SSLSocketFactory;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.w3c.dom.Text;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -158,11 +159,11 @@ public class MapPath extends AppCompatActivity
     private static final String BROKER_URL = "ssl://a3boaptn83mu7y-ats.iot.ap-northeast-2.amazonaws.com:8883";
     private static final String CLIENT_ID = "AndroidClient";
     private static final String TOPIC = "gps";
-
+    private static final String PATH_TOPIC = "path";
     private MqttAsyncClient mqttClient;
 
     private TextView textView;  // TextView 선언
-
+    private TextView textView2;
     private int messageCount = 0;  // 메시지가 도착한 횟수를 저장할 변수
 
 
@@ -228,6 +229,7 @@ public class MapPath extends AppCompatActivity
             }
         });
         textView = findViewById(R.id.testtext);
+        textView2 = findViewById(R.id.testtest);
         connectToMqtt();
     }
     // Left Button 클릭 시 수행할 작업을 위한 함수
@@ -481,37 +483,6 @@ public class MapPath extends AppCompatActivity
         return null;
     }
 
-    private void drawPath(String pathString) {
-        // Step 1: 문자열을 {}를 기준으로 분리하여 각 데이터 묶음을 추출
-        pathString = pathString.replaceAll("[{}]", ""); // {} 제거
-        String[] pathDataArray = pathString.split(","); // 쉼표로 나눈다
-
-        // Step 2: 경로를 저장할 리스트 생성
-        List<LatLng> pathLatLngList = new ArrayList<>();
-
-        // Step 3: 파싱된 데이터를 처리
-        for (int i = 0; i < pathDataArray.length; i += 4) {
-            // 순서 (사용하지 않을 경우 생략 가능)
-            String order = pathDataArray[i].trim();
-            // index (사용하지 않을 경우 생략 가능)
-            String index = pathDataArray[i + 1].trim();
-            // 위도
-            double latitude = Double.parseDouble(pathDataArray[i + 2].trim());
-            // 경도
-            double longitude = Double.parseDouble(pathDataArray[i + 3].trim());
-
-            // 위도, 경도 값을 LatLng 객체로 변환
-            LatLng latLng = new LatLng(latitude, longitude);
-            pathLatLngList.add(latLng);
-
-            // 마커를 해당 위도, 경도에 추가
-            addMarker(latLng, "Marker at " + latitude + ", " + longitude);
-        }
-        adjustCameraToMarkers(pathLatLngList);
-
-
-    }
-
     // 마커 추가하는 함수
     private void addMarker(LatLng latLng, String title) {
         MarkerOptions markerOptions = new MarkerOptions();
@@ -761,7 +732,8 @@ public class MapPath extends AppCompatActivity
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     System.out.println("Connected to AWS IoT Core");
-                    subscribeToTopic();
+                    subscribeToTopic(TOPIC);
+                    subscribeToTopic(PATH_TOPIC);
                 }
 
                 @Override
@@ -778,45 +750,13 @@ public class MapPath extends AppCompatActivity
 
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    messageCount++;
-
-                    // MQTT 메시지 수신 (String 형식)
-                    String receivedMessage = message.toString();
-                    Log.d(TAG, "Received MQTT message: " + receivedMessage);
-
-                    // 메시지가 {"latitude":34.412,"longitude":123.21312} 형식의 String이므로 수동으로 파싱
-                    try {
-                        // 문자열에서 불필요한 문자 제거 ({} 및 "latitude", "longitude" 제거)
-                        receivedMessage = receivedMessage.replace("{", "").replace("}", "");
-                        receivedMessage = receivedMessage.replace("\"latitude\":", "").replace("\"longitude\":", "");
-
-                        // 쉼표를 기준으로 나누어 위도와 경도 추출
-                        String[] parts = receivedMessage.split(",");
-                        if (parts.length == 2) {
-                            double latitude = Double.parseDouble(parts[0].trim());
-                            double longitude = Double.parseDouble(parts[1].trim());
-
-                            // 지도에 점을 추가
-                            LatLng latLng = new LatLng(latitude, longitude);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    addMarkerWithImage(latLng);// 반지름 5 미터로 작은 점 추가
-                                }
-                            });
-
-                            // UI 업데이트: 수신한 메시지를 TextView에 표시
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    textView.setText("Latitude: " + latitude + ", Longitude: " + longitude);
-                                }
-                            });
-                        } else {
-                            Log.e(TAG, "Invalid message format: " + receivedMessage);
-                        }
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
+                    // GPS 토픽 처리
+                    if (topic.equals(TOPIC)) {
+                        new Thread(() -> handleGpsMessage(message)).start(); // GPS 메시지는 별도의 쓰레드에서 처리
+                    }
+                    // Path 토픽 처리
+                    else if (topic.equals(PATH_TOPIC)) {
+                        new Thread(() -> handlePathMessage(message)).start(); // Path 메시지도 별도의 쓰레드에서 처리
                     }
                 }
 
@@ -832,12 +772,94 @@ public class MapPath extends AppCompatActivity
         }
     }
 
+    // MQTT 토픽 구독
+    private void subscribeToTopic(String topic) {
+        try {
+            mqttClient.subscribe(topic, 1);  // QoS 1로 토픽 구독
+            Log.d(TAG, "Subscribed to topic: " + topic);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // GPS 메시지 처리
+    private void handleGpsMessage(MqttMessage message) {
+        messageCount++;
+
+        // MQTT 메시지 수신 (String 형식)
+        String receivedMessage = message.toString();
+        Log.d(TAG, "Received GPS MQTT message: " + receivedMessage);
+
+        // 메시지가 {"latitude":34.412,"longitude":123.21312} 형식의 String이므로 수동으로 파싱
+        try {
+            // 문자열에서 불필요한 문자 제거 ({} 및 "latitude", "longitude" 제거)
+            receivedMessage = receivedMessage.replace("{", "").replace("}", "");
+            receivedMessage = receivedMessage.replace("\"latitude\":", "").replace("\"longitude\":", "");
+
+            // 쉼표를 기준으로 나누어 위도와 경도 추출
+            String[] parts = receivedMessage.split(",");
+            if (parts.length == 2) {
+                double latitude = Double.parseDouble(parts[0].trim());
+                double longitude = Double.parseDouble(parts[1].trim());
+
+                // 지도에 점을 추가
+                LatLng latLng = new LatLng(latitude, longitude);
+                runOnUiThread(() -> addMarkerWithImage(latLng));
+
+                // UI 업데이트: 수신한 메시지를 TextView에 표시
+                runOnUiThread(() -> textView.setText("Latitude: " + latitude + ", Longitude: " + longitude));
+            } else {
+                Log.e(TAG, "Invalid GPS message format: " + receivedMessage);
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
+    // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
+    private void handlePathMessage(MqttMessage message) {
+        String pathMessage = message.toString();
+        Log.d(TAG, "Received Path MQTT message: " + pathMessage);
+
+        try {
+            // 메시지를 JSON 형식으로 파싱
+            pathMessage = pathMessage.replace("{", "").replace("}", ""); // {} 제거
+            pathMessage = pathMessage.replace("\"", ""); // "" 제거
+            pathMessage = pathMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
+            String[] parts = pathMessage.split(","); // 쉼표로 나눈다
+
+            // 'latitude'와 'longitude' 값 추출
+            double latitude = 0.0;
+            double longitude = 0.0;
+
+            for (String part : parts) {
+                if (part.contains("latitude")) {
+                    latitude = Double.parseDouble(part.split(":")[1].trim());
+                } else if (part.contains("longitude")) {
+                    longitude = Double.parseDouble(part.split(":")[1].trim());
+                }
+
+                LatLng latLng = new LatLng(latitude, longitude);
+
+                // 지도에 원(Circle)을 그리기 위해 UI 쓰레드에서 실행
+                runOnUiThread(() -> {
+                    addCircle(latLng, 10);
+                    textView2.setText("Received Path message");
+                });
+            }
+
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Error parsing path message: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
     // 지도에 점을 추가하는 함수
     private void addCircle(LatLng latLng, int radiusInMeters) {
         // If a circle is already drawn, remove it
-        if (currentCircle != null) {
-            currentCircle.remove();
-        }
+
 
         // Create a new CircleOptions object to define the properties of the circle
         CircleOptions circleOptions = new CircleOptions()
@@ -863,6 +885,8 @@ public class MapPath extends AppCompatActivity
     private void subscribeToTopic() {
         try {
             mqttClient.subscribe(TOPIC, 1);  // QoS 1로 토픽 구독
+            mqttClient.subscribe(PATH_TOPIC, 1);  // QoS 1로 토픽 구독
+
         } catch (MqttException e) {
             e.printStackTrace();
         }
