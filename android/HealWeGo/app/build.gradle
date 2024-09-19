@@ -32,6 +32,9 @@ android {
 }
 
 dependencies {
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.68'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
+
 
     implementation libs.appcompat
     implementation libs.material
