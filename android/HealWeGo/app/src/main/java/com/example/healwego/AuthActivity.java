@@ -1,5 +1,6 @@
 package com.example.healwego;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +28,7 @@ public class AuthActivity extends AppCompatActivity {
                 Log.i(TAG, userStateDetails.getUserState().toString());
                 switch (userStateDetails.getUserState()){
                     case SIGNED_IN:
+                        // 이미 로그인했으면 앱 켤 때 메인 페이지로
                         Intent i = new Intent(AuthActivity.this, MainActivity.class);
                         startActivity(i);
                         break;
@@ -47,10 +49,11 @@ public class AuthActivity extends AppCompatActivity {
         });
     }
 
+    // 로그인 후에 추가 정보 입력하도록 (회원가입할 때 아님) -> Activity 변경
     private void showSignIn() {
         try {
             AWSMobileClient.getInstance().showSignIn(this,
-                    SignInUIOptions.builder().nextActivity(MainActivity.class).build());
+                    SignInUIOptions.builder().nextActivity(MemInfoActivity.class).build());
         } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
