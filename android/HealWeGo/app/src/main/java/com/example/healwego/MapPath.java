@@ -247,6 +247,7 @@ public class MapPath extends AppCompatActivity
     private void handleLeftButtonClick() {
         Button btn = findViewById(R.id.leftButton);
         if (state == 0 && board_avail){
+            sendMessage(SIGNAL_APP_TOPIC+"/"+userName,"boarding");
             state = 1;
             btn.setText("하차");
         }
@@ -254,9 +255,6 @@ public class MapPath extends AppCompatActivity
             Toast.makeText(this,"아직 차가 도착하지 않았습니다",Toast.LENGTH_LONG).show();
         }
         else if(state == 1){
-            /*
-            도착했는지 MQTT 확인
-             */
             new AlertDialog.Builder(this)
                     .setMessage("이용해 주셔서 감사합니다")  // 메시지 설정
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -269,8 +267,6 @@ public class MapPath extends AppCompatActivity
                         }
                     })
                     .show();  // 다이얼로그 표시
-
-
         }else if(state == 2){
             Toast.makeText(this, "이동부터 하세요", Toast.LENGTH_LONG).show();
         }
@@ -278,7 +274,6 @@ public class MapPath extends AppCompatActivity
 
     // Right Button 클릭 시 수행할 작업을 위한 함수
     private void handleRightButtonClick() {
-
         Button btn = findViewById(R.id.rightButton);
         if (state == 0){
             Toast.makeText(this, "탑승부터 하세요", Toast.LENGTH_LONG).show();
@@ -293,7 +288,7 @@ public class MapPath extends AppCompatActivity
                             // Yes를 눌렀을 때 동작
                             state = 2;
                             btn.setText("이동 재개");
-                            sendMessage("signal/app","stop");
+                            sendMessage(SIGNAL_APP_TOPIC,"stop");
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -307,7 +302,7 @@ public class MapPath extends AppCompatActivity
         }else if(state == 2){
             state = 1;
             btn.setText("비상 정지");
-            sendMessage("signal/app","resume");
+            sendMessage(SIGNAL_APP_TOPIC,"resume");
         }
     }
     @Override
