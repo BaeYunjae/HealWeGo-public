@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.mobile.client.AWSMobileClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -39,28 +40,93 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+
+import javax.net.ssl.SSLSocketFactory;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
+import org.w3c.dom.Text;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.spec.PKCS8EncodedKeySpec;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.KeyManagerFactory;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Marker;
+import org.json.JSONArray;
+import org.json.JSONObject;
 public class MapPath extends AppCompatActivity
         implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback{
 
     private GoogleMap mMap;
     private Marker currentMarker = null;
-
+    private Circle currentCircle;
+    private Marker currentMarkerWithImage;
     private static final String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
+    private Toast currentToast;
 
     // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
     private static final int PERMISSIONS_REQUEST_CODE = 100;
@@ -78,7 +144,7 @@ public class MapPath extends AppCompatActivity
     2 : 비상 정지 상태
      */
     int state = 0;
-
+    boolean board_avail = false;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest locationRequest;
@@ -92,6 +158,25 @@ public class MapPath extends AppCompatActivity
         super.onSaveInstanceState(outState);
 
     }
+
+    private static final String BROKER_URL = "ssl://a3boaptn83mu7y-ats.iot.ap-northeast-2.amazonaws.com:8883";
+    private static final String CLIENT_ID = "AndroidClient";
+    private static final String TOPIC = "gps";
+    private static final String PATH_TOPIC = "path";
+    private static final String POINT_TOPIC = "path/points/ros";
+
+    private static final String SIGNAL_ROS_TOPIC = "signal/ros";
+    private static final String SIGNAL_APP_TOPIC = "signal/app";
+
+
+    String userName = AWSMobileClient.getInstance().getUsername();
+
+    private MqttAsyncClient mqttClient;
+
+    private TextView textView;  // TextView 선언
+    private TextView textView2;
+    private int messageCount = 0;  // 메시지가 도착한 횟수를 저장할 변수
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -154,42 +239,48 @@ public class MapPath extends AppCompatActivity
                 startActivity(intent);
             }
         });
+        textView = findViewById(R.id.testtext);
+        textView2 = findViewById(R.id.testtest);
+        connectToMqtt();
+
     }
     // Left Button 클릭 시 수행할 작업을 위한 함수
     private void handleLeftButtonClick() {
         Button btn = findViewById(R.id.leftButton);
-        if (state == 0){
+        if (state == 0 && board_avail){
+            sendMessage(SIGNAL_APP_TOPIC,"boarding");
             state = 1;
             btn.setText("하차");
         }
+        else if (state == 0){
+            //Toast.makeText(this,"아직 차가 도착하지 않았습니다",Toast.LENGTH_LONG).show();
+            showToastMessage("아직 차가 도착하지 않았습니다");
+        }
         else if(state == 1){
-            /*
-            도착했는지 MQTT 확인
-             */
             new AlertDialog.Builder(this)
                     .setMessage("이용해 주셔서 감사합니다")  // 메시지 설정
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // Yes를 눌렀을 때 동작
+                            board_avail=false;
                             Intent intent = new Intent(MapPath.this, MainActivity.class);
                             startActivity(intent);
                         }
                     })
                     .show();  // 다이얼로그 표시
-
-
         }else if(state == 2){
-            Toast.makeText(this, "이동부터 하세요", Toast.LENGTH_LONG).show();
+//            Toast.makeText(this, "이동부터 하세요", Toast.LENGTH_LONG).show();
+            showToastMessage("이동부터 하세요");
         }
     }
 
     // Right Button 클릭 시 수행할 작업을 위한 함수
     private void handleRightButtonClick() {
-
         Button btn = findViewById(R.id.rightButton);
         if (state == 0){
-            Toast.makeText(this, "탑승부터 하세요", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "탑승부터 하세요", Toast.LENGTH_LONG).show();
+            showToastMessage("탑승부터 하세요");
         }
         else if(state == 1){
             new AlertDialog.Builder(this)
@@ -201,6 +292,7 @@ public class MapPath extends AppCompatActivity
                             // Yes를 눌렀을 때 동작
                             state = 2;
                             btn.setText("이동 재개");
+                            sendMessage(SIGNAL_APP_TOPIC,"stop");
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -214,6 +306,7 @@ public class MapPath extends AppCompatActivity
         }else if(state == 2){
             state = 1;
             btn.setText("비상 정지");
+            sendMessage(SIGNAL_APP_TOPIC,"resume");
         }
     }
     @Override
@@ -288,8 +381,6 @@ public class MapPath extends AppCompatActivity
             startLocationUpdates(); // 3. 위치 업데이트 시작
 
 
-            drawPath("{{1,2,37.56,126.97},{2,1,37.80,126.97}}");
-
 
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
 
@@ -357,15 +448,6 @@ public class MapPath extends AppCompatActivity
             return;
         }
 
-        Log.w(TAG, markerPositions.toString() );
-        Log.w(TAG, markerPositions.toString() );
-        Log.w(TAG, markerPositions.toString() );
-        Log.w(TAG, markerPositions.toString() );
-        Log.w(TAG, markerPositions.toString() );
-        Log.w(TAG, markerPositions.toString() );
-        Log.w(TAG, markerPositions.toString() );
-        Log.w(TAG, markerPositions.toString() );
-        Log.w(TAG, markerPositions.toString() );
         // LatLngBounds를 생성하여 모든 마커를 포함
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (LatLng position : markerPositions) {
@@ -374,7 +456,7 @@ public class MapPath extends AppCompatActivity
         LatLngBounds bounds = builder.build();
 
         // 화면 크기에 맞게 카메라 업데이트 (패딩을 추가하여 경계를 벗어나지 않게 설정)
-        int padding = 500; // 패딩은 원하는 대로 설정 (px 단위)
+        int padding = 400; // 패딩은 원하는 대로 설정 (px 단위)
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.moveCamera(cameraUpdate);
     }
@@ -417,37 +499,6 @@ public class MapPath extends AppCompatActivity
         return null;
     }
 
-    private void drawPath(String pathString) {
-        // Step 1: 문자열을 {}를 기준으로 분리하여 각 데이터 묶음을 추출
-        pathString = pathString.replaceAll("[{}]", ""); // {} 제거
-        String[] pathDataArray = pathString.split(","); // 쉼표로 나눈다
-
-        // Step 2: 경로를 저장할 리스트 생성
-        List<LatLng> pathLatLngList = new ArrayList<>();
-
-        // Step 3: 파싱된 데이터를 처리
-        for (int i = 0; i < pathDataArray.length; i += 4) {
-            // 순서 (사용하지 않을 경우 생략 가능)
-            String order = pathDataArray[i].trim();
-            // index (사용하지 않을 경우 생략 가능)
-            String index = pathDataArray[i + 1].trim();
-            // 위도
-            double latitude = Double.parseDouble(pathDataArray[i + 2].trim());
-            // 경도
-            double longitude = Double.parseDouble(pathDataArray[i + 3].trim());
-
-            // 위도, 경도 값을 LatLng 객체로 변환
-            LatLng latLng = new LatLng(latitude, longitude);
-            pathLatLngList.add(latLng);
-
-            // 마커를 해당 위도, 경도에 추가
-            addMarker(latLng, "Marker at " + latitude + ", " + longitude);
-        }
-        adjustCameraToMarkers(pathLatLngList);
-
-
-    }
-
     // 마커 추가하는 함수
     private void addMarker(LatLng latLng, String title) {
         MarkerOptions markerOptions = new MarkerOptions();
@@ -459,6 +510,39 @@ public class MapPath extends AppCompatActivity
         // 모든 마커가 보이도록 카메라 조정
         adjustCameraToMarkers(markerPositions);
     }
+    private void addMarkerWithImage(LatLng latLng) {
+        // 만약 기존 마커가 있으면 제거
+        if (currentMarkerWithImage != null) {
+            currentMarkerWithImage.remove();
+        }
+
+        // 리소스에서 비트맵 이미지를 불러오고 크기를 조정
+        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 200, 200, false);  // 원하는 크기로 조절 (100x100 예시)
+
+        // 리사이즈한 비트맵을 마커에 적용
+        BitmapDescriptor customMarker = BitmapDescriptorFactory.fromBitmap(resizedBitmap);
+
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(latLng)  // 마커 위치 설정
+                .icon(customMarker)  // 커스텀 이미지 설정
+                .anchor(0.5f, 0.5f);  // 이미지의 중심이 좌표에 맞도록 설정
+
+        // 마커를 지도에 추가하고 해당 마커를 저장
+        currentMarkerWithImage = mMap.addMarker(markerOptions);
+    }
+
+    private void showToastMessage(String message) {
+        // 현재 표시 중인 Toast가 있다면 취소
+        if (currentToast != null) {
+            currentToast.cancel();
+        }
+
+        // 새로운 Toast 생성 및 표시
+        currentToast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        currentToast.show();
+    }
+
 
     @Override
     protected void onStart() {
@@ -664,5 +748,320 @@ public class MapPath extends AppCompatActivity
                 }
                 break;
         }
+    }
+
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    //MQTT
+    private void connectToMqtt() {
+        try {
+            mqttClient = new MqttAsyncClient(BROKER_URL, CLIENT_ID, new MemoryPersistence());
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setSocketFactory(getSocketFactory());
+            mqttClient.connect(options, null, new org.eclipse.paho.client.mqttv3.IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    System.out.println("Connected to AWS IoT Core");
+                    subscribeToTopic(TOPIC);
+                    subscribeToTopic(PATH_TOPIC);
+                    subscribeToTopic(POINT_TOPIC);
+                    subscribeToTopic(SIGNAL_ROS_TOPIC+"/"+userName);
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    exception.printStackTrace();
+                }
+            });
+            // 메시지 수신 콜백 추가
+            mqttClient.setCallback(new MqttCallback() {
+                @Override
+                public void connectionLost(Throwable cause) {
+                    // 연결이 끊겼을 때 처리할 내용
+                }
+
+                @Override
+                public void messageArrived(String topic, MqttMessage message) throws Exception {
+                    // GPS 토픽 처리
+                    if (topic.equals(TOPIC)) {
+                        new Thread(() -> handleGpsMessage(message)).start(); // GPS 메시지는 별도의 쓰레드에서 처리
+                    }
+                    // Path 토픽 처리
+                    else if (topic.equals(PATH_TOPIC)) {
+                        new Thread(() -> handlePathMessage(message)).start(); // Path 메시지도 별도의 쓰레드에서 처리
+                    }
+                    else if (topic.equals(POINT_TOPIC)){
+                        new Thread(() -> handlePointMessage(message)).start();
+                    }
+                    else if (topic.equals(SIGNAL_ROS_TOPIC+"/"+userName)){
+                        board_avail=true;
+                    }
+                }
+
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken token) {
+
+                }
+
+
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // MQTT 토픽 구독
+    private void subscribeToTopic(String topic) {
+        try {
+            mqttClient.subscribe(topic, 1);  // QoS 1로 토픽 구독
+            Log.d(TAG, "Subscribed to topic: " + topic);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // GPS 메시지 처리
+    private void handleGpsMessage(MqttMessage message) {
+        messageCount++;
+
+        // MQTT 메시지 수신 (String 형식)
+        String receivedMessage = message.toString();
+        Log.d(TAG, "Received GPS MQTT message: " + receivedMessage);
+
+        // 메시지가 {"latitude":34.412,"longitude":123.21312} 형식의 String이므로 수동으로 파싱
+        try {
+            // 문자열에서 불필요한 문자 제거 ({} 및 "latitude", "longitude" 제거)
+            receivedMessage = receivedMessage.replace("{", "").replace("}", "");
+            receivedMessage = receivedMessage.replace("\"latitude\":", "").replace("\"longitude\":", "");
+
+            // 쉼표를 기준으로 나누어 위도와 경도 추출
+            String[] parts = receivedMessage.split(",");
+            if (parts.length == 2) {
+                double latitude = Double.parseDouble(parts[0].trim());
+                double longitude = Double.parseDouble(parts[1].trim());
+
+                // 지도에 점을 추가
+                LatLng latLng = new LatLng(latitude, longitude);
+                runOnUiThread(() -> addMarkerWithImage(latLng));
+
+                // UI 업데이트: 수신한 메시지를 TextView에 표시
+                runOnUiThread(() -> textView.setText("Latitude: " + latitude + ", Longitude: " + longitude));
+            } else {
+                Log.e(TAG, "Invalid GPS message format: " + receivedMessage);
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
+    // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
+    private void handlePathMessage(MqttMessage message) {
+        String pathMessage = message.toString();
+        Log.d(TAG, "Received Path MQTT message: " + pathMessage);
+
+        try {
+            // 메시지를 JSON 형식으로 파싱
+            pathMessage = pathMessage.replace("{", "").replace("}", ""); // {} 제거
+            pathMessage = pathMessage.replace("\"", ""); // "" 제거
+            pathMessage = pathMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
+            String[] parts = pathMessage.split(","); // 쉼표로 나눈다
+
+            // 'latitude'와 'longitude' 값 추출
+            double latitude = 0.0;
+            double longitude = 0.0;
+
+            for (String part : parts) {
+                if (part.contains("latitude")) {
+                    latitude = Double.parseDouble(part.split(":")[1].trim());
+                } else if (part.contains("longitude")) {
+                    longitude = Double.parseDouble(part.split(":")[1].trim());
+                }
+
+                LatLng latLng = new LatLng(latitude, longitude);
+
+                // 지도에 원(Circle)을 그리기 위해 UI 쓰레드에서 실행
+                runOnUiThread(() -> {
+                    addCircle(latLng, 10);
+                    textView2.setText("Received Path message");
+                });
+            }
+
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Error parsing path message: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void handlePointMessage(MqttMessage pmessage) {
+        String message = pmessage.toString();
+        Log.d("MQTT", "Received Point message: " + message);
+
+        try {
+            // 1. 메시지에서 불필요한 대괄호 및 따옴표 제거
+            message = message.replace("[", "")  // 시작 대괄호 제거
+                    .replace("]", "")  // 끝 대괄호 제거
+                    .replace("\"", ""); // 따옴표 제거
+
+            // 2. 각 항목을 }, {로 구분하여 분리
+            String[] pointEntries = message.split("\\},\\s*\\{");
+
+            // pointEntries 배열의 길이 확인
+            int numberOfPoints = pointEntries.length;
+            Log.d("MQTT", "Number of points: " + numberOfPoints);
+
+            // 3. 각 항목에서 데이터를 추출하고 처리
+            for (String entry : pointEntries) {
+                // 각 엔트리의 시작과 끝에 있는 중괄호 제거
+                entry = entry.replace("{", "").replace("}", "").trim();
+
+                // 쉼표로 구분하여 key-value 쌍을 처리
+                String[] elements = entry.split(",");
+
+                double latitude = 0.0;
+                double longitude = 0.0;
+                int order = 0;
+                String name = "";
+
+                // 각 요소를 처리
+                for (String element : elements) {
+                    element = element.trim(); // 앞뒤 공백 제거
+
+                    if (element.startsWith("latitude")) {
+                        latitude = Double.parseDouble(element.split(":")[1].trim());
+                    } else if (element.startsWith("longitude")) {
+                        longitude = Double.parseDouble(element.split(":")[1].trim());
+                    } else if (element.startsWith("order")) {
+                        order = Integer.parseInt(element.split(":")[1].trim());
+                    } else if (element.startsWith("name")) {
+                        name = element.split(":")[1].trim();
+                    }
+                }
+
+                // LatLng 객체 생성
+                LatLng latLng = new LatLng(latitude, longitude);
+
+                // 마커 추가 및 마커 위치 리스트에 저장
+                String finalName = name;
+                int finalOrder = order;
+                runOnUiThread(() -> {
+                    addMarkerWithColor(latLng, finalName, finalOrder);  // 마커 추가
+                    markerPositions.add(latLng);  // 마커 위치 저장
+                    adjustCameraToMarkers(markerPositions);  // 카메라 조정
+                });
+            }
+
+        } catch (Exception e) {
+            Log.e("MQTT", "Error parsing point message: " + e.getMessage());
+        }
+    }
+
+    // 마커를 추가하는 함수, 방문 순서에 따른 색상을 지정
+    private void addMarkerWithColor(LatLng latLng, String title, int order) {
+        // 순서에 따라 마커 색상 설정
+        float markerColor;
+        switch (order) {
+            case 1:
+                markerColor = BitmapDescriptorFactory.HUE_RED;
+                break;
+            case 2:
+                markerColor = BitmapDescriptorFactory.HUE_GREEN;
+                break;
+            case 3:
+                markerColor = BitmapDescriptorFactory.HUE_BLUE;
+                break;
+            default:
+                markerColor = BitmapDescriptorFactory.HUE_ORANGE; // 기본값
+                break;
+        }
+
+        // 마커 옵션 설정
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(latLng)
+                .title(title)
+                .icon(BitmapDescriptorFactory.defaultMarker(markerColor));
+
+        mMap.addMarker(markerOptions);
+
+    }
+    // 지도에 점을 추가하는 함수
+    private void addCircle(LatLng latLng, int radiusInMeters) {
+        // If a circle is already drawn, remove it
+
+
+        // Create a new CircleOptions object to define the properties of the circle
+        CircleOptions circleOptions = new CircleOptions()
+                .center(latLng)  // Center of the circle
+                .radius(radiusInMeters)  // Radius in meters
+                .strokeColor(0xFF0000FF)  // Blue outline color
+                .strokeWidth(2f)  // Outline thickness
+                .fillColor(0x550000FF);  // Semi-transparent blue fill color
+
+        // Add the new circle to the map and store a reference to it
+        currentCircle = mMap.addCircle(circleOptions);
+    }
+    private void sendMessage(String topic, String message) {
+        try {
+            MqttMessage mqttMessage = new MqttMessage();
+            mqttMessage.setPayload(message.getBytes());
+            mqttClient.publish(topic, mqttMessage);
+            System.out.println("Message sent to topic '" + topic + "': " + message);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+    private void subscribeToTopic() {
+        try {
+            mqttClient.subscribe(TOPIC, 1);  // QoS 1로 토픽 구독
+            mqttClient.subscribe(PATH_TOPIC, 1);  // QoS 1로 토픽 구독
+
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+    private SSLSocketFactory getSocketFactory() {
+        try {
+            // CA 인증서 로드
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            InputStream caInput = getAssets().open("AmazonRootCA1.pem");
+            X509Certificate caCert = (X509Certificate) cf.generateCertificate(caInput);
+
+            // 클라이언트 인증서 로드
+            InputStream crtInput = getAssets().open("certificate.pem.crt");
+            X509Certificate clientCert = (X509Certificate) cf.generateCertificate(crtInput);
+
+            // Private Key 로드
+            PrivateKey privateKey = loadPrivateKey();
+
+            // KeyStore 생성
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore.load(null, null);
+            keyStore.setCertificateEntry("caCert", caCert);
+            keyStore.setCertificateEntry("clientCert", clientCert);
+            keyStore.setKeyEntry("privateKey", privateKey, "password".toCharArray(), new java.security.cert.Certificate[]{clientCert});
+
+            // TrustManagerFactory 및 KeyManagerFactory 초기화
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(keyStore);
+
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(keyStore, "password".toCharArray());
+
+            // SSLContext 초기화
+            SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
+            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+            return sslContext.getSocketFactory();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private PrivateKey loadPrivateKey() throws Exception {
+        PemReader pemReader = new PemReader(new InputStreamReader(getAssets().open("private.pem.key")));
+        PemObject pemObject = pemReader.readPemObject();
+        byte[] keyBytes = pemObject.getContent();
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA"); // 또는 "EC" (키 타입에 따라 다름)
+        return keyFactory.generatePrivate(keySpec);
     }
 }
