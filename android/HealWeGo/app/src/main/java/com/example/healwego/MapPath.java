@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.mobile.client.AWSMobileClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -111,7 +112,8 @@ import android.graphics.BitmapFactory;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
 public class MapPath extends AppCompatActivity
         implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback{
@@ -160,6 +162,14 @@ public class MapPath extends AppCompatActivity
     private static final String CLIENT_ID = "AndroidClient";
     private static final String TOPIC = "gps";
     private static final String PATH_TOPIC = "path";
+    private static final String POINT_TOPIC = "path/points/ros";
+
+    private static final String SIGNAL_ROS_TOPIC = "signal/ros";
+    private static final String SIGNAL_APP_TOPIC = "signal/app";
+
+
+    String userName = AWSMobileClient.getInstance().getUsername();
+
     private MqttAsyncClient mqttClient;
 
     private TextView textView;  // TextView 선언
@@ -440,7 +450,7 @@ public class MapPath extends AppCompatActivity
         LatLngBounds bounds = builder.build();
 
         // 화면 크기에 맞게 카메라 업데이트 (패딩을 추가하여 경계를 벗어나지 않게 설정)
-        int padding = 500; // 패딩은 원하는 대로 설정 (px 단위)
+        int padding = 100; // 패딩은 원하는 대로 설정 (px 단위)
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.moveCamera(cameraUpdate);
     }
@@ -734,6 +744,8 @@ public class MapPath extends AppCompatActivity
                     System.out.println("Connected to AWS IoT Core");
                     subscribeToTopic(TOPIC);
                     subscribeToTopic(PATH_TOPIC);
+                    subscribeToTopic(POINT_TOPIC);
+                    subscribeToTopic(SIGNAL_ROS_TOPIC+"/"+userName);
                 }
 
                 @Override
@@ -757,6 +769,9 @@ public class MapPath extends AppCompatActivity
                     // Path 토픽 처리
                     else if (topic.equals(PATH_TOPIC)) {
                         new Thread(() -> handlePathMessage(message)).start(); // Path 메시지도 별도의 쓰레드에서 처리
+                    }
+                    else if (topic.equals(POINT_TOPIC)){
+                        new Thread(() -> handlePointMessage(message)).start();
                     }
                 }
 
@@ -854,8 +869,97 @@ public class MapPath extends AppCompatActivity
             e.printStackTrace();
         }
     }
+    private void handlePointMessage(MqttMessage pmessage) {
+        String message = pmessage.toString();
+        Log.d("MQTT", "Received Point message: " + message);
 
+        try {
+            // 1. 메시지에서 불필요한 대괄호 및 따옴표 제거
+            message = message.replace("[", "")  // 시작 대괄호 제거
+                    .replace("]", "")  // 끝 대괄호 제거
+                    .replace("\"", ""); // 따옴표 제거
 
+            // 2. 각 항목을 }, {로 구분하여 분리
+            String[] pointEntries = message.split("\\},\\s*\\{");
+
+            // pointEntries 배열의 길이 확인
+            int numberOfPoints = pointEntries.length;
+            Log.d("MQTT", "Number of points: " + numberOfPoints);
+
+            // 3. 각 항목에서 데이터를 추출하고 처리
+            for (String entry : pointEntries) {
+                // 각 엔트리의 시작과 끝에 있는 중괄호 제거
+                entry = entry.replace("{", "").replace("}", "").trim();
+
+                // 쉼표로 구분하여 key-value 쌍을 처리
+                String[] elements = entry.split(",");
+
+                double latitude = 0.0;
+                double longitude = 0.0;
+                int order = 0;
+                String name = "";
+
+                // 각 요소를 처리
+                for (String element : elements) {
+                    element = element.trim(); // 앞뒤 공백 제거
+
+                    if (element.startsWith("latitude")) {
+                        latitude = Double.parseDouble(element.split(":")[1].trim());
+                    } else if (element.startsWith("longitude")) {
+                        longitude = Double.parseDouble(element.split(":")[1].trim());
+                    } else if (element.startsWith("order")) {
+                        order = Integer.parseInt(element.split(":")[1].trim());
+                    } else if (element.startsWith("name")) {
+                        name = element.split(":")[1].trim();
+                    }
+                }
+
+                // LatLng 객체 생성
+                LatLng latLng = new LatLng(latitude, longitude);
+
+                // 마커 추가 및 마커 위치 리스트에 저장
+                String finalName = name;
+                int finalOrder = order;
+                runOnUiThread(() -> {
+                    addMarkerWithColor(latLng, finalName, finalOrder);  // 마커 추가
+                    markerPositions.add(latLng);  // 마커 위치 저장
+                    adjustCameraToMarkers(markerPositions);  // 카메라 조정
+                });
+            }
+
+        } catch (Exception e) {
+            Log.e("MQTT", "Error parsing point message: " + e.getMessage());
+        }
+    }
+
+    // 마커를 추가하는 함수, 방문 순서에 따른 색상을 지정
+    private void addMarkerWithColor(LatLng latLng, String title, int order) {
+        // 순서에 따라 마커 색상 설정
+        float markerColor;
+        switch (order) {
+            case 1:
+                markerColor = BitmapDescriptorFactory.HUE_RED;
+                break;
+            case 2:
+                markerColor = BitmapDescriptorFactory.HUE_GREEN;
+                break;
+            case 3:
+                markerColor = BitmapDescriptorFactory.HUE_BLUE;
+                break;
+            default:
+                markerColor = BitmapDescriptorFactory.HUE_ORANGE; // 기본값
+                break;
+        }
+
+        // 마커 옵션 설정
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(latLng)
+                .title(title)
+                .icon(BitmapDescriptorFactory.defaultMarker(markerColor));
+
+        mMap.addMarker(markerOptions);
+
+    }
     // 지도에 점을 추가하는 함수
     private void addCircle(LatLng latLng, int radiusInMeters) {
         // If a circle is already drawn, remove it
