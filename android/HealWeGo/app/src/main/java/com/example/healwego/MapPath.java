@@ -126,6 +126,7 @@ public class MapPath extends AppCompatActivity
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
+    private Toast currentToast;
 
     // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
     private static final int PERMISSIONS_REQUEST_CODE = 100;
@@ -247,12 +248,13 @@ public class MapPath extends AppCompatActivity
     private void handleLeftButtonClick() {
         Button btn = findViewById(R.id.leftButton);
         if (state == 0 && board_avail){
-            sendMessage(SIGNAL_APP_TOPIC+"/"+userName,"boarding");
+            sendMessage(SIGNAL_APP_TOPIC,"boarding");
             state = 1;
             btn.setText("하차");
         }
         else if (state == 0){
-            Toast.makeText(this,"아직 차가 도착하지 않았습니다",Toast.LENGTH_LONG).show();
+            //Toast.makeText(this,"아직 차가 도착하지 않았습니다",Toast.LENGTH_LONG).show();
+            showToastMessage("아직 차가 도착하지 않았습니다");
         }
         else if(state == 1){
             new AlertDialog.Builder(this)
@@ -268,7 +270,8 @@ public class MapPath extends AppCompatActivity
                     })
                     .show();  // 다이얼로그 표시
         }else if(state == 2){
-            Toast.makeText(this, "이동부터 하세요", Toast.LENGTH_LONG).show();
+//            Toast.makeText(this, "이동부터 하세요", Toast.LENGTH_LONG).show();
+            showToastMessage("이동부터 하세요");
         }
     }
 
@@ -276,7 +279,8 @@ public class MapPath extends AppCompatActivity
     private void handleRightButtonClick() {
         Button btn = findViewById(R.id.rightButton);
         if (state == 0){
-            Toast.makeText(this, "탑승부터 하세요", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "탑승부터 하세요", Toast.LENGTH_LONG).show();
+            showToastMessage("탑승부터 하세요");
         }
         else if(state == 1){
             new AlertDialog.Builder(this)
@@ -452,7 +456,7 @@ public class MapPath extends AppCompatActivity
         LatLngBounds bounds = builder.build();
 
         // 화면 크기에 맞게 카메라 업데이트 (패딩을 추가하여 경계를 벗어나지 않게 설정)
-        int padding = 100; // 패딩은 원하는 대로 설정 (px 단위)
+        int padding = 400; // 패딩은 원하는 대로 설정 (px 단위)
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.moveCamera(cameraUpdate);
     }
@@ -527,6 +531,19 @@ public class MapPath extends AppCompatActivity
         // 마커를 지도에 추가하고 해당 마커를 저장
         currentMarkerWithImage = mMap.addMarker(markerOptions);
     }
+
+    private void showToastMessage(String message) {
+        // 현재 표시 중인 Toast가 있다면 취소
+        if (currentToast != null) {
+            currentToast.cancel();
+        }
+
+        // 새로운 Toast 생성 및 표시
+        currentToast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        currentToast.show();
+    }
+
+
     @Override
     protected void onStart() {
         super.onStart();
