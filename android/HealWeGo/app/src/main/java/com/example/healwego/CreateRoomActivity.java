@@ -3,11 +3,8 @@ package com.example.healwego;
 import static android.content.ContentValues.TAG;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -22,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,7 +32,9 @@ public class CreateRoomActivity extends AppCompatActivity {
     private RadioGroup radioGroupGender;
     private Button buttonCreateRoom, buttonCancel, buttonFindDestination;
     private String selectedTime;
-    private RadioButton radioAll,radioMale,radioFemale;
+    private RadioButton radioAll, radioMale, radioFemale;
+    private Button buttonThemeHealing, buttonThemeExtreme, buttonThemeFood, buttonThemeMeeting;
+    private String selectedTheme = "힐링"; // 선택된 테마 정보를 저장하는 변수
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +54,45 @@ public class CreateRoomActivity extends AppCompatActivity {
         radioMale = findViewById(R.id.radioMale);
         radioFemale = findViewById(R.id.radioFemale);
 
+        // 테마 버튼 초기화
+        buttonThemeHealing = findViewById(R.id.buttonThemeHealing);
+        buttonThemeExtreme = findViewById(R.id.buttonThemeExtreme);
+        buttonThemeFood = findViewById(R.id.buttonThemeFood);
+        buttonThemeMeeting = findViewById(R.id.buttonThemeMeeting);
+
+        // 처음 실행 시 "힐링" 테마를 기본 선택 상태로 설정
+        buttonThemeHealing.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.teal));
+
+        // 클릭했을 때 선택된 버튼의 색깔을 바꾸고 나머지는 기본 색으로 설정
+        View.OnClickListener themeButtonClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 모든 버튼의 색을 초기화 (기본 색상)
+                buttonThemeHealing.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));
+                buttonThemeExtreme.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));
+                buttonThemeFood.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));
+                buttonThemeMeeting.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));
+                // 클릭된 버튼의 색깔을 teal로 변경
+                v.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.teal));
+
+                // 선택된 테마에 따라 selectedTheme 값을 업데이트
+                if (v.getId() == R.id.buttonThemeHealing) {
+                    selectedTheme = "힐링";
+                } else if (v.getId() == R.id.buttonThemeExtreme) {
+                    selectedTheme = "익스트림";
+                } else if (v.getId() == R.id.buttonThemeFood) {
+                    selectedTheme = "먹부림";
+                } else if (v.getId() == R.id.buttonThemeMeeting) {
+                    selectedTheme = "만남";
+                }
+            }
+        };
+
+        // 테마 버튼들에 클릭 리스너 설정
+        buttonThemeHealing.setOnClickListener(themeButtonClickListener);
+        buttonThemeExtreme.setOnClickListener(themeButtonClickListener);
+        buttonThemeFood.setOnClickListener(themeButtonClickListener);
+        buttonThemeMeeting.setOnClickListener(themeButtonClickListener);
 
         // Spinner에 시간 목록 설정
         ArrayList<String> availableTimes = getAvailableTimes();
@@ -64,31 +103,26 @@ public class CreateRoomActivity extends AppCompatActivity {
         // 기본 선택된 시간으로 첫 번째 항목 설정
         selectedTime = availableTimes.get(0);
 
-
         Intent getintent = getIntent();
-        String  information = getintent.getStringExtra("saveInformation");
-        if(information!=null){
-            Log.w(TAG, information );
-            Log.w(TAG, information );
-            Log.w(TAG, information );
-            Log.w(TAG, information );
-            Log.w(TAG, information );
+        String information = getintent.getStringExtra("saveInformation");
+        if (information != null) {
+            Log.w(TAG, information);
             String[] parts = information.split("\\|");
 
-// 각 요소에 접근하여 필요한 값들을 할당합니다.
+            // 각 요소에 접근하여 필요한 값들을 할당합니다.
             String title = parts[0];            // 제목
             String time = parts[1];             // 시간
             String radio1 = parts[2];           // 첫 번째 라디오 버튼 상태
             String radio2 = parts[3];           // 두 번째 라디오 버튼 상태
             String radio3 = parts[4];           // 세 번째 라디오 버튼 상태
             String minAge = parts[5];
-            String maxAge = parts[6];// 나이 (비어 있을 수 있음)
+            String maxAge = parts[6];           // 나이 (비어 있을 수 있음)
             String address = parts[7];          // 주소
 
             editRoomTitle.setText(title);
             int position = ((ArrayAdapter<String>) timeSpinner.getAdapter()).getPosition(time);
 
-// Set the Spinner to the selected time
+            // Set the Spinner to the selected time
             if (position != -1) {
                 timeSpinner.setSelection(position);
             }
@@ -98,7 +132,6 @@ public class CreateRoomActivity extends AppCompatActivity {
             radioFemale.setChecked(Objects.equals(radio3, "true"));
             editMinAge.setText(minAge);
             editMaxAge.setText(maxAge);
-
         }
 
         // 방 제목 입력 후 엔터를 누르면 키보드를 숨김
@@ -118,9 +151,9 @@ public class CreateRoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CreateRoomActivity.this, TogetherSelectDest.class);
-                intent.putExtra("information", editRoomTitle.getText()+"|"+
-                       timeSpinner.getSelectedItem().toString()+"|"+radioAll.isChecked()+"|"+radioMale.isChecked()+"|"+radioFemale.isChecked()
-                        +"|"+editMinAge.getText()+"|"+editMaxAge.getText()
+                intent.putExtra("information", editRoomTitle.getText() + "|" +
+                        timeSpinner.getSelectedItem().toString() + "|" + radioAll.isChecked() + "|" + radioMale.isChecked() + "|" + radioFemale.isChecked()
+                        + "|" + editMinAge.getText() + "|" + editMaxAge.getText()
                 );  // 마커 위치 주소를 전달
                 startActivity(intent);
             }
@@ -145,7 +178,6 @@ public class CreateRoomActivity extends AppCompatActivity {
         });
     }
 
-
     // 방 생성 정보 확인 다이얼로그
     private void showConfirmationDialog() {
         // 방 제목 가져오기
@@ -165,11 +197,12 @@ public class CreateRoomActivity extends AppCompatActivity {
         int minAge = Integer.parseInt(minAgeStr); // 최소 나이
         int maxAge = Integer.parseInt(maxAgeStr); // 최대 나이
 
-        // 도착지 정보 추가 필요
-
         // 방 정보 구성
-        String roomInfo = "방 제목: " + roomTitle + "\n출발 시간: " + selectedTime +
-                "\n성별 필터: " + genderFilter + "\n나이 필터: " + minAge + " ~ " + maxAge;
+        String roomInfo = "방 제목: " + roomTitle +
+                "\n출발 시간: " + selectedTime +
+                "\n성별 필터: " + genderFilter +
+                "\n나이 필터: " + minAge + "세 ~ " + maxAge + "세" +
+                "\n테마: " + selectedTheme;  // 선택된 테마 추가
 
         // 다이얼로그 생성
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

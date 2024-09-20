@@ -11,7 +11,7 @@
         android:id="@+id/textTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="50dp"
         android:layout_marginRight="150dp"
         android:text="어떤 방을 만들어 볼까요?"
         android:textColor="@color/darkteal"
@@ -35,7 +35,6 @@
         app:layout_constraintTop_toBottomOf="@id/textTitle" />
 
     <!-- 출발 시간 설정 -->
-    <!-- 출발 시간 제목 -->
     <TextView
         android:id="@+id/startTimeLabel"
         android:layout_width="wrap_content"
@@ -67,17 +66,17 @@
         android:text="목적지 찾기"
         android:textSize="20sp"
         android:maxLines="1"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/timeSpinner" />
 
     <!-- 필터 설정 제목 -->
     <TextView
         android:id="@+id/textFilterTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:text="필터 설정"
         android:textColor="@color/darkteal"
         android:textSize="18sp"
@@ -88,10 +87,11 @@
 
     <!-- 필터 설정 영역 (ConstraintLayout으로 감싸기) -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/filter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/filter_border"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:padding="16dp"
@@ -135,6 +135,7 @@
 
         <!-- 나이 필터 -->
         <LinearLayout
+            android:id="@+id/setAge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -174,7 +175,85 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- 방 생성 및 취소 버튼 -->
+    <!-- 테마 설정 -->
+    <TextView
+        android:id="@+id/textThemeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="테마 설정"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/darkteal"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/filter"/>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/theme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/filter_border"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textThemeTitle">
+
+        <Button
+            android:id="@+id/buttonThemeHealing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/lightteal"
+            android:text="힐링"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@+id/buttonThemeExtreme"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/buttonThemeExtreme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/lightteal"
+            android:text="익스트림"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/buttonThemeHealing"
+            app:layout_constraintTop_toTopOf="parent" />
+        <Button
+            android:id="@+id/buttonThemeFood"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/lightteal"
+            android:text="먹부림"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/buttonThemeHealing"
+            app:layout_constraintEnd_toStartOf="@id/buttonThemeMeeting"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/buttonThemeMeeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/lightteal"
+            android:text="만남"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/buttonThemeHealing"
+            app:layout_constraintStart_toEndOf="@id/buttonThemeFood" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!-- 방 생성 및 취소 버튼 -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -185,7 +264,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/theme">
 
         <android.widget.Button
             android:id="@+id/buttonCancel"
