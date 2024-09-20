@@ -143,7 +143,7 @@ public class MapPath extends AppCompatActivity
     2 : 비상 정지 상태
      */
     int state = 0;
-
+    boolean board_avail = false;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest locationRequest;
@@ -241,13 +241,17 @@ public class MapPath extends AppCompatActivity
         textView = findViewById(R.id.testtext);
         textView2 = findViewById(R.id.testtest);
         connectToMqtt();
+
     }
     // Left Button 클릭 시 수행할 작업을 위한 함수
     private void handleLeftButtonClick() {
         Button btn = findViewById(R.id.leftButton);
-        if (state == 0){
+        if (state == 0 && board_avail){
             state = 1;
             btn.setText("하차");
+        }
+        else if (state == 0){
+            Toast.makeText(this,"아직 차가 도착하지 않았습니다",Toast.LENGTH_LONG).show();
         }
         else if(state == 1){
             /*
@@ -259,6 +263,7 @@ public class MapPath extends AppCompatActivity
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // Yes를 눌렀을 때 동작
+                            board_avail=false;
                             Intent intent = new Intent(MapPath.this, MainActivity.class);
                             startActivity(intent);
                         }
@@ -288,6 +293,7 @@ public class MapPath extends AppCompatActivity
                             // Yes를 눌렀을 때 동작
                             state = 2;
                             btn.setText("이동 재개");
+                            sendMessage("signal/app","stop");
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -301,6 +307,7 @@ public class MapPath extends AppCompatActivity
         }else if(state == 2){
             state = 1;
             btn.setText("비상 정지");
+            sendMessage("signal/app","resume");
         }
     }
     @Override
@@ -773,6 +780,9 @@ public class MapPath extends AppCompatActivity
                     else if (topic.equals(POINT_TOPIC)){
                         new Thread(() -> handlePointMessage(message)).start();
                     }
+                    else if (topic.equals(SIGNAL_ROS_TOPIC+"/"+userName)){
+                        board_avail=true;
+                    }
                 }
 
                 @Override
@@ -976,12 +986,12 @@ public class MapPath extends AppCompatActivity
         // Add the new circle to the map and store a reference to it
         currentCircle = mMap.addCircle(circleOptions);
     }
-    private void sendMessage(String message) {
+    private void sendMessage(String topic, String message) {
         try {
             MqttMessage mqttMessage = new MqttMessage();
             mqttMessage.setPayload(message.getBytes());
-            mqttClient.publish(TOPIC, mqttMessage);
-            System.out.println("Message sent: " + message);
+            mqttClient.publish(topic, mqttMessage);
+            System.out.println("Message sent to topic '" + topic + "': " + message);
         } catch (MqttException e) {
             e.printStackTrace();
         }
