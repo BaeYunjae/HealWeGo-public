@@ -68,6 +68,7 @@
         <activity android:name=".TogetherSelectDest" />
         <activity android:name=".MemInfoActivity" />
         <activity android:name=".CardInfoActivity" />
+        <activity android:name=".ExplainPlaceActivity" />
 
     </application>
 
