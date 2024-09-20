@@ -23,7 +23,7 @@
 
     <!-- 닉네임 입력란 -->
     <EditText
-        android:id="@+id/et_nickname"
+        android:id="@+id/et_username"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="닉네임을 입력해주세요"
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/et_nickname"
+        app:layout_constraintTop_toBottomOf="@+id/et_username"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="25dp">
