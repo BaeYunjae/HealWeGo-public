@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 추천 장소별 정보 페이지로 가야 함 (아직 구현 안 함) - 앱 자체 안에 넣어? 아니면 DB? 서버에 장소 이름을 API로 보내
         // ReserveActivity로 이동
-        Intent intent = new Intent(MainActivity.this, ReserveMainActivity.class);
+        Intent intent = new Intent(MainActivity.this, ExplainPlaceActivity.class);
         startActivity(intent);
     }
 }
