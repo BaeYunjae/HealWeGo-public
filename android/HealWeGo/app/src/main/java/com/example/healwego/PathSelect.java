@@ -128,6 +128,10 @@ public class PathSelect extends AppCompatActivity
         TextView start_text = findViewById(R.id.start_textview);
         String destLocationName = "";
         String startLocationName ="";
+        String startLongitude = "";
+        String startLatitude = "";
+        String destLatitude = "";
+        String destLongitude ="";
         // 저장된 상태가 있으면 복구
         if (savedInstanceState != null) {
             dest_text.setText(savedInstanceState.getString("dest_locationName", "목적지를 설정하세요"));
@@ -137,7 +141,10 @@ public class PathSelect extends AppCompatActivity
             Intent getintent = getIntent();
             destLocationName = getintent.getStringExtra("dest_locationName");
             startLocationName = getintent.getStringExtra("start_locationName");
-
+            startLongitude = getintent.getStringExtra("start_longitude");
+            startLatitude = getintent.getStringExtra("start_latitude");
+            destLatitude = getintent.getStringExtra("dest_latitude");
+            destLongitude = getintent.getStringExtra("dest_longitude");
             // 기존 출발지와 목적지를 그대로 유지
             if (destLocationName != null) {
                 dest_text.setText(destLocationName);
@@ -145,19 +152,39 @@ public class PathSelect extends AppCompatActivity
             if (startLocationName != null) {
                 start_text.setText(startLocationName);
             }
+            if(startLatitude!=null){
+                Log.d(TAG, startLatitude);
+            }
+            if(destLatitude!=null){
+                Log.d(TAG, destLatitude);
+            }
+            if(startLongitude!=null){
+
+                Log.d(TAG, startLongitude);
+            }
+            if(destLongitude!=null){
+                Log.d(TAG, destLongitude);
+            }
         }
 
         Button btn = findViewById(R.id.start_button);
+        String finalDestLatitude = destLatitude;
+        String finalDestLongitude = destLongitude;
+
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 Intent intent = new Intent(PathSelect.this, StartSelect.class);
                 intent.putExtra("dest_locationName", dest_text.getText().toString());
+                intent.putExtra("dest_latitude", finalDestLatitude);
+                intent.putExtra("dest_longitude", finalDestLongitude);
                 startActivity(intent);
             }
         });
 
         Button btn2 = findViewById(R.id.dest_button);
+        String finalStartLatitude = startLatitude;
+        String finalStartLongitude = startLongitude;
         btn2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
@@ -165,7 +192,8 @@ public class PathSelect extends AppCompatActivity
                 Intent intent2 = new Intent(PathSelect.this, DestSelect.class);
 
                 intent2.putExtra("start_locationName", start_text.getText().toString());
-
+                intent2.putExtra("start_latitude", finalStartLatitude);
+                intent2.putExtra("start_longitude", finalStartLongitude);
                 startActivity(intent2);
             }
         });
@@ -180,6 +208,10 @@ public class PathSelect extends AppCompatActivity
 
                 if(!Objects.equals(dest, "Please Select dest") && !Objects.equals(start, "Please Select start")){
                     Intent intent = new Intent(PathSelect.this, AloneSetActivity.class);
+                    intent.putExtra("dest_latitude", finalDestLatitude);
+                    intent.putExtra("dest_longitude", finalDestLongitude);
+                    intent.putExtra("start_latitude", finalStartLatitude);
+                    intent.putExtra("start_longitude", finalStartLongitude);
                     startActivity(intent);
                 }else{
                     Toast.makeText(PathSelect.this, "모두 설정하세요", Toast.LENGTH_SHORT).show();
@@ -683,3 +715,4 @@ public class PathSelect extends AppCompatActivity
 
 
 }
+
