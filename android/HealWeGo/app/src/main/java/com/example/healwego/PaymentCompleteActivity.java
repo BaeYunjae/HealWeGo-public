@@ -3,6 +3,8 @@ package com.example.healwego;
 
 import static android.content.ContentValues.TAG;
 
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
@@ -12,14 +14,34 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;  // Intent를 사용하기 위해 추가
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;  // View를 사용하기 위해 추가
 import android.widget.Button;  // Button 사용을 위해 추가
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 
+
 import com.google.android.gms.maps.model.LatLng;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 
 public class PaymentCompleteActivity extends AppCompatActivity {
@@ -31,6 +53,10 @@ public class PaymentCompleteActivity extends AppCompatActivity {
     private static final String PATH_TOPIC = "path";
     private static final String POINT_TOPIC = "path/points/ros";
 
+    private TextView paymentAmout;
+
+    private String pathMessage;
+    private String pointMessage;
 
     MqttAsyncClient mqttClient;
     @Override
@@ -40,13 +66,15 @@ public class PaymentCompleteActivity extends AppCompatActivity {
 
         // confirmButton과 연결
         confirmButton = findViewById(R.id.confirmButton);  // XML에서 버튼의 ID로 찾음
-
+        paymentAmout = findViewById(R.id.paymentAmount);
         // confirmButton 클릭 시 MapPath로 이동
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // MapPath로 이동하는 Intent 생성
                 Intent intent = new Intent(PaymentCompleteActivity.this, MapPath.class);
+                intent.putExtra("global_Path", pathMessage);
+                intent.putExtra("order",pointMessage);
                 startActivity(intent);  // MapPath Activity 시작
             }
         });
@@ -83,11 +111,11 @@ public class PaymentCompleteActivity extends AppCompatActivity {
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     // Path 토픽 처리
-                    else if (topic.equals(PATH_TOPIC)) {
-                        new Thread(() -> handlePathMessage(message)).start(); // Path 메시지도 별도의 쓰레드에서 처리
+                    if (topic.equals(PATH_TOPIC)) {
+                        handlePathMessage(message);
                     }
                     else if (topic.equals(POINT_TOPIC)){
-                        new Thread(() -> handlePointMessage(message)).start();
+                        handlePointMessage(message);
                     }
                 }
 
@@ -114,104 +142,140 @@ public class PaymentCompleteActivity extends AppCompatActivity {
 
     // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
     // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
+    @SuppressLint("SetTextI18n")
     private void handlePathMessage(MqttMessage message) {
-        String pathMessage = message.toString();
-        Log.d(TAG, "Received Path MQTT message: " + pathMessage);
 
+        List<Double[]> latLongList = new ArrayList<>();
+        pathMessage = message.toString();
+        Log.d(TAG, "Received Path MQTT message: " + pathMessage);
+        String tempMessage = pathMessage;
         try {
             // 메시지를 JSON 형식으로 파싱
-            pathMessage = pathMessage.replace("{", "").replace("}", ""); // {} 제거
-            pathMessage = pathMessage.replace("\"", ""); // "" 제거
-            pathMessage = pathMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
-            String[] parts = pathMessage.split(","); // 쉼표로 나눈다
+            tempMessage = tempMessage.replace("{", "").replace("}", ""); // {} 제거
+            tempMessage = tempMessage.replace("\"", ""); // "" 제거
+            tempMessage = tempMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
+            String[] parts = tempMessage.split(","); // 쉼표로 나눈다
 
-            // 'latitude'와 'longitude' 값 추출
+            // 이전 위도와 경도
+            double prev_latitude = 0.0;
+            double prev_longitude = 0.0;
+            boolean isFirstPoint = true;
+            double totalDistance = 0.0;
+
             double latitude = 0.0;
             double longitude = 0.0;
-
+            int cnt = 0;
             for (String part : parts) {
                 if (part.contains("latitude")) {
                     latitude = Double.parseDouble(part.split(":")[1].trim());
-                } else if (part.contains("longitude")) {
+                }
+                if (part.contains("longitude")) {
                     longitude = Double.parseDouble(part.split(":")[1].trim());
+                    latLongList.add(new Double[]{latitude, longitude});
                 }
 
-                LatLng latLng = new LatLng(latitude, longitude);
 
-                // 지도에 원(Circle)을 그리기 위해 UI 쓰레드에서 실행
-                runOnUiThread(() -> {
-                    addCircle(latLng, 10);
-                    textView2.setText("Received Path message");
-                });
+            }
+            for (Double[] latLong : latLongList) {
+                latitude = latLong[0];
+                longitude = latLong[1];
+
+                System.out.println("Latitude: " + latitude + ", Longitude: " + longitude);
+
+                if (!isFirstPoint) {
+                    // 두 지점 간의 거리를 계산 (하버사인 공식 적용)
+                    double distance = haversine(prev_latitude, prev_longitude, latitude, longitude);
+                    totalDistance += distance; // 거리 합산
+                    System.out.println("Distance between points: " + distance + " km");
+                } else {
+                    isFirstPoint = false; // 첫 번째 지점 처리 완료
+                }
+
+                // 현재 지점을 다음 계산을 위한 이전 지점으로 저장
+                prev_latitude = latitude;
+                prev_longitude = longitude;
             }
 
-        } catch (NumberFormatException e) {
-            Log.e(TAG, "Error parsing path message: " + e.getMessage());
+            // 요소 개수 세기
+            int elementCount = parts.length / 3;
+            int price = elementCount * 5;
+
+            Log.d(TAG, "Number of elements in path message: " + elementCount);
+            Log.d(TAG, "Total distance: " + totalDistance + " km");
+
+            // UI 업데이트는 메인 스레드에서 실행
+            double finalTotalDistance = totalDistance;
+            runOnUiThread(() -> paymentAmout.setText(price + "원"));
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling path message: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
+    // 두 위도와 경도 사이의 거리를 계산하는 하버사인 공식
+    private double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final double R = 6371.0; // 지구의 반지름 (단위: km)
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // 두 지점 간의 거리 반환 (단위: km)
+    }
+
     private void handlePointMessage(MqttMessage pmessage) {
-        String message = pmessage.toString();
-        Log.d("MQTT", "Received Point message: " + message);
+        pointMessage = pmessage.toString();
+        Log.d("MQTT", "Received Point message: " + pointMessage);
 
+    }
+
+    private SSLSocketFactory getSocketFactory() {
         try {
-            // 1. 메시지에서 불필요한 대괄호 및 따옴표 제거
-            message = message.replace("[", "")  // 시작 대괄호 제거
-                    .replace("]", "")  // 끝 대괄호 제거
-                    .replace("\"", ""); // 따옴표 제거
+            // CA 인증서 로드
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            InputStream caInput = getAssets().open("AmazonRootCA1.pem");
+            X509Certificate caCert = (X509Certificate) cf.generateCertificate(caInput);
 
-            // 2. 각 항목을 }, {로 구분하여 분리
-            String[] pointEntries = message.split("\\},\\s*\\{");
+            // 클라이언트 인증서 로드
+            InputStream crtInput = getAssets().open("certificate.pem.crt");
+            X509Certificate clientCert = (X509Certificate) cf.generateCertificate(crtInput);
 
-            // pointEntries 배열의 길이 확인
-            int numberOfPoints = pointEntries.length;
-            Log.d("MQTT", "Number of points: " + numberOfPoints);
+            // Private Key 로드
+            PrivateKey privateKey = loadPrivateKey();
 
-            // 3. 각 항목에서 데이터를 추출하고 처리
-            for (String entry : pointEntries) {
-                // 각 엔트리의 시작과 끝에 있는 중괄호 제거
-                entry = entry.replace("{", "").replace("}", "").trim();
+            // KeyStore 생성
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore.load(null, null);
+            keyStore.setCertificateEntry("caCert", caCert);
+            keyStore.setCertificateEntry("clientCert", clientCert);
+            keyStore.setKeyEntry("privateKey", privateKey, "password".toCharArray(), new java.security.cert.Certificate[]{clientCert});
 
-                // 쉼표로 구분하여 key-value 쌍을 처리
-                String[] elements = entry.split(",");
+            // TrustManagerFactory 및 KeyManagerFactory 초기화
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(keyStore);
 
-                double latitude = 0.0;
-                double longitude = 0.0;
-                int order = 0;
-                String name = "";
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(keyStore, "password".toCharArray());
 
-                // 각 요소를 처리
-                for (String element : elements) {
-                    element = element.trim(); // 앞뒤 공백 제거
+            // SSLContext 초기화
+            SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
+            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
-                    if (element.startsWith("latitude")) {
-                        latitude = Double.parseDouble(element.split(":")[1].trim());
-                    } else if (element.startsWith("longitude")) {
-                        longitude = Double.parseDouble(element.split(":")[1].trim());
-                    } else if (element.startsWith("order")) {
-                        order = Integer.parseInt(element.split(":")[1].trim());
-                    } else if (element.startsWith("name")) {
-                        name = element.split(":")[1].trim();
-                    }
-                }
-
-                // LatLng 객체 생성
-                LatLng latLng = new LatLng(latitude, longitude);
-
-                // 마커 추가 및 마커 위치 리스트에 저장
-                String finalName = name;
-                int finalOrder = order;
-                runOnUiThread(() -> {
-                    addMarkerWithColor(latLng, finalName, finalOrder);  // 마커 추가
-                    markerPositions.add(latLng);  // 마커 위치 저장
-                    adjustCameraToMarkers(markerPositions);  // 카메라 조정
-                });
-            }
-
+            return sslContext.getSocketFactory();
         } catch (Exception e) {
-            Log.e("MQTT", "Error parsing point message: " + e.getMessage());
+            e.printStackTrace();
         }
+        return null;
+    }
+
+    private PrivateKey loadPrivateKey() throws Exception {
+        PemReader pemReader = new PemReader(new InputStreamReader(getAssets().open("private.pem.key")));
+        PemObject pemObject = pemReader.readPemObject();
+        byte[] keyBytes = pemObject.getContent();
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA"); // 또는 "EC" (키 타입에 따라 다름)
+        return keyFactory.generatePrivate(keySpec);
     }
 }
-
-
