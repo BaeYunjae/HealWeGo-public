@@ -8,10 +8,10 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -46,6 +46,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -75,46 +77,12 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
-import javax.net.ssl.SSLSocketFactory;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.w3c.dom.Text;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.spec.PKCS8EncodedKeySpec;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.KeyManagerFactory;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Marker;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 
 public class MapPath extends AppCompatActivity
         implements OnMapReadyCallback,
@@ -124,11 +92,13 @@ public class MapPath extends AppCompatActivity
     private Marker currentMarker = null;
     private Circle currentCircle;
     private Marker currentMarkerWithImage;
-    private String TAG = "googlemap_example";
+    private static final String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
     private Toast currentToast;
+    private List<Circle> circles = new ArrayList<>();
+    private List<Polyline> polylines = new ArrayList<>();  // 그려진 선들을 저장하는 리스트
 
     // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
     private static final int PERMISSIONS_REQUEST_CODE = 100;
@@ -144,8 +114,7 @@ public class MapPath extends AppCompatActivity
     0 : 탑승 안한 상태
     1 : 탑승 중
     2 : 비상 정지 상태
-    */
-
+     */
     int state = 0;
     boolean board_avail = false;
 
@@ -180,6 +149,8 @@ public class MapPath extends AppCompatActivity
     private TextView textView2;
     private int messageCount = 0;  // 메시지가 도착한 횟수를 저장할 변수
 
+    private String init_path;
+    private String init_order;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -245,6 +216,11 @@ public class MapPath extends AppCompatActivity
         textView = findViewById(R.id.testtext);
         textView2 = findViewById(R.id.testtest);
         connectToMqtt();
+
+        Intent getIntent = getIntent();
+        init_path = getIntent.getStringExtra("global_Path");
+        init_order = getIntent.getStringExtra("order");
+
 
     }
     // Left Button 클릭 시 수행할 작업을 위한 함수
@@ -383,7 +359,10 @@ public class MapPath extends AppCompatActivity
             }
             startLocationUpdates(); // 3. 위치 업데이트 시작
 
-
+            if (init_path != null && init_order != null) {
+                handleFirstPathMessage(init_path);
+                handleFirstPointMessage(init_order);
+            }
 
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
 
@@ -570,8 +549,6 @@ public class MapPath extends AppCompatActivity
     }
 
 
-
-
     public String getCurrentAddress(LatLng latlng) {
         //지오코더... GPS를 주소로 변환
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
@@ -608,6 +585,7 @@ public class MapPath extends AppCompatActivity
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
+
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
 // 따라다니는 마커를 제거 (기존 마커를 추가하지 않음)
         if (currentMarker != null) {
@@ -615,6 +593,7 @@ public class MapPath extends AppCompatActivity
             currentMarker = null;  // 마커를 완전히 제거하고 null로 초기화
         }
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+
 
         if (firstCameraUpdate) {
             // 카메라를 사용자의 현재 위치로 이동
@@ -860,40 +839,208 @@ public class MapPath extends AppCompatActivity
         String pathMessage = message.toString();
         Log.d(TAG, "Received Path MQTT message: " + pathMessage);
 
+        List<Double[]> latLongList = new ArrayList<>();
+
+        removeAllPolylines();
         try {
-            // 메시지를 JSON 형식으로 파싱
             pathMessage = pathMessage.replace("{", "").replace("}", ""); // {} 제거
             pathMessage = pathMessage.replace("\"", ""); // "" 제거
             pathMessage = pathMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
             String[] parts = pathMessage.split(","); // 쉼표로 나눈다
 
-            // 'latitude'와 'longitude' 값 추출
+
+
             double latitude = 0.0;
             double longitude = 0.0;
-
+            int cnt = 0;
             for (String part : parts) {
                 if (part.contains("latitude")) {
                     latitude = Double.parseDouble(part.split(":")[1].trim());
-                } else if (part.contains("longitude")) {
+                }
+                if (part.contains("longitude")) {
                     longitude = Double.parseDouble(part.split(":")[1].trim());
+                    latLongList.add(new Double[]{latitude, longitude});
                 }
 
-                LatLng latLng = new LatLng(latitude, longitude);
 
-                // 지도에 원(Circle)을 그리기 위해 UI 쓰레드에서 실행
-                runOnUiThread(() -> {
-                    addCircle(latLng, 10);
-                    textView2.setText("Received Path message");
-                });
             }
+            runOnUiThread(() -> {
+                boolean isFirstPoint = true;
+                double ui_latitude = 0.0;
+                double ui_longitude = 0.0;
+                double prev_ui_latitude = 0.0;
+                double prev_ui_longitude = 0.0;
+                for (Double[] latLong : latLongList) {
+
+                    ui_latitude = latLong[0];
+                    ui_longitude = latLong[1];
+
+                    if (!isFirstPoint) {
+                        LatLng startLatLng = new LatLng(ui_latitude, ui_longitude);
+                        LatLng endLatLng = new LatLng(prev_ui_latitude, prev_ui_longitude);
+
+                        drawLineBetweenPoints(mMap, startLatLng, endLatLng, Color.RED, 20);
+                    } else {
+                        isFirstPoint = false; // 첫 번째 지점 처리 완료
+                    }
+
+                    prev_ui_latitude = ui_latitude;
+                    prev_ui_longitude = ui_longitude;
+                }
+            });
+
 
         } catch (NumberFormatException e) {
             Log.e(TAG, "Error parsing path message: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
+    public void drawLineBetweenPoints(GoogleMap map, LatLng startLatLng, LatLng endLatLng, int color, float width) {
+        // PolylineOptions 생성하고 선의 시작점과 끝점 추가
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .add(startLatLng)  // 시작 좌표
+                .add(endLatLng)    // 끝 좌표
+                .width(width)      // 선의 두께
+                .color(color);     // 선의 색깔
+
+        Polyline polyline = map.addPolyline(polylineOptions);
+        polylines.add(polyline);  // 선을 리스트에 추가
+    }
+    public void removeAllPolylines() {
+        runOnUiThread(() -> {
+            // 저장된 모든 Polyline 객체 삭제
+            for (Polyline polyline : polylines) {
+                polyline.remove();  // 지도에서 Polyline 제거
+            }
+            polylines.clear();  // 리스트 비우기
+        });
+    }
+
     private void handlePointMessage(MqttMessage pmessage) {
         String message = pmessage.toString();
+        Log.d("MQTT", "Received Point message: " + message);
+
+        try {
+            // 1. 메시지에서 불필요한 대괄호 및 따옴표 제거
+            message = message.replace("[", "")  // 시작 대괄호 제거
+                    .replace("]", "")  // 끝 대괄호 제거
+                    .replace("\"", ""); // 따옴표 제거
+
+            // 2. 각 항목을 }, {로 구분하여 분리
+            String[] pointEntries = message.split("\\},\\s*\\{");
+
+            // pointEntries 배열의 길이 확인
+            int numberOfPoints = pointEntries.length;
+            Log.d("MQTT", "Number of points: " + numberOfPoints);
+
+            // 3. 각 항목에서 데이터를 추출하고 처리
+            for (String entry : pointEntries) {
+                // 각 엔트리의 시작과 끝에 있는 중괄호 제거
+                entry = entry.replace("{", "").replace("}", "").trim();
+
+                // 쉼표로 구분하여 key-value 쌍을 처리
+                String[] elements = entry.split(",");
+
+                double latitude = 0.0;
+                double longitude = 0.0;
+                int order = 0;
+                String name = "";
+
+                // 각 요소를 처리
+                for (String element : elements) {
+                    element = element.trim(); // 앞뒤 공백 제거
+
+                    if (element.startsWith("latitude")) {
+                        latitude = Double.parseDouble(element.split(":")[1].trim());
+                    } else if (element.startsWith("longitude")) {
+                        longitude = Double.parseDouble(element.split(":")[1].trim());
+                    } else if (element.startsWith("order")) {
+                        order = Integer.parseInt(element.split(":")[1].trim());
+                    } else if (element.startsWith("name")) {
+                        name = element.split(":")[1].trim();
+                    }
+                }
+
+                // LatLng 객체 생성
+                LatLng latLng = new LatLng(latitude, longitude);
+
+                // 마커 추가 및 마커 위치 리스트에 저장
+                String finalName = name;
+                int finalOrder = order;
+                runOnUiThread(() -> {
+                    addMarkerWithColor(latLng, finalName, finalOrder);  // 마커 추가
+                    markerPositions.add(latLng);  // 마커 위치 저장
+                    adjustCameraToMarkers(markerPositions);  // 카메라 조정
+                });
+            }
+
+        } catch (Exception e) {
+            Log.e("MQTT", "Error parsing point message: " + e.getMessage());
+        }
+    }
+
+    private void handleFirstPathMessage(String message) {
+        String pathMessage = message;
+        Log.d(TAG, "Received Path MQTT message: " + pathMessage);
+
+        List<Double[]> latLongList = new ArrayList<>();
+
+        try {
+            pathMessage = pathMessage.replace("{", "").replace("}", ""); // {} 제거
+            pathMessage = pathMessage.replace("\"", ""); // "" 제거
+            pathMessage = pathMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
+            String[] parts = pathMessage.split(","); // 쉼표로 나눈다
+
+            // 이전 위도와 경도
+            double prev_latitude = 0.0;
+            double prev_longitude = 0.0;
+            boolean isFirstPoint = true;
+            double totalDistance = 0.0;
+
+            double latitude = 0.0;
+            double longitude = 0.0;
+            int cnt = 0;
+            for (String part : parts) {
+                if (part.contains("latitude")) {
+                    latitude = Double.parseDouble(part.split(":")[1].trim());
+                }
+                if (part.contains("longitude")) {
+                    longitude = Double.parseDouble(part.split(":")[1].trim());
+                    latLongList.add(new Double[]{latitude, longitude});
+                }
+
+
+            }
+            for (Double[] latLong : latLongList) {
+                latitude = latLong[0];
+                longitude = latLong[1];
+
+                System.out.println("Latitude: " + latitude + ", Longitude: " + longitude);
+
+                if (!isFirstPoint) {
+                    LatLng startLatLng = new LatLng(latitude, longitude);  // 서울 좌표 예시
+                    LatLng endLatLng = new LatLng(prev_latitude, prev_longitude);    // 다른 좌표 예시
+
+                    drawLineBetweenPoints(mMap, startLatLng, endLatLng, Color.RED, 5);
+                } else {
+                    isFirstPoint = false; // 첫 번째 지점 처리 완료
+                }
+
+                // 현재 지점을 다음 계산을 위한 이전 지점으로 저장
+                prev_latitude = latitude;
+                prev_longitude = longitude;
+            }
+
+
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Error parsing path message: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void handleFirstPointMessage(String pmessage) {
+        String message = pmessage;
         Log.d("MQTT", "Received Point message: " + message);
 
         try {
@@ -983,22 +1130,7 @@ public class MapPath extends AppCompatActivity
         mMap.addMarker(markerOptions);
 
     }
-    // 지도에 점을 추가하는 함수
-    private void addCircle(LatLng latLng, int radiusInMeters) {
-        // If a circle is already drawn, remove it
 
-
-        // Create a new CircleOptions object to define the properties of the circle
-        CircleOptions circleOptions = new CircleOptions()
-                .center(latLng)  // Center of the circle
-                .radius(radiusInMeters)  // Radius in meters
-                .strokeColor(0xFF0000FF)  // Blue outline color
-                .strokeWidth(2f)  // Outline thickness
-                .fillColor(0x550000FF);  // Semi-transparent blue fill color
-
-        // Add the new circle to the map and store a reference to it
-        currentCircle = mMap.addCircle(circleOptions);
-    }
     private void sendMessage(String topic, String message) {
         try {
             MqttMessage mqttMessage = new MqttMessage();
@@ -1066,3 +1198,4 @@ public class MapPath extends AppCompatActivity
         return keyFactory.generatePrivate(keySpec);
     }
 }
+
