@@ -22,18 +22,20 @@ public class ApiRequestHandler {
             String result;
             try {
                 URL url = new URL(mUrl);
+                Log.i("URL: ", mUrl);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setReadTimeout(3000);
                 httpURLConnection.setConnectTimeout(3000);
                 httpURLConnection.setDoInput(true);
                 httpURLConnection.setRequestMethod(connMethod);
-                httpURLConnection.setRequestProperty("Content-Type", "application/json");
+                httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");  // UTF-8 설정
                 httpURLConnection.setUseCaches(false);
 
                 httpURLConnection.setDoOutput(true);
 
+                // 데이터 전송 시 UTF-8로 인코딩
                 DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
-                wr.write(bodyJson.getBytes("EUC-KR"));
+                wr.write(bodyJson.getBytes("UTF-8"));  // UTF-8로 변경
                 wr.flush();
                 wr.close();
 
@@ -41,7 +43,8 @@ public class ApiRequestHandler {
                 int responseStatusCode = httpURLConnection.getResponseCode();
                 InputStream inputStream = responseStatusCode == HttpURLConnection.HTTP_OK ? httpURLConnection.getInputStream() : httpURLConnection.getErrorStream();
 
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "EUC-KR");
+                // 데이터 수신 시에도 UTF-8로 디코딩
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");  // UTF-8로 변경
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 StringBuilder sb = new StringBuilder();
                 String line;
