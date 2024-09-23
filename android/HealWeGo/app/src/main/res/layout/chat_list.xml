@@ -21,6 +21,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <!-- 방이 없을 때 표시할 TextView (ScrollView 위에 배치) -->
+    <TextView
+        android:id="@+id/noRoomTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="방이 없어요! 직접 만들어보실래요?"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/themeButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp" />
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="330dp"
@@ -33,45 +48,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/themeButton">
 
-        <LinearLayout
+        <!-- RecyclerView로 방 목록을 동적으로 표시 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewRooms"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- 첫 번째 버튼 -->
-            <android.widget.Button
-                android:id="@+id/chatroom1"
-                android:layout_width="330dp"
-                android:layout_height="150dp"
-                android:layout_marginBottom="30dp"
-                android:background="@color/palecyan"
-                android:onClick="onButton1Clicked"
-                android:text="을왕리 해수욕장\n목적지: 을왕리\n탑승장소: 서울역\n탑승시간: 오후 3시\n 2/4 \n #힐링 #여성만"
-                android:textSize="18sp" />
-
-            <!-- 두 번째 버튼 -->
-            <android.widget.Button
-                android:id="@+id/chatroom2"
-                android:layout_width="330dp"
-                android:layout_height="150dp"
-                android:layout_marginBottom="30dp"
-                android:background="@color/palecyan"
-                android:onClick="onButton1Clicked"
-                android:text="을왕리 해수욕장\n목적지: 을왕리\n탑승장소: 서울역\n탑승시간: 오후 3시\n 3/4\n#익스트림 #20대만"
-                android:textSize="18sp" />
-
-            <!-- 세 번째 버튼 -->
-            <android.widget.Button
-                android:id="@+id/chatroom3"
-                android:layout_width="330dp"
-                android:layout_height="150dp"
-                android:layout_marginBottom="30dp"
-                android:background="@color/palecyan"
-                android:onClick="onButton1Clicked"
-                android:text="을왕리 해수욕장\n목적지: 을왕리\n탑승장소: 서울역\n탑승시간: 오후 3시\n혼자 가기"
-                android:textSize="18sp" />
-
-        </LinearLayout>
+            android:layout_height="0dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintTop_toBottomOf="@id/themeButton"
+            app:layout_constraintBottom_toTopOf="@id/wantCreateButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="10dp"
+            tools:listitem="@layout/room_list_item" />
 
     </ScrollView>
 
@@ -99,6 +87,7 @@
 
 
         <LinearLayout
+            android:id="@+id/theme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
