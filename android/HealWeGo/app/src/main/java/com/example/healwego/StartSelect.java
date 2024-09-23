@@ -52,6 +52,10 @@ public class StartSelect extends AppCompatActivity
     private GoogleMap mMap;
     private Marker currentMarker = null;
 
+    private boolean isSearchLocation = false; // 검색으로 설정된 위치인지 확인하는 플래그
+    private boolean isMapDragged = false; // 화면 스크롤로 설정된 위치인지 확인하는 플래그
+    private String searchQuery = ""; // 검색된 지명을 저장하는 변수
+
     private static final String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
@@ -113,7 +117,11 @@ public class StartSelect extends AppCompatActivity
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // 검색어를 제출했을 때 위치 검색
+                searchQuery = query; // 검색어 저장
+                isSearchLocation = true; // 검색으로 설정된 위치임을 나타냄
+                isMapDragged = false;
                 searchLocation(query);
+
                 return false;
             }
 
@@ -126,7 +134,8 @@ public class StartSelect extends AppCompatActivity
 
         Intent getintent = getIntent();
         String  destLocationName = getintent.getStringExtra("dest_locationName");
-
+        String destLatitude = getintent.getStringExtra("dest_latitude");
+        String destLongitude = getintent.getStringExtra("dest_longitude");
         Button btn = findViewById(R.id.button);
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -135,11 +144,29 @@ public class StartSelect extends AppCompatActivity
                     // 마커의 위치에서 주소를 가져옴
                     LatLng markerPosition = currentMarker.getPosition();
                     String locationName = getCurrentAddress(markerPosition);  // 현재 마커 위치의 주소
-
+                    double latitude = markerPosition.latitude;
+                    double longitude = markerPosition.longitude;
+                    if (isSearchLocation) {
+                        // 검색된 위치일 경우 검색어를 locationName에 저장
+                        locationName = searchQuery;
+                    } else {
+                        // 스크롤이나 터치로 지정한 마커의 주소를 locationName에 저장
+                        if (currentMarker != null) {
+                            markerPosition = currentMarker.getPosition();
+                            locationName = getCurrentAddress(markerPosition);  // 현재 마커 위치의 주소
+                        } else {
+                            Toast.makeText(StartSelect.this, "현재 위치가 설정되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
                     // Intent에 데이터를 추가하고 다른 액티비티로 전달
                     Intent intent = new Intent(StartSelect.this, PathSelect.class);
                     intent.putExtra("start_locationName", locationName);  // 마커 위치 주소를 전달
                     intent.putExtra("dest_locationName", destLocationName);  // 기존 목적지 정보 전달
+                    intent.putExtra("start_latitude", ""+latitude);  // 기존 목적지 정보 전달
+                    intent.putExtra("start_longitude", ""+longitude);  // 기존 목적지 정보 전달
+                    intent.putExtra("dest_latitude", destLatitude);  // 기존 목적지 정보 전달
+                    intent.putExtra("dest_longitude", destLongitude);  // 기존 목적지 정보 전달
                     startActivity(intent);
                 } else {
                     Toast.makeText(StartSelect.this, "현재 위치가 설정되지 않았습니다.", Toast.LENGTH_SHORT).show();
@@ -244,9 +271,11 @@ public class StartSelect extends AppCompatActivity
                     currentMarker.setTitle("현재 위치");       // 마커 제목 업데이트
                     //currentMarker.setSnippet("위도: " + centerPosition.latitude + ", 경도: " + centerPosition.longitude);  // 마커 스니펫에 위도, 경도 표시
                     //currentMarker.showInfoWindow();  // 정보 창 표시
+                    // 카메라 중앙 위치의 주소를 스니펫에 설정
                     String address = getCurrentAddress(centerPosition);
                     currentMarker.setSnippet(address);
                     currentMarker.showInfoWindow();
+
 
                 } else {
                     // 마커가 없으면 새로운 마커 생성
@@ -255,14 +284,19 @@ public class StartSelect extends AppCompatActivity
                     markerOptions.title("중앙 위치");
                     currentMarker = mMap.addMarker(markerOptions);
                 }
+
+                if (isMapDragged) {
+                    isSearchLocation = false;
+                }
             }
         });
         mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
             public void onCameraMoveStarted(int reason) {
                 if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
-                    // 사용자가 지도를 움직이기 시작하면 위치 업데이트를 일시 중지
-                    mFusedLocationClient.removeLocationUpdates(locationCallback);
+                    // 사용자가 지도 스크롤을 시작했음을 표시
+                    isMapDragged = true;
+                    Log.d(TAG, "Map dragged by user");
                 }
             }
         });
@@ -273,7 +307,25 @@ public class StartSelect extends AppCompatActivity
 
             @Override
             public void onMapClick(LatLng latLng) {
+                Log.d(TAG, "onMapClick : " + latLng);
 
+                // 터치로 설정한 위치일 경우 isSearchLocation을 false로 설정
+                isSearchLocation = false;
+
+                if (currentMarker != null) {
+                    currentMarker.setPosition(latLng);
+                } else {
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+                    markerOptions.title("터치한 위치");
+                    currentMarker = mMap.addMarker(markerOptions);
+                }
+
+                // 마커에 터치한 위치의 주소를 설정
+                String address = getCurrentAddress(latLng);
+                currentMarker.setSnippet(address);
+                currentMarker.showInfoWindow();
+                mFusedLocationClient.removeLocationUpdates(locationCallback);
             }
         });
 
@@ -386,7 +438,7 @@ public class StartSelect extends AppCompatActivity
         super.onStop();
 
         if (mFusedLocationClient != null) {
-             mFusedLocationClient.removeLocationUpdates(locationCallback);
+            mFusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
 
@@ -618,3 +670,4 @@ public class StartSelect extends AppCompatActivity
 
 
 }
+
