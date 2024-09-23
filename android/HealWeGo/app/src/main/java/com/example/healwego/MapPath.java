@@ -114,6 +114,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+
 public class MapPath extends AppCompatActivity
         implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback{
@@ -122,7 +124,7 @@ public class MapPath extends AppCompatActivity
     private Marker currentMarker = null;
     private Circle currentCircle;
     private Marker currentMarkerWithImage;
-    private static final String TAG = "googlemap_example";
+    private String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
@@ -142,7 +144,8 @@ public class MapPath extends AppCompatActivity
     0 : 탑승 안한 상태
     1 : 탑승 중
     2 : 비상 정지 상태
-     */
+    */
+
     int state = 0;
     boolean board_avail = false;
 
@@ -605,7 +608,6 @@ public class MapPath extends AppCompatActivity
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
-
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
 // 따라다니는 마커를 제거 (기존 마커를 추가하지 않음)
         if (currentMarker != null) {
@@ -613,7 +615,6 @@ public class MapPath extends AppCompatActivity
             currentMarker = null;  // 마커를 완전히 제거하고 null로 초기화
         }
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-
 
         if (firstCameraUpdate) {
             // 카메라를 사용자의 현재 위치로 이동
