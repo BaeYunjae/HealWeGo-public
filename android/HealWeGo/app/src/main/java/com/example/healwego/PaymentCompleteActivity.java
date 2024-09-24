@@ -13,6 +13,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;  // Intent를 사용하기 위해 추가
@@ -37,6 +39,7 @@ import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -50,12 +53,12 @@ public class PaymentCompleteActivity extends AppCompatActivity {
     private static final String BROKER_URL = "ssl://a3boaptn83mu7y-ats.iot.ap-northeast-2.amazonaws.com:8883";
     private static final String CLIENT_ID = "AndroidClient";
 
-    private static final String PATH_TOPIC = "path";
-    private static final String POINT_TOPIC = "path/points/ros";
-
+    private static final String PATH_TOPIC = "path/001";
+    private static final String POINT_TOPIC = "path/points/ros/001";
+    private static int price = 0;
     private TextView paymentAmout;
 
-    private String pathMessage;
+    private String pathMessage="init";
     private String pointMessage;
 
     MqttAsyncClient mqttClient;
@@ -145,71 +148,70 @@ public class PaymentCompleteActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void handlePathMessage(MqttMessage message) {
 
-        List<Double[]> latLongList = new ArrayList<>();
-        pathMessage = message.toString();
-        Log.d(TAG, "Received Path MQTT message: " + pathMessage);
-        String tempMessage = pathMessage;
-        try {
-            // 메시지를 JSON 형식으로 파싱
-            tempMessage = tempMessage.replace("{", "").replace("}", ""); // {} 제거
-            tempMessage = tempMessage.replace("\"", ""); // "" 제거
-            tempMessage = tempMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
-            String[] parts = tempMessage.split(","); // 쉼표로 나눈다
+        if (!message.toString().equals("null") && !message.toString().equals("\"new\"")) {
+            List<Double[]> latLongList = new ArrayList<>();
+            if (Objects.equals(pathMessage, "init")){
+                pathMessage=message.toString();
+            }else {
+                pathMessage = pathMessage +","+ message;
+            }
+            System.out.println(message);
+            Log.d(TAG, "Received Path MQTT message: " + pathMessage);
 
-            // 이전 위도와 경도
-            double prev_latitude = 0.0;
-            double prev_longitude = 0.0;
-            boolean isFirstPoint = true;
-            double totalDistance = 0.0;
+            try {
+                // JSON 배열로 변환하여 처리
+                JSONArray jsonArray = new JSONArray(pathMessage); // JSON 배열로 변환
 
-            double latitude = 0.0;
-            double longitude = 0.0;
-            int cnt = 0;
-            for (String part : parts) {
-                if (part.contains("latitude")) {
-                    latitude = Double.parseDouble(part.split(":")[1].trim());
-                }
-                if (part.contains("longitude")) {
-                    longitude = Double.parseDouble(part.split(":")[1].trim());
+                // 이전 위도와 경도
+                double prev_latitude = 0.0;
+                double prev_longitude = 0.0;
+                boolean isFirstPoint = true;
+                double totalDistance = 0.0;
+
+                // JSON 배열에서 각 객체를 순회하며 데이터 처리
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    double latitude = jsonObject.getDouble("latitude");
+                    double longitude = jsonObject.getDouble("longitude");
+
                     latLongList.add(new Double[]{latitude, longitude});
+
+                    // 거리 계산 로직
+                    if (!isFirstPoint) {
+                        double distance = haversine(prev_latitude, prev_longitude, latitude, longitude);
+                        totalDistance += distance; // 거리 합산
+                        System.out.println("Distance between points: " + distance + " km");
+                    } else {
+                        isFirstPoint = false; // 첫 번째 지점 처리 완료
+                    }
+
+                    // 현재 지점을 이전 지점으로 저장
+                    prev_latitude = latitude;
+                    prev_longitude = longitude;
                 }
 
+                // 요소 개수 세기 및 가격 계산
+                int elementCount = jsonArray.length();
+                price = price + (elementCount * 5);
+                System.out.println(price);
+                System.out.println(price);
+                System.out.println(price);
+                System.out.println(price);
+                System.out.println(price);
+                System.out.println(price);
 
+                Log.d(TAG, "Number of elements in path message: " + elementCount);
+                Log.d(TAG, "Total distance: " + totalDistance + " km");
+
+                // UI 업데이트는 메인 스레드에서 실행
+                double finalTotalDistance = totalDistance;
+                int finalPrice = price;
+                runOnUiThread(() -> paymentAmout.setText(finalPrice + "원"));
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error handling path message: " + e.getMessage());
+                e.printStackTrace();
             }
-            for (Double[] latLong : latLongList) {
-                latitude = latLong[0];
-                longitude = latLong[1];
-
-                System.out.println("Latitude: " + latitude + ", Longitude: " + longitude);
-
-                if (!isFirstPoint) {
-                    // 두 지점 간의 거리를 계산 (하버사인 공식 적용)
-                    double distance = haversine(prev_latitude, prev_longitude, latitude, longitude);
-                    totalDistance += distance; // 거리 합산
-                    System.out.println("Distance between points: " + distance + " km");
-                } else {
-                    isFirstPoint = false; // 첫 번째 지점 처리 완료
-                }
-
-                // 현재 지점을 다음 계산을 위한 이전 지점으로 저장
-                prev_latitude = latitude;
-                prev_longitude = longitude;
-            }
-
-            // 요소 개수 세기
-            int elementCount = parts.length / 3;
-            int price = elementCount * 5;
-
-            Log.d(TAG, "Number of elements in path message: " + elementCount);
-            Log.d(TAG, "Total distance: " + totalDistance + " km");
-
-            // UI 업데이트는 메인 스레드에서 실행
-            double finalTotalDistance = totalDistance;
-            runOnUiThread(() -> paymentAmout.setText(price + "원"));
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error handling path message: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

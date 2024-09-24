@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.client.UserState;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -78,6 +79,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.json.JSONObject;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -113,6 +115,7 @@ public class MapPath extends AppCompatActivity
     2 : 비상 정지 상태
      */
     int state = 0;
+    int isFinished = 0;
     boolean board_avail = false;
 
     private FusedLocationProviderClient mFusedLocationClient;
@@ -123,12 +126,12 @@ public class MapPath extends AppCompatActivity
 
     private static final String BROKER_URL = "ssl://a3boaptn83mu7y-ats.iot.ap-northeast-2.amazonaws.com:8883";
     private static final String CLIENT_ID = "AndroidClient";
-    private static final String GPS_TOPIC = "gps";
+    private static final String GPS_TOPIC = "gps/001";
     private static final String PATH_TOPIC = "path/001";
-    private static final String POINT_TOPIC = "path/points/ros";
+    private static final String POINT_TOPIC = "path/points/ros/001";
 
-    private static final String SIGNAL_ROS_TOPIC = "signal/ros";
-    private static final String SIGNAL_APP_TOPIC = "signal/app";
+    private static final String SIGNAL_ROS_TOPIC = "signal/ros/001";
+    private static final String SIGNAL_APP_TOPIC = "signal/app/001";
 
 
     String userName = AWSMobileClient.getInstance().getUsername();
@@ -214,13 +217,14 @@ public class MapPath extends AppCompatActivity
         init_path = getIntent.getStringExtra("global_Path");
         init_order = getIntent.getStringExtra("order");
 
-
     }
     // Left Button 클릭 시 수행할 작업을 위한 함수
     private void handleLeftButtonClick() {
         Button btn = findViewById(R.id.leftButton);
         if (state == 0 && board_avail){
-            sendMessage(SIGNAL_APP_TOPIC,"boarding");
+            sendMessage(SIGNAL_APP_TOPIC,"{" +
+                    "\"command\" : \"boarding\"" +
+                    "}");
             state = 1;
             btn.setText("하차");
         }
@@ -228,18 +232,22 @@ public class MapPath extends AppCompatActivity
             showToastMessage("아직 차가 도착하지 않았습니다");
         }
         else if(state == 1){
-            new AlertDialog.Builder(this)
-                    .setMessage("이용해 주셔서 감사합니다")  // 메시지 설정
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Yes를 눌렀을 때 동작
-                            board_avail=false;
-                            Intent intent = new Intent(MapPath.this, MainActivity.class);
-                            startActivity(intent);
-                        }
-                    })
-                    .show();  // 다이얼로그 표시
+            if(isFinished==1) {
+                new AlertDialog.Builder(this)
+                        .setMessage("이용해 주셔서 감사합니다")  // 메시지 설정
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Yes를 눌렀을 때 동작
+                                board_avail = false;
+                                Intent intent = new Intent(MapPath.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+                        })
+                        .show();  // 다이얼로그 표시
+            }else{
+                showToastMessage("아직 도착 안했습니다");
+            }
         }else if(state == 2){
            showToastMessage("이동부터 하세요");
         }
@@ -352,7 +360,6 @@ public class MapPath extends AppCompatActivity
                 handleFirstPathMessage(init_path);
                 handleFirstPointMessage(init_order);
             }
-
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
 
             // 3-1. 사용자가 퍼미션 거부를 한 적이 있는 경우에는
@@ -379,7 +386,6 @@ public class MapPath extends AppCompatActivity
 
         }
 
-
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -395,7 +401,7 @@ public class MapPath extends AppCompatActivity
             super.onLocationResult(locationResult);
             List<Location> locationList = locationResult.getLocations();
 
-            if (locationList.size() > 0) {
+            if (!locationList.isEmpty()) {
                 location = locationList.get(locationList.size() - 1);
                 //location = locationList.get(0);
                 currentPosition
@@ -558,12 +564,12 @@ public class MapPath extends AppCompatActivity
             return "잘못된 GPS 좌표";
         }
 
-        if (addresses == null || addresses.size() == 0) {
+        if (addresses == null || addresses.isEmpty()) {
             Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
             return "주소 미발견";
         } else {
             Address address = addresses.get(0);
-            return address.getAddressLine(0).toString();
+            return address.getAddressLine(0);
         }
     }
 
@@ -733,7 +739,7 @@ public class MapPath extends AppCompatActivity
                     subscribeToTopic(GPS_TOPIC);
                     subscribeToTopic(PATH_TOPIC);
                     subscribeToTopic(POINT_TOPIC);
-                    subscribeToTopic(SIGNAL_ROS_TOPIC+"/"+userName);
+                    subscribeToTopic(SIGNAL_ROS_TOPIC);
                 }
 
                 @Override
@@ -761,8 +767,28 @@ public class MapPath extends AppCompatActivity
                     else if (topic.equals(POINT_TOPIC)){
                         new Thread(() -> handlePointMessage(message)).start();
                     }
-                    else if (topic.equals(SIGNAL_ROS_TOPIC+"/"+userName)){
-                        board_avail=true;
+                    else if (topic.equals(SIGNAL_ROS_TOPIC)){
+                        String jsonString = message.toString();
+                        JSONObject jsonObject = new JSONObject(jsonString);
+
+                        // finish와 user_id 값 추출
+                        int finish = jsonObject.getInt("finish");
+                        String userId = jsonObject.getString("user_id");
+
+                        // 각 key-value 쌍을 처리
+
+
+                        // 값 출력 (저장하는 대신 예시로 출력)
+                        System.out.println("Finish: " + finish);
+                        System.out.println("User ID: " + userId);
+                        String Name = AWSMobileClient.getInstance().getUsername();
+
+                        if(finish==1){
+                            isFinished = 1;
+                        }
+                        else if(userId.equals(Name)) {
+                            board_avail = true;
+                        }
                     }
                 }
 
@@ -970,14 +996,17 @@ public class MapPath extends AppCompatActivity
 
     private void handleFirstPathMessage(String message) {
         String pathMessage = message;
-        Log.d(TAG, "Received Path MQTT message: " + pathMessage);
 
         List<Double[]> latLongList = new ArrayList<>();
 
         try {
+            pathMessage = pathMessage.replace("new","");
+            pathMessage = pathMessage.replace("[","");
             pathMessage = pathMessage.replace("{", "").replace("}", ""); // {} 제거
             pathMessage = pathMessage.replace("\"", ""); // "" 제거
             pathMessage = pathMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
+
+            System.out.println(pathMessage);
             String[] parts = pathMessage.split(","); // 쉼표로 나눈다
 
             // 이전 위도와 경도
