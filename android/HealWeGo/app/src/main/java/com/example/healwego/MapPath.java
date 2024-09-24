@@ -41,7 +41,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -90,14 +89,12 @@ public class MapPath extends AppCompatActivity
 
     private GoogleMap mMap;
     private Marker currentMarker = null;
-    private Circle currentCircle;
     private Marker currentMarkerWithImage;
     private static final String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
     private Toast currentToast;
-    private List<Circle> circles = new ArrayList<>();
     private List<Polyline> polylines = new ArrayList<>();  // 그려진 선들을 저장하는 리스트
 
     // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
@@ -124,17 +121,10 @@ public class MapPath extends AppCompatActivity
     private View mLayout;  // Snackbar 사용하기 위해서는 View가 필요합니다.
     // (참고로 Toast에서는 Context가 필요했습니다.)
 
-    boolean firstCameraUpdate = false;
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-    }
-
     private static final String BROKER_URL = "ssl://a3boaptn83mu7y-ats.iot.ap-northeast-2.amazonaws.com:8883";
     private static final String CLIENT_ID = "AndroidClient";
-    private static final String TOPIC = "gps";
-    private static final String PATH_TOPIC = "path";
+    private static final String GPS_TOPIC = "gps";
+    private static final String PATH_TOPIC = "path/001";
     private static final String POINT_TOPIC = "path/points/ros";
 
     private static final String SIGNAL_ROS_TOPIC = "signal/ros";
@@ -146,11 +136,15 @@ public class MapPath extends AppCompatActivity
     private MqttAsyncClient mqttClient;
 
     private TextView textView;  // TextView 선언
-    private TextView textView2;
-    private int messageCount = 0;  // 메시지가 도착한 횟수를 저장할 변수
-
     private String init_path;
     private String init_order;
+
+    boolean firstCameraUpdate = false;
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+    }
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -214,7 +208,6 @@ public class MapPath extends AppCompatActivity
             }
         });
         textView = findViewById(R.id.testtext);
-        textView2 = findViewById(R.id.testtest);
         connectToMqtt();
 
         Intent getIntent = getIntent();
@@ -232,7 +225,6 @@ public class MapPath extends AppCompatActivity
             btn.setText("하차");
         }
         else if (state == 0){
-            //Toast.makeText(this,"아직 차가 도착하지 않았습니다",Toast.LENGTH_LONG).show();
             showToastMessage("아직 차가 도착하지 않았습니다");
         }
         else if(state == 1){
@@ -249,8 +241,7 @@ public class MapPath extends AppCompatActivity
                     })
                     .show();  // 다이얼로그 표시
         }else if(state == 2){
-//            Toast.makeText(this, "이동부터 하세요", Toast.LENGTH_LONG).show();
-            showToastMessage("이동부터 하세요");
+           showToastMessage("이동부터 하세요");
         }
     }
 
@@ -258,7 +249,6 @@ public class MapPath extends AppCompatActivity
     private void handleRightButtonClick() {
         Button btn = findViewById(R.id.rightButton);
         if (state == 0){
-            //Toast.makeText(this, "탑승부터 하세요", Toast.LENGTH_LONG).show();
             showToastMessage("탑승부터 하세요");
         }
         else if(state == 1){
@@ -277,7 +267,6 @@ public class MapPath extends AppCompatActivity
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // No를 눌렀을 때는 아무 동작도 하지 않음
                             dialog.dismiss(); // 다이얼로그 닫기
                         }
                     })
@@ -423,8 +412,6 @@ public class MapPath extends AppCompatActivity
     };
     private List<LatLng> markerPositions = new ArrayList<>();
 
-
-
     private void adjustCameraToMarkers(List<LatLng> markerPositions) {
         if (markerPositions == null || markerPositions.isEmpty()) {
             return;
@@ -465,6 +452,7 @@ public class MapPath extends AppCompatActivity
                 mMap.setMyLocationEnabled(true);
         }
     }
+
     // 위치명으로 LatLng 가져오기
     private LatLng getLatLngFromLocationName(String locationName) {
         Geocoder geocoder = new Geocoder(this);
@@ -492,6 +480,7 @@ public class MapPath extends AppCompatActivity
         // 모든 마커가 보이도록 카메라 조정
         adjustCameraToMarkers(markerPositions);
     }
+
     private void addMarkerWithImage(LatLng latLng) {
         // 만약 기존 마커가 있으면 제거
         if (currentMarkerWithImage != null) {
@@ -741,7 +730,7 @@ public class MapPath extends AppCompatActivity
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     System.out.println("Connected to AWS IoT Core");
-                    subscribeToTopic(TOPIC);
+                    subscribeToTopic(GPS_TOPIC);
                     subscribeToTopic(PATH_TOPIC);
                     subscribeToTopic(POINT_TOPIC);
                     subscribeToTopic(SIGNAL_ROS_TOPIC+"/"+userName);
@@ -762,7 +751,7 @@ public class MapPath extends AppCompatActivity
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     // GPS 토픽 처리
-                    if (topic.equals(TOPIC)) {
+                    if (topic.equals(GPS_TOPIC)) {
                         new Thread(() -> handleGpsMessage(message)).start(); // GPS 메시지는 별도의 쓰레드에서 처리
                     }
                     // Path 토픽 처리
@@ -801,7 +790,6 @@ public class MapPath extends AppCompatActivity
 
     // GPS 메시지 처리
     private void handleGpsMessage(MqttMessage message) {
-        messageCount++;
 
         // MQTT 메시지 수신 (String 형식)
         String receivedMessage = message.toString();
@@ -840,59 +828,59 @@ public class MapPath extends AppCompatActivity
         Log.d(TAG, "Received Path MQTT message: " + pathMessage);
 
         List<Double[]> latLongList = new ArrayList<>();
-
-        removeAllPolylines();
-        try {
-            pathMessage = pathMessage.replace("{", "").replace("}", ""); // {} 제거
-            pathMessage = pathMessage.replace("\"", ""); // "" 제거
-            pathMessage = pathMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
-            String[] parts = pathMessage.split(","); // 쉼표로 나눈다
-
-
-
-            double latitude = 0.0;
-            double longitude = 0.0;
-            int cnt = 0;
-            for (String part : parts) {
-                if (part.contains("latitude")) {
-                    latitude = Double.parseDouble(part.split(":")[1].trim());
-                }
-                if (part.contains("longitude")) {
-                    longitude = Double.parseDouble(part.split(":")[1].trim());
-                    latLongList.add(new Double[]{latitude, longitude});
-                }
+        if(pathMessage.equals("new")){
+            removeAllPolylines();
+        }else {
+            try {
+                pathMessage = pathMessage.replace("{", "").replace("}", ""); // {} 제거
+                pathMessage = pathMessage.replace("\"", ""); // "" 제거
+                pathMessage = pathMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
+                String[] parts = pathMessage.split(","); // 쉼표로 나눈다
 
 
-            }
-            runOnUiThread(() -> {
-                boolean isFirstPoint = true;
-                double ui_latitude = 0.0;
-                double ui_longitude = 0.0;
-                double prev_ui_latitude = 0.0;
-                double prev_ui_longitude = 0.0;
-                for (Double[] latLong : latLongList) {
-
-                    ui_latitude = latLong[0];
-                    ui_longitude = latLong[1];
-
-                    if (!isFirstPoint) {
-                        LatLng startLatLng = new LatLng(ui_latitude, ui_longitude);
-                        LatLng endLatLng = new LatLng(prev_ui_latitude, prev_ui_longitude);
-
-                        drawLineBetweenPoints(mMap, startLatLng, endLatLng, Color.RED, 20);
-                    } else {
-                        isFirstPoint = false; // 첫 번째 지점 처리 완료
+                double latitude = 0.0;
+                double longitude = 0.0;
+                for (String part : parts) {
+                    if (part.contains("latitude")) {
+                        latitude = Double.parseDouble(part.split(":")[1].trim());
+                    }
+                    if (part.contains("longitude")) {
+                        longitude = Double.parseDouble(part.split(":")[1].trim());
+                        latLongList.add(new Double[]{latitude, longitude});
                     }
 
-                    prev_ui_latitude = ui_latitude;
-                    prev_ui_longitude = ui_longitude;
+
                 }
-            });
+                runOnUiThread(() -> {
+                    boolean isFirstPoint = true;
+                    double ui_latitude = 0.0;
+                    double ui_longitude = 0.0;
+                    double prev_ui_latitude = 0.0;
+                    double prev_ui_longitude = 0.0;
+                    for (Double[] latLong : latLongList) {
+
+                        ui_latitude = latLong[0];
+                        ui_longitude = latLong[1];
+
+                        if (!isFirstPoint) {
+                            LatLng startLatLng = new LatLng(ui_latitude, ui_longitude);
+                            LatLng endLatLng = new LatLng(prev_ui_latitude, prev_ui_longitude);
+
+                            drawLineBetweenPoints(mMap, startLatLng, endLatLng, Color.RED, 20);
+                        } else {
+                            isFirstPoint = false; // 첫 번째 지점 처리 완료
+                        }
+
+                        prev_ui_latitude = ui_latitude;
+                        prev_ui_longitude = ui_longitude;
+                    }
+                });
 
 
-        } catch (NumberFormatException e) {
-            Log.e(TAG, "Error parsing path message: " + e.getMessage());
-            e.printStackTrace();
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "Error parsing path message: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -996,32 +984,27 @@ public class MapPath extends AppCompatActivity
             double prev_latitude = 0.0;
             double prev_longitude = 0.0;
             boolean isFirstPoint = true;
-            double totalDistance = 0.0;
-
             double latitude = 0.0;
             double longitude = 0.0;
-            int cnt = 0;
+
             for (String part : parts) {
                 if (part.contains("latitude")) {
                     latitude = Double.parseDouble(part.split(":")[1].trim());
                 }
+
                 if (part.contains("longitude")) {
                     longitude = Double.parseDouble(part.split(":")[1].trim());
                     latLongList.add(new Double[]{latitude, longitude});
                 }
-
-
             }
+
             for (Double[] latLong : latLongList) {
                 latitude = latLong[0];
                 longitude = latLong[1];
 
-                System.out.println("Latitude: " + latitude + ", Longitude: " + longitude);
-
                 if (!isFirstPoint) {
                     LatLng startLatLng = new LatLng(latitude, longitude);  // 서울 좌표 예시
                     LatLng endLatLng = new LatLng(prev_latitude, prev_longitude);    // 다른 좌표 예시
-
                     drawLineBetweenPoints(mMap, startLatLng, endLatLng, Color.RED, 5);
                 } else {
                     isFirstPoint = false; // 첫 번째 지점 처리 완료
@@ -1031,8 +1014,6 @@ public class MapPath extends AppCompatActivity
                 prev_latitude = latitude;
                 prev_longitude = longitude;
             }
-
-
         } catch (NumberFormatException e) {
             Log.e(TAG, "Error parsing path message: " + e.getMessage());
             e.printStackTrace();
@@ -1096,7 +1077,6 @@ public class MapPath extends AppCompatActivity
                     adjustCameraToMarkers(markerPositions);  // 카메라 조정
                 });
             }
-
         } catch (Exception e) {
             Log.e("MQTT", "Error parsing point message: " + e.getMessage());
         }
@@ -1104,6 +1084,7 @@ public class MapPath extends AppCompatActivity
 
     // 마커를 추가하는 함수, 방문 순서에 따른 색상을 지정
     private void addMarkerWithColor(LatLng latLng, String title, int order) {
+
         // 순서에 따라 마커 색상 설정
         float markerColor;
         switch (order) {
@@ -1126,9 +1107,7 @@ public class MapPath extends AppCompatActivity
                 .position(latLng)
                 .title(title)
                 .icon(BitmapDescriptorFactory.defaultMarker(markerColor));
-
         mMap.addMarker(markerOptions);
-
     }
 
     private void sendMessage(String topic, String message) {
@@ -1141,15 +1120,7 @@ public class MapPath extends AppCompatActivity
             e.printStackTrace();
         }
     }
-    private void subscribeToTopic() {
-        try {
-            mqttClient.subscribe(TOPIC, 1);  // QoS 1로 토픽 구독
-            mqttClient.subscribe(PATH_TOPIC, 1);  // QoS 1로 토픽 구독
 
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-    }
     private SSLSocketFactory getSocketFactory() {
         try {
             // CA 인증서 로드
@@ -1174,7 +1145,6 @@ public class MapPath extends AppCompatActivity
             // TrustManagerFactory 및 KeyManagerFactory 초기화
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(keyStore);
-
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             kmf.init(keyStore, "password".toCharArray());
 

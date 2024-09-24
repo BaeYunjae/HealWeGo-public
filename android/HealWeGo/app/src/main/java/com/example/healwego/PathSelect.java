@@ -1,6 +1,5 @@
 package com.example.healwego;
 
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -81,7 +80,6 @@ public class PathSelect extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
         // 현재 상태를 저장 (dest와 location 데이터를 저장)
         TextView dest_textview = findViewById(R.id.dest_textview);
         TextView start_textview = findViewById(R.id.start_textview);
@@ -122,7 +120,6 @@ public class PathSelect extends AppCompatActivity
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
         // UI 요소 초기화
         TextView dest_text = findViewById(R.id.dest_textview);
         TextView start_text = findViewById(R.id.start_textview);
@@ -132,6 +129,11 @@ public class PathSelect extends AppCompatActivity
         String startLatitude = "";
         String destLatitude = "";
         String destLongitude ="";
+
+        Button btn = findViewById(R.id.start_button);
+        Button btn2 = findViewById(R.id.dest_button);
+
+
         // 저장된 상태가 있으면 복구
         if (savedInstanceState != null) {
             dest_text.setText(savedInstanceState.getString("dest_locationName", "목적지를 설정하세요"));
@@ -152,24 +154,12 @@ public class PathSelect extends AppCompatActivity
             if (startLocationName != null) {
                 start_text.setText(startLocationName);
             }
-            if(startLatitude!=null){
-                Log.d(TAG, startLatitude);
-            }
-            if(destLatitude!=null){
-                Log.d(TAG, destLatitude);
-            }
-            if(startLongitude!=null){
-
-                Log.d(TAG, startLongitude);
-            }
-            if(destLongitude!=null){
-                Log.d(TAG, destLongitude);
-            }
         }
 
-        Button btn = findViewById(R.id.start_button);
         String finalDestLatitude = destLatitude;
         String finalDestLongitude = destLongitude;
+        String finalStartLatitude = startLatitude;
+        String finalStartLongitude = startLongitude;
 
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -182,9 +172,6 @@ public class PathSelect extends AppCompatActivity
             }
         });
 
-        Button btn2 = findViewById(R.id.dest_button);
-        String finalStartLatitude = startLatitude;
-        String finalStartLongitude = startLongitude;
         btn2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
@@ -204,6 +191,16 @@ public class PathSelect extends AppCompatActivity
             public void onClick(View view) {
                 String dest = (String) dest_text.getText();
                 String start = (String) start_text.getText();
+
+                Log.w(TAG, finalDestLatitude );
+                Log.w(TAG, finalDestLatitude );
+                Log.w(TAG, finalDestLatitude );
+                Log.w(TAG, finalDestLatitude );
+                Log.w(TAG, finalDestLatitude );
+                Log.w(TAG, finalDestLatitude );
+                Log.w(TAG, finalDestLatitude );
+                Log.w(TAG, finalDestLatitude );
+                Log.w(TAG, finalDestLatitude );
 
 
                 if(!Objects.equals(dest, "Please Select dest") && !Objects.equals(start, "Please Select start")){
@@ -258,10 +255,8 @@ public class PathSelect extends AppCompatActivity
             // 두 위치가 있는 경
 
             if (destLocationName != null && startLocationName != null) {
-
                 // destLocationName만 있는 경우
                 if( (!destLocationName.equals("Please Select dest") && !startLocationName.equals("Please Select start"))){
-
                     LatLng destLatLng = getLatLngFromLocationName(destLocationName);
                     LatLng startLatLng = getLatLngFromLocationName(startLocationName);
 
@@ -271,20 +266,16 @@ public class PathSelect extends AppCompatActivity
                         builder.include(destLatLng);
                         builder.include(startLatLng);
                         LatLngBounds bounds = builder.build();
-
                         // 마커 추가
                         addMarker(destLatLng, destLocationName,false);
                         addMarker(startLatLng, startLocationName,true);
-
                         // 카메라 이동 및 줌 조정
                         int padding = 100; // 경계에 패딩 추가
                         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
                         mMap.moveCamera(cu);
                     }
                 }
-
                 else if (!destLocationName.equals("Please Select dest")) {
-
                     LatLng destLatLng = getLatLngFromLocationName(destLocationName);
                     if (destLatLng != null) {
                         addMarker(destLatLng, destLocationName,false);
@@ -300,10 +291,6 @@ public class PathSelect extends AppCompatActivity
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 15));
                     }
                 }
-                Log.w(TAG, String.valueOf(markerPositions.size()));
-                Log.w(TAG, destLocationName );
-                Log.w(TAG, startLocationName );
-
             }
             else {
                 // 내 위치로 이동
@@ -312,32 +299,24 @@ public class PathSelect extends AppCompatActivity
 
             startLocationUpdates(); // 3. 위치 업데이트 시작
             disableScrollIfMarkersExist();
-
-
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
-
             // 3-1. 사용자가 퍼미션 거부를 한 적이 있는 경우에는
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])) {
-
                 // 3-2. 요청을 진행하기 전에 사용자가에게 퍼미션이 필요한 이유를 설명해줄 필요가 있습니다.
                 Snackbar.make(mLayout, "이 앱을 실행하려면 위치 접근 권한이 필요합니다.",
                         Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
-
                     @Override
                     public void onClick(View view) {
                         // 3-3. 사용자게에 퍼미션 요청을 합니다. 요청 결과는 onRequestPermissionResult에서 수신됩니다.
-                        ActivityCompat.requestPermissions( PathSelect.this, REQUIRED_PERMISSIONS,
-                                PERMISSIONS_REQUEST_CODE);
+                        ActivityCompat.requestPermissions( PathSelect.this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE);
                     }
                 }).show();
-
             } else {
                 // 4-1. 사용자가 퍼미션 거부를 한 적이 없는 경우에는 퍼미션 요청을 바로 합니다.
                 // 요청 결과는 onRequestPermissionResult에서 수신됩니다.
                 ActivityCompat.requestPermissions( this, REQUIRED_PERMISSIONS,
                         PERMISSIONS_REQUEST_CODE);
             }
-
         }
         // 카메라가 이동을 멈출 때 마커를 중앙으로 이동시키는 리스너 추가
         mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
@@ -360,15 +339,9 @@ public class PathSelect extends AppCompatActivity
 
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
-
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        // 현재 오동작을 해서 주석처리
-        //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-
             @Override
             public void onMapClick(LatLng latLng) {
-
                 Log.d( TAG, "onMapClick :");
             }
         });
@@ -378,30 +351,20 @@ public class PathSelect extends AppCompatActivity
         @Override
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
-
             List<Location> locationList = locationResult.getLocations();
 
             if (locationList.size() > 0) {
                 location = locationList.get(locationList.size() - 1);
-                //location = locationList.get(0);
-
                 currentPosition
                         = new LatLng(location.getLatitude(), location.getLongitude());
-
                 String markerTitle = getCurrentAddress(currentPosition);
                 String markerSnippet = "위도:" + String.valueOf(location.getLatitude())
                         + " 경도:" + String.valueOf(location.getLongitude());
-
                 Log.d(TAG, "onLocationResult : " + markerSnippet);
-
-
                 //현재 위치에 마커 생성하고 이동
                 setCurrentLocation(location, markerTitle, markerSnippet);
-
                 mCurrentLocatiion = location;
             }
-
-
         }
 
     };
@@ -416,7 +379,6 @@ public class PathSelect extends AppCompatActivity
             builder.include(position);
         }
         LatLngBounds bounds = builder.build();
-
         // 화면 크기에 맞게 카메라 업데이트 (패딩을 추가하여 경계를 벗어나지 않게 설정)
         int padding = 100; // 패딩은 원하는 대로 설정 (px 단위)
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
@@ -480,7 +442,6 @@ public class PathSelect extends AppCompatActivity
         // 마커 위치를 리스트에 추가
         assert marker != null;
         markerPositions.add(latLng);
-
         // 모든 마커가 보이도록 카메라 조정
         adjustCameraToMarkers(markerPositions);
     }
@@ -507,14 +468,11 @@ public class PathSelect extends AppCompatActivity
     }
 
     public String getCurrentAddress(LatLng latlng) {
-
         //지오코더... GPS를 주소로 변환
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-
         List<Address> addresses;
 
         try {
-
             addresses = geocoder.getFromLocation(
                     latlng.latitude,
                     latlng.longitude,
@@ -526,42 +484,31 @@ public class PathSelect extends AppCompatActivity
         } catch (IllegalArgumentException illegalArgumentException) {
             Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
             return "잘못된 GPS 좌표";
-
         }
-
 
         if (addresses == null || addresses.size() == 0) {
             Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
             return "주소 미발견";
-
         } else {
             Address address = addresses.get(0);
             return address.getAddressLine(0).toString();
         }
-
     }
 
     public boolean checkLocationServicesStatus() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
-
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-
-
     }
 
     public void setDefaultLocation() {
-        //디폴트 위치, Seoul
         LatLng DEFAULT_LOCATION = new LatLng(37.56, 126.97);
         String markerTitle = "위치정보 가져올 수 없음";
         String markerSnippet = "위치 퍼미션과 GPS 활성 요부 확인하세요";
-
 
         if (currentMarker != null) currentMarker.remove();
 
@@ -571,15 +518,12 @@ public class PathSelect extends AppCompatActivity
         markerOptions.snippet(markerSnippet);
         markerOptions.draggable(true);
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 15);
         mMap.moveCamera(cameraUpdate);
     }
-
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     //여기부터는 런타임 퍼미션 처리을 위한 메소드들
     private boolean checkPermission() {
-
         int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
         int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this,
@@ -589,29 +533,19 @@ public class PathSelect extends AppCompatActivity
                 hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED   ) {
             return true;
         }
-
         return false;
-
     }
 
-    /*
-     * ActivityCompat.requestPermissions를 사용한 퍼미션 요청의 결과를 리턴받는 메소드입니다.
-     */
+    // ActivityCompat.requestPermissions를 사용한 퍼미션 요청의 결과를 리턴받는 메소드입니다.
     @Override
     public void onRequestPermissionsResult(int permsRequestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grandResults) {
-
         super.onRequestPermissionsResult(permsRequestCode, permissions, grandResults);
         if (permsRequestCode == PERMISSIONS_REQUEST_CODE && grandResults.length == REQUIRED_PERMISSIONS.length) {
-
             // 요청 코드가 PERMISSIONS_REQUEST_CODE 이고, 요청한 퍼미션 개수만큼 수신되었다면
-
             boolean check_result = true;
-
-
             // 모든 퍼미션을 허용했는지 체크합니다.
-
             for (int result : grandResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {
                     check_result = false;
@@ -619,51 +553,37 @@ public class PathSelect extends AppCompatActivity
                 }
             }
 
-
             if (check_result) {
-
                 // 퍼미션을 허용했다면 위치 업데이트를 시작합니다.
                 startLocationUpdates();
             } else {
                 // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
-
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])
                         || ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[1])) {
-
-
                     // 사용자가 거부만 선택한 경우에는 앱을 다시 실행하여 허용을 선택하면 앱을 사용할 수 있습니다.
                     Snackbar.make(mLayout, "퍼미션이 거부되었습니다. 앱을 다시 실행하여 퍼미션을 허용해주세요. ",
                             Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
-
                         @Override
                         public void onClick(View view) {
-
                             finish();
                         }
                     }).show();
-
                 } else {
-
-
                     // "다시 묻지 않음"을 사용자가 체크하고 거부를 선택한 경우에는 설정(앱 정보)에서 퍼미션을 허용해야 앱을 사용할 수 있습니다.
                     Snackbar.make(mLayout, "퍼미션이 거부되었습니다. 설정(앱 정보)에서 퍼미션을 허용해야 합니다. ",
                             Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
-
                         @Override
                         public void onClick(View view) {
-
                             finish();
                         }
                     }).show();
                 }
             }
-
         }
     }
 
     //여기부터는 GPS 활성화를 위한 메소드들
     private void showDialogForLocationServiceSetting() {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(PathSelect.this);
         builder.setTitle("위치 서비스 비활성화");
         builder.setMessage("앱을 사용하기 위해서는 위치 서비스가 필요합니다.\n"
@@ -686,33 +606,22 @@ public class PathSelect extends AppCompatActivity
         builder.create().show();
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-
             case GPS_ENABLE_REQUEST_CODE:
-
                 //사용자가 GPS 활성 시켰는지 검사
                 if (checkLocationServicesStatus()) {
                     if (checkLocationServicesStatus()) {
-
                         Log.d(TAG, "onActivityResult : GPS 활성화 되있음");
-
-
                         needRequest = true;
-
                         return;
                     }
                 }
-
                 break;
         }
     }
-
-
-
 }
 
