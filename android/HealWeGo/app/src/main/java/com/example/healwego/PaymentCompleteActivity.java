@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;  // View를 사용하기 위해 추가
 import android.widget.Button;  // Button 사용을 위해 추가
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -57,9 +58,12 @@ public class PaymentCompleteActivity extends AppCompatActivity {
     private static final String POINT_TOPIC = "path/points/ros/001";
     private static int price = 0;
     private TextView paymentAmout;
+    private TextView completeTextView;
 
     private String pathMessage="init";
     private String pointMessage;
+
+    private ProgressBar progressBar;
 
     MqttAsyncClient mqttClient;
     @Override
@@ -70,6 +74,7 @@ public class PaymentCompleteActivity extends AppCompatActivity {
         // confirmButton과 연결
         confirmButton = findViewById(R.id.confirmButton);  // XML에서 버튼의 ID로 찾음
         paymentAmout = findViewById(R.id.paymentAmount);
+        completeTextView = findViewById(R.id.paymentCompleteMessage);
         // confirmButton 클릭 시 MapPath로 이동
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,6 +87,11 @@ public class PaymentCompleteActivity extends AppCompatActivity {
             }
         });
 
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+        confirmButton.setVisibility(View.GONE);
+        paymentAmout.setVisibility(View.GONE);
+        completeTextView.setVisibility(View.GONE);
         connectToMqtt();
     }
 
@@ -207,10 +217,15 @@ public class PaymentCompleteActivity extends AppCompatActivity {
                 double finalTotalDistance = totalDistance;
                 int finalPrice = price;
                 runOnUiThread(() -> paymentAmout.setText(finalPrice + "원"));
+                runOnUiThread(()->progressBar.setVisibility(View.GONE));  // 데이터 처리 완료 후 로딩 화면 숨김
+                runOnUiThread(()->confirmButton.setVisibility(View.VISIBLE));
+                runOnUiThread(()->paymentAmout.setVisibility(View.VISIBLE));
+                runOnUiThread(()->completeTextView.setVisibility(View.VISIBLE));
 
             } catch (Exception e) {
                 Log.e(TAG, "Error handling path message: " + e.getMessage());
                 e.printStackTrace();
+
             }
         }
     }
