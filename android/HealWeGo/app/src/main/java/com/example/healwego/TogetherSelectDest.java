@@ -167,12 +167,16 @@ public class TogetherSelectDest extends AppCompatActivity
                             return;
                         }
                     }
+
+                    double latitude = markerPosition.latitude;
+                    double longitude = markerPosition.longitude;
+
                     // Intent에 데이터를 추가하고 다른 액티비티로 전달
                     Intent intent = new Intent(TogetherSelectDest.this, CreateRoomActivity.class);
                     intent.putExtra("saveInformation", information+"|"+locationName);  // 마커 위치 주소를 전달
                     intent.putExtra("Loc_name",locationName);
-                    intent.putExtra("latitude",markerPosition.latitude);
-                    intent.putExtra("longitude",markerPosition.longitude);
+                    intent.putExtra("latitude", ""+latitude);
+                    intent.putExtra("longitude",""+longitude);
                     startActivity(intent);
                 } else {
                     Toast.makeText(TogetherSelectDest.this, "현재 위치가 설정되지 않았습니다.", Toast.LENGTH_SHORT).show();
