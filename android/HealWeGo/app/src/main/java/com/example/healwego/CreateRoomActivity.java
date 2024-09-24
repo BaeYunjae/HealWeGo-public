@@ -2,13 +2,18 @@ package com.example.healwego;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,9 +26,17 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.amazonaws.mobile.client.AWSMobileClient;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.ref.WeakReference;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
+import java.util.UUID;
 
 public class CreateRoomActivity extends AppCompatActivity {
 
@@ -35,6 +48,37 @@ public class CreateRoomActivity extends AppCompatActivity {
     private RadioButton radioAll, radioMale, radioFemale;
     private Button buttonThemeHealing, buttonThemeExtreme, buttonThemeFood, buttonThemeMeeting;
     private String selectedTheme = "힐링"; // 선택된 테마 정보를 저장하는 변수
+
+    // 목척지 찾기 버튼에서 얻어야 하는 값, 기본값은 일단 "서울"
+    private String latitude = "37.5665";
+    private String longitude = "126.9780";
+    private String locationName = "서울";
+
+    // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
+    private static class MyHandler extends Handler {
+        private final WeakReference<CreateRoomActivity> weakReference;
+
+        // Deprecated 경고를 해결하기 위해 Looper를 명시적으로 받도록 수정
+        public MyHandler(Looper looper, CreateRoomActivity createRoomActivity) {
+            super(looper);  // 명시적으로 Looper를 전달
+            weakReference = new WeakReference<>(createRoomActivity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            CreateRoomActivity createRoomActivity = weakReference.get();
+            if (createRoomActivity != null && !createRoomActivity.isFinishing()) {
+                // 액티비티가 여전히 존재하는 경우에만 작업 수행
+                String jsonString = (String) msg.obj;
+                Toast.makeText(createRoomActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
+                Log.i("CreateRoomActivity", "응답: " + jsonString);
+            }
+        }
+    }
+
+    // WeakReference로 Activity에 대한 참조를 가진 MyHandler 객체
+    private final CreateRoomActivity.MyHandler mHandler = new CreateRoomActivity.MyHandler(Looper.getMainLooper(), this); // MainLooper 전달
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +147,19 @@ public class CreateRoomActivity extends AppCompatActivity {
         // 기본 선택된 시간으로 첫 번째 항목 설정
         selectedTime = availableTimes.get(0);
 
+        // Spinner의 선택 변경 리스너 추가
+        timeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                selectedTime = availableTimes.get(position);  // 선택된 값을 selectedTime에 저장
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // 아무것도 선택되지 않은 경우 기본값 유지 (이미 첫 번째 값이 저장됨)
+            }
+        });
+
         Intent getintent = getIntent();
         String information = getintent.getStringExtra("saveInformation");
         if (information != null) {
@@ -159,6 +216,18 @@ public class CreateRoomActivity extends AppCompatActivity {
             }
         });
 
+
+/*        Button.OnClickListener ButtonListener = new Button.OnClickListener() {
+            // 다음 버튼 클릭 시 API 호출 및 card_register 액티비티로 이동
+            @Override
+            public void onClick (View v) {
+                if (v == buttonCreateRoom) {
+                    showConfirmationDialog();  // 설정된 정보를 보여주는 다이얼로그 호출
+                }
+            }
+        };
+        buttonCreateRoom.setOnClickListener(ButtonListener);*/
+
         // 방 생성 버튼 클릭 처리
         buttonCreateRoom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,9 +242,54 @@ public class CreateRoomActivity extends AppCompatActivity {
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish(); // 액티비티 종료
+                Intent intent = new Intent(CreateRoomActivity.this, ChatListActivity.class);
+                startActivity(intent);
             }
         });
+    }
+
+    // 방 생성 요청을 보내는 메소드
+    private void sendCreateRoomRequest(){
+        String roomTitle = editRoomTitle.getText().toString().trim();
+        int minAge = Integer.parseInt(editMinAge.getText().toString().trim());
+        int maxAge = Integer.parseInt(editMaxAge.getText().toString().trim());
+        int genderFilter = getGenderFilter();
+
+        String userId = AWSMobileClient.getInstance().getUsername();
+        String userLat = "37.5665";  // 임의의 사용자 위치 (DB에서 userid로 접근해 가져와야 함)ㅗ
+        String userLon = "126.9780"; // 임의의 사용자 위치
+
+        // 현재 시간 기준으로 출발 시간을 선택
+        String startTime = selectedTime.replace(":", "");  // 시분 형식으로 포맷팅
+        JSONObject body = new JSONObject();
+
+        String connMethod = "POST";
+
+        try{
+            body.put("Method", connMethod);
+            body.put("Loc_name", locationName);
+            body.put("roomname", roomTitle);
+            body.put("start", startTime);  // 시작 시간 (timestamp 형태)
+            body.put("latitude", latitude);
+            body.put("longitude", longitude);
+            body.put("gender", genderFilter);
+            body.put("min_age", minAge);
+            body.put("max_age", maxAge);
+            body.put("User_ID", userId);
+            body.put("theme", selectedTheme);
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON 생성 오류", e);
+            return;
+        }
+
+        String bodyJson = body.toString();
+        String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/init";
+
+        ApiRequestHandler.getJSON(mURL, connMethod, mHandler, bodyJson);
+        Log.i("CreateRoomActivity", "요청: " + bodyJson);
+
+        Toast.makeText(this, "방이 생성되었습니다!", Toast.LENGTH_LONG).show();
+
     }
 
     // 방 생성 정보 확인 다이얼로그
@@ -209,6 +323,8 @@ public class CreateRoomActivity extends AppCompatActivity {
         builder.setTitle("방 생성 정보 확인")
                 .setMessage(roomInfo)
                 .setPositiveButton("확인", (dialog, which) -> {
+                    // 서버에 POST 요청 보냄 
+                    sendCreateRoomRequest();
                     // 방 생성 후 ChatActivity로 이동하며 방장 여부(isHost)를 전달
                     Intent intent = new Intent(CreateRoomActivity.this, ChatActivity.class);
                     intent.putExtra("roomTitle", roomTitle);
@@ -219,6 +335,19 @@ public class CreateRoomActivity extends AppCompatActivity {
                 .show();
 
     }
+
+    // 성별 필터 값을 반환하는 메소드
+    private int getGenderFilter() {
+        int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
+        if (selectedGenderId == R.id.radioMale) {
+            return 0;  // 남성만
+        } else if (selectedGenderId == R.id.radioFemale) {
+            return 1;  // 여성만
+        } else {
+            return 2;  // 성별 무관
+        }
+    }
+
 
     // 입력값 검증 메소드
     private boolean validateInput() {
