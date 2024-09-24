@@ -162,6 +162,14 @@ public class CreateRoomActivity extends AppCompatActivity {
 
         Intent getintent = getIntent();
         String information = getintent.getStringExtra("saveInformation");
+        if (getintent != null) {
+            locationName = getintent.getStringExtra("Loc_name");
+            latitude = getintent.getStringExtra("latitude");
+            longitude = getintent.getStringExtra("longitude");
+
+            // 값이 잘 받아졌는지 로그로 확인
+            Log.d(TAG, "받은 위치 정보: " + locationName + ", 위도: " + latitude + ", 경도: " + longitude);
+        }
         if (information != null) {
             Log.w(TAG, information);
             String[] parts = information.split("\\|");
@@ -203,7 +211,7 @@ public class CreateRoomActivity extends AppCompatActivity {
             }
         });
 
-        // 목적지 찾기 버튼 클릭 처리 (DestSelect 액티비티로 이동)
+        // 목적지 찾기 버튼 클릭 처리 (TogetherDestSelect 액티비티로 이동)
         buttonFindDestination.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -211,22 +219,10 @@ public class CreateRoomActivity extends AppCompatActivity {
                 intent.putExtra("information", editRoomTitle.getText() + "|" +
                         timeSpinner.getSelectedItem().toString() + "|" + radioAll.isChecked() + "|" + radioMale.isChecked() + "|" + radioFemale.isChecked()
                         + "|" + editMinAge.getText() + "|" + editMaxAge.getText()
-                );  // 마커 위치 주소를 전달
+                );  // 마커 위치 주소를 전달, TogetherDest에 이전에 설정한 정보를 보내서 목적지를 받아서 옴
                 startActivity(intent);
             }
         });
-
-
-/*        Button.OnClickListener ButtonListener = new Button.OnClickListener() {
-            // 다음 버튼 클릭 시 API 호출 및 card_register 액티비티로 이동
-            @Override
-            public void onClick (View v) {
-                if (v == buttonCreateRoom) {
-                    showConfirmationDialog();  // 설정된 정보를 보여주는 다이얼로그 호출
-                }
-            }
-        };
-        buttonCreateRoom.setOnClickListener(ButtonListener);*/
 
         // 방 생성 버튼 클릭 처리
         buttonCreateRoom.setOnClickListener(new View.OnClickListener() {
@@ -256,7 +252,7 @@ public class CreateRoomActivity extends AppCompatActivity {
         int genderFilter = getGenderFilter();
 
         String userId = AWSMobileClient.getInstance().getUsername();
-        String userLat = "37.5665";  // 임의의 사용자 위치 (DB에서 userid로 접근해 가져와야 함)ㅗ
+        String userLat = "37.5665";  // 임의의 사용자 위치 (DB에서 userid로 접근해 가져와야 함)
         String userLon = "126.9780"; // 임의의 사용자 위치
 
         // 현재 시간 기준으로 출발 시간을 선택
