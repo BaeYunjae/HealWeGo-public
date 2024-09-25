@@ -56,27 +56,40 @@
         android:layout_marginBottom="10dp"
         android:layout_marginHorizontal="10dp">
 
-        <!-- 첫 번째 텍스트 -->
-        <TextView
-            android:id="@+id/testtext"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="20dp"
-            android:text="텍스트1"
-            android:textSize="22sp"
-            android:textColor="#000000" />
+        <!-- 첫 번째 텍스트 (스크롤 가능하도록 수정) -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/currentText"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="텍스트1"
+                android:textSize="22sp"
+                android:textColor="#000000"
+                android:maxLines="1"
+                android:scrollHorizontally="true" />
+        </HorizontalScrollView>
 
-        <!-- 두 번째 텍스트 -->
-        <TextView
-            android:id="@+id/testtest"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="텍스트2"
-            android:layout_marginLeft="20dp"
-            android:textSize="22sp"
-            android:textColor="#000000" />
+        <!-- 두 번째 텍스트 (스크롤 가능하도록 수정) -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/destText"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="텍스트2"
+                android:layout_marginLeft="20dp"
+                android:textSize="22sp"
+                android:textColor="#000000"
+                android:maxLines="1"
+                android:scrollHorizontally="true" />
+        </HorizontalScrollView>
+
 
         <!-- 버튼들이 들어갈 레이아웃 -->
         <LinearLayout
@@ -115,5 +128,3 @@
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>
-
-
