@@ -59,6 +59,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView2">
 
         <LinearLayout
+            android:id="@+id/scrollLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -68,10 +69,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <!-- 이미지 뷰 -->
-
-
-                <!-- 이미지 뷰 안의 텍스트 -->
                 <ImageView
                     android:id="@+id/imageView1"
                     android:layout_width="330dp"
@@ -79,7 +76,6 @@
                     android:layout_marginBottom="10dp"
                     android:alpha="0.5"
                     android:contentDescription="을왕리 해수욕장 정보"
-                    android:onClick="onImageClicked"
                     android:scaleType="centerCrop"
                     app:srcCompat="@drawable/eurwangri_beach" />
 
@@ -91,7 +87,7 @@
                     android:layout_marginStart="10dp"
                     android:gravity="center|left"
                     android:paddingLeft="30dp"
-                    android:text="을왕리\n해수욕장"
+                    android:text="추천 장소\n로딩중..."
                     android:textColor="@android:color/black"
                     android:textSize="20sp" />
 
@@ -108,7 +104,6 @@
                     android:layout_marginBottom="10dp"
                     android:alpha="0.5"
                     android:contentDescription="을왕리 해수욕장 정보"
-                    android:onClick="onImageClicked"
                     android:scaleType="centerCrop"
                     app:srcCompat="@drawable/eurwangri_beach" />
 
@@ -120,7 +115,7 @@
                     android:layout_marginStart="10dp"
                     android:gravity="center|left"
                     android:paddingLeft="30dp"
-                    android:text="을왕리\n해수욕장"
+                    android:text="추천 장소\n로딩중..."
                     android:textColor="@android:color/black"
                     android:textSize="20sp" />
 
@@ -137,7 +132,6 @@
                     android:layout_marginBottom="10dp"
                     android:alpha="0.5"
                     android:contentDescription="을왕리 해수욕장 정보"
-                    android:onClick="onImageClicked"
                     android:scaleType="centerCrop"
                     app:srcCompat="@drawable/eurwangri_beach" />
 
@@ -149,7 +143,7 @@
                     android:layout_marginStart="10dp"
                     android:gravity="center|left"
                     android:paddingLeft="30dp"
-                    android:text="을왕리\n해수욕장"
+                    android:text="추천 장소\n로딩중..."
                     android:textColor="@android:color/black"
                     android:textSize="20sp" />
 
@@ -166,7 +160,6 @@
                     android:layout_marginBottom="10dp"
                     android:alpha="0.5"
                     android:contentDescription="을왕리 해수욕장 정보"
-                    android:onClick="onImageClicked"
                     android:scaleType="centerCrop"
                     app:srcCompat="@drawable/eurwangri_beach" />
 
@@ -178,7 +171,7 @@
                     android:layout_marginStart="10dp"
                     android:gravity="center|left"
                     android:paddingLeft="30dp"
-                    android:text="을왕리\n해수욕장"
+                    android:text="추천 장소\n로딩중..."
                     android:textColor="@android:color/black"
                     android:textSize="20sp" />
 

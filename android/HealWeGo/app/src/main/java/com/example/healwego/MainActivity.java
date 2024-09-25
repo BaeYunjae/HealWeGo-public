@@ -1,17 +1,28 @@
 package com.example.healwego;
 
+import static com.google.android.material.internal.ViewUtils.dpToPx;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Base64;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -47,11 +58,11 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonReseve;
 
     // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
-    private static class MyHandler extends Handler {
+    private static class ReserveHandler extends Handler {
         private final WeakReference<MainActivity> weakReference;
 
         // Deprecated 경고를 해결하기 위해 Looper를 명시적으로 받도록 수정
-        public MyHandler(Looper looper, MainActivity mainActivity) {
+        public ReserveHandler(Looper looper, MainActivity mainActivity) {
             super(looper);  // 명시적으로 Looper를 전달
             weakReference = new WeakReference<>(mainActivity);
         }
@@ -72,8 +83,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private static class RecommendHandler extends Handler {
+        private final WeakReference<MainActivity> weakReference;
+
+        // Deprecated 경고를 해결하기 위해 Looper를 명시적으로 받도록 수정
+        public RecommendHandler(Looper looper, MainActivity mainActivity) {
+            super(looper);  // 명시적으로 Looper를 전달
+            weakReference = new WeakReference<>(mainActivity);
+        }
+
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity mainActivity = weakReference.get();
+            if (mainActivity != null && !mainActivity.isFinishing()) {
+                // 액티비티가 여전히 존재하는 경우에만 작업 수행
+                String jsonString = (String) msg.obj;
+                Toast.makeText(mainActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
+                Log.i("mainActivity", "응답: " + jsonString);
+
+                // 응답을 처리하는 메서드 호출
+                mainActivity.handleRecommendResponse(jsonString);
+            }
+        }
+    }
+
     // WeakReference로 Activity에 대한 참조를 가진 MyHandler 객체
-    private final MainActivity.MyHandler mHandler = new MainActivity.MyHandler(Looper.getMainLooper(), this); // MainLooper 전달
+    private final MainActivity.ReserveHandler rsHandler = new MainActivity.ReserveHandler(Looper.getMainLooper(), this); // MainLooper 전달
+    private final MainActivity.RecommendHandler rcHandler = new MainActivity.RecommendHandler(Looper.getMainLooper(), this); // MainLooper 전달
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,44 +127,14 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-
+        requestRecommendation();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         // 페이지로 돌아올 때마다 호출하고 싶은 함수
         requestReservation();
-    }
-
-    // 혼자가기 버튼 클릭 리스너
-    public void onButton1Clicked(View v) {
-        Toast.makeText(this, "혼자가기 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
-
-        // PathSelect로 이동
-        Intent intent = new Intent(MainActivity.this, PathSelect.class);
-        startActivity(intent);
-    }
-
-    // 함께가기 버튼 클릭 리스너
-    public void onButton2Clicked(View v) {
-        Toast.makeText(this, "함께가기 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
-
-        // TogetherSelectStart로 이동
-        Intent intent = new Intent(MainActivity.this, TogetherSelectStart.class);
-        startActivity(intent);
-    }
-
-    // 이미지 클릭 리스너 (을왕리 해수욕장 클릭)
-    public void onImageClicked(View v) {
-        // Toast 메시지 표시
-        Toast.makeText(this, "을왕리 해수욕장이 눌렸어요.", Toast.LENGTH_SHORT).show();
-
-        // 추천 장소별 정보 페이지로 가야 함 (아직 구현 안 함) - 앱 자체 안에 넣어? 아니면 DB? 서버에 장소 이름을 API로 보내
-        // ReserveActivity로 이동
-        Intent intent = new Intent(MainActivity.this, ExplainPlaceActivity.class);
-        startActivity(intent);
     }
 
     // 방 목록 요청 메소드
@@ -154,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("MainActivity", "요청 바디: " + bodyJson);
 
         // API 요청 함수
-        ApiRequestHandler.getJSON(mURL, connMethod, mHandler, bodyJson);
+        ApiRequestHandler.getJSON(mURL, connMethod, rsHandler, bodyJson);
     }
 
     // 방 목록 응답 처리 메소드
@@ -271,4 +278,119 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // 추천 장소 목록 요청 메소드
+    private void requestRecommendation(){
+
+        // JSON 요청 생성
+        JSONObject body = new JSONObject();
+        String userId = AWSMobileClient.getInstance().getUsername();
+
+        // API 호출에 필요한 정보
+        // API 유형
+        connMethod = "PATCH";
+        mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "recommend-destination";
+
+        try{
+            body.put("Method", connMethod);
+        }catch(JSONException e){
+            Log.e("ChatListActivity", "JSON 생성 오류", e);
+            return;
+        }
+
+        String bodyJson = body.toString();
+        Log.i("MainActivity", "요청 바디: " + bodyJson);
+
+        // API 요청 함수
+        ApiRequestHandler.getJSON(mURL, connMethod, rcHandler, bodyJson);
+    }
+
+    // 추천 장소 목록 응답 처리 메소드
+    private void handleRecommendResponse(String response){
+
+        Context context = this;
+        LinearLayout parentLayout = (LinearLayout) findViewById(R.id.scrollLayout);
+        parentLayout.removeAllViews();
+        Log.i("RESPONSE", "RESPONSE" + response);
+        try {
+            // 1. 응답을 JSONObject로 변환
+            JSONObject responseObject = new JSONObject(response);
+
+            // 2. "body" 필드를 문자열로 가져옴
+            String body = responseObject.getString("body");
+
+            // JSON 문자열을 JSONArray로 변환
+            JSONArray jsonArray = new JSONArray(body);
+            Log.i("RESPONSE", "ARRAY length : " + jsonArray.length());
+
+            // JSONArray를 순회하며 각 객체를 파싱
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                String locName = jsonObject.getString("Loc_name");
+                String description = jsonObject.getString("description");
+                String encodedImage = jsonObject.getString("encoded_image");
+
+                // Base64로 인코딩된 이미지 디코딩
+                byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+                Bitmap decodedImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+                Log.i("DECODED", "locName " + locName);
+                Log.i("DECODED", "description : " + description);
+                Log.i("DECODED", "decodedImage : " + decodedImage);
+
+                // 동적으로 FrameLayout 생성
+                FrameLayout frameLayout = new FrameLayout(this);
+                FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT
+                );
+                frameLayout.setLayoutParams(frameLayoutParams);
+
+                // 동적으로 ImageView 생성
+                ImageView imageView = new ImageView(context);
+                FrameLayout.LayoutParams imageViewParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300);
+                imageViewParams.setMargins(0, 0, 0, 50);
+                imageView.setLayoutParams(imageViewParams);
+                imageView.setImageBitmap(decodedImage); // 디코딩한 이미지 설정
+                imageView.setAlpha(0.5f); // 이미지 반투명 설정
+                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+                // TextView 생성 및 설정 (왼쪽 정렬 및 상하 중앙 정렬)
+                TextView textView = new TextView(this);
+                FrameLayout.LayoutParams textParams = new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT
+                );
+
+                textParams.gravity = Gravity.CENTER_VERTICAL | Gravity.START;  // gravity 설정: 상하 중앙, 왼쪽 정렬
+                textView.setLayoutParams(textParams);
+                textView.setText(locName);
+                textView.setTextSize(20);
+                textView.setTextColor(getResources().getColor(android.R.color.black));
+
+                // FrameLayout에 ImageView와 TextView 추가
+                frameLayout.addView(imageView);
+                frameLayout.addView(textView);
+
+                // 부모 레이아웃에 추가 (예: LinearLayout)
+                parentLayout.addView(frameLayout);
+
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Toast 메시지 표시
+                        Toast.makeText(context, "이미지 클릭!!", Toast.LENGTH_SHORT).show();
+
+                        // RecommendPopUpActivity 출력
+                        Intent intent = new Intent(context, RecommendPopUpActivity.class);
+                        intent.putExtra("data", description);
+                        startActivityForResult(intent, 1);
+                    }
+                });
+            }
+
+        } catch (JSONException e) {
+            Log.e("IMAGEVIEW", "추천 정보 파싱 오류", e);
+        }
+    }
 }
