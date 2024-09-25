@@ -134,19 +134,16 @@ public class MapPath extends AppCompatActivity
     private static final String SIGNAL_APP_TOPIC = "signal/app/001";
 
 
-    String userName = AWSMobileClient.getInstance().getUsername();
 
     private MqttAsyncClient mqttClient;
 
     private TextView textView;  // TextView 선언
     private String init_path;
     private String init_order;
-
     boolean firstCameraUpdate = false;
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
     }
 
     @SuppressLint("MissingInflatedId")
@@ -269,7 +266,9 @@ public class MapPath extends AppCompatActivity
                             // Yes를 눌렀을 때 동작
                             state = 2;
                             btn.setText("이동 재개");
-                            sendMessage(SIGNAL_APP_TOPIC,"stop");
+                            sendMessage(SIGNAL_APP_TOPIC,"{" +
+                                    "\"command\" : \"stop\"" +
+                                    "}");
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -282,9 +281,12 @@ public class MapPath extends AppCompatActivity
         }else if(state == 2){
             state = 1;
             btn.setText("비상 정지");
-            sendMessage(SIGNAL_APP_TOPIC,"resume");
+            sendMessage(SIGNAL_APP_TOPIC,"{" +
+                    "\"command\" : \"resume\"" +
+                    "}");
         }
     }
+
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         Log.d(TAG, "onMapReady :");
@@ -416,6 +418,7 @@ public class MapPath extends AppCompatActivity
             }
         }
     };
+
     private List<LatLng> markerPositions = new ArrayList<>();
 
     private void adjustCameraToMarkers(List<LatLng> markerPositions) {
@@ -509,6 +512,53 @@ public class MapPath extends AppCompatActivity
         currentMarkerWithImage = mMap.addMarker(markerOptions);
     }
 
+    private void addMarkerWithNumber(LatLng latLng, int order) {
+        System.out.println("addMarkerWithNumber = "+order);
+
+        System.out.println("addMarkerWithNumber = "+order);
+        System.out.println("addMarkerWithNumber = "+order);
+        // 순서(order)에 따라 이미지를 선택
+        int drawableId;
+        switch (order) {
+            case 1:
+                drawableId = R.drawable.one; // 1번 마커에 사용할 이미지
+                break;
+            case 2:
+                drawableId = R.drawable.two; // 2번 마커에 사용할 이미지
+                break;
+            case 3:
+                drawableId = R.drawable.three; // 3번 마커에 사용할 이미지
+                break;
+            case 4:
+                drawableId = R.drawable.four; // 기본 마커 이미지
+                break;
+            case 5:
+                drawableId = R.drawable.five; // 기본 마커 이미지
+                break;
+            default:
+                drawableId = 0;
+        }
+
+        if(drawableId!=0){
+            // 리소스에서 비트맵 이미지를 불러오고 크기를 조정
+            Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), drawableId);
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 150, 150, false);  // 원하는 크기로 조절 (200x200 예시)
+
+            // 리사이즈한 비트맵을 마커에 적용
+            BitmapDescriptor customMarker = BitmapDescriptorFactory.fromBitmap(resizedBitmap);
+
+            // 마커 옵션 설정
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(latLng)  // 마커 위치 설정
+                    .icon(customMarker)  // 커스텀 이미지 설정
+                    .anchor(0.5f, 0.5f);  // 이미지의 중심이 좌표에 맞도록 설정
+
+            // 마커를 지도에 추가하고 해당 마커를 저장
+            mMap.addMarker(markerOptions);
+        }
+
+    }
+
     private void showToastMessage(String message) {
         // 현재 표시 중인 Toast가 있다면 취소
         if (currentToast != null) {
@@ -533,7 +583,6 @@ public class MapPath extends AppCompatActivity
         }
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -542,7 +591,6 @@ public class MapPath extends AppCompatActivity
             mFusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
-
 
     public String getCurrentAddress(LatLng latlng) {
         //지오코더... GPS를 주소로 변환
@@ -1051,7 +1099,6 @@ public class MapPath extends AppCompatActivity
 
     private void handleFirstPointMessage(String pmessage) {
         String message = pmessage;
-        Log.d("MQTT", "Received Point message: " + message);
 
         try {
             // 1. 메시지에서 불필요한 대괄호 및 따옴표 제거
@@ -1096,12 +1143,15 @@ public class MapPath extends AppCompatActivity
 
                 // LatLng 객체 생성
                 LatLng latLng = new LatLng(latitude, longitude);
-
-                // 마커 추가 및 마커 위치 리스트에 저장
-                String finalName = name;
                 int finalOrder = order;
                 runOnUiThread(() -> {
-                    addMarkerWithColor(latLng, finalName, finalOrder);  // 마커 추가
+                    System.out.println(finalOrder);
+                    System.out.println(finalOrder);
+                    System.out.println(finalOrder);
+                    System.out.println(finalOrder);
+                    System.out.println(finalOrder);
+
+                    addMarkerWithNumber(latLng,finalOrder);// 마커 추가
                     markerPositions.add(latLng);  // 마커 위치 저장
                     adjustCameraToMarkers(markerPositions);  // 카메라 조정
                 });
