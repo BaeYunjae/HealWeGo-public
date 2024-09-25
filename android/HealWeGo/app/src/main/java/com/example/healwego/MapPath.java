@@ -19,7 +19,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -30,7 +32,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
-import com.amazonaws.mobile.client.UserState;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -43,7 +44,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -64,6 +64,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
+import java.net.URLDecoder;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -81,6 +84,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
@@ -139,10 +143,72 @@ public class MapPath extends AppCompatActivity
 
     private MqttAsyncClient mqttClient;
 
-    private TextView textView;  // TextView 선언
+    private TextView currentText;// TextView 선언
+    private TextView destText;
     private String init_path;
     private String init_order;
     boolean firstCameraUpdate = false;
+
+    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    // POST, GET, DELETE, ...
+    private String connMethod;
+    // 보낼 정보를 담을 JSON
+    private String bodyJson;
+    // 받을 정보를 담을 JSON
+    private String decodedLocName;
+
+    // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
+    private static class MyHandler extends Handler {
+        // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        private final WeakReference<MapPath> weakReference;
+
+        private String rcvJson;
+
+        // Deprecated 경고를 해결하기 위해 Looper를 명시적으로 받도록 수정
+        // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        public MyHandler(Looper looper, MapPath mapPath) {
+            super(looper);  // 명시적으로 Looper를 전달
+            weakReference = new WeakReference<>(mapPath);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            MapPath mapPath = weakReference.get();
+            // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if (mapPath != null && !mapPath.isFinishing()) {
+                // 액티비티가 여전히 존재하는 경우에만 작업 수행
+                String jsonString = (String) msg.obj;
+                rcvJson=jsonString;
+                // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                Toast.makeText(mapPath.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
+
+                try {
+                    // JSON 파싱
+                    JSONObject responseObject = new JSONObject(jsonString);
+                    JSONObject bodyObject = new JSONObject(responseObject.getString("body"));
+
+                    // Loc_name을 추출하고 유니코드를 한글로 디코딩
+                    String locNameUnicode = bodyObject.getString("Loc_name");
+                    String decodedLocName = URLDecoder.decode(locNameUnicode, "UTF-8");
+                    mapPath.decodedLocName = decodedLocName; // 디코딩된 Loc_name 저장
+
+                    // 디코딩된 값 로그 출력
+                    Log.i("MapPath", "디코딩 된 Loc_name: " + decodedLocName);
+                    Toast.makeText(mapPath.getApplicationContext(), "Loc_name: " + decodedLocName, Toast.LENGTH_LONG).show();
+
+                } catch (JSONException | UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                    Log.e("MapPath", "JSON 파싱 또는 디코딩 중 오류 발생: " + e.getMessage());
+                }
+
+            }
+        }
+    }
+
+    private final MapPath.MyHandler mHandler = new MapPath.MyHandler(Looper.getMainLooper(), this); // MainLooper 전달
+
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -155,10 +221,6 @@ public class MapPath extends AppCompatActivity
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         init_path = preferences.getString("init_path", null);  // init_path 복원
         init_order = preferences.getString("init_order", null);  // init_order 복원
-
-
-
-
     }
 
     @Override
@@ -170,10 +232,6 @@ public class MapPath extends AppCompatActivity
         editor.putString("init_path", init_path);  // init_path 저장
         editor.putString("init_order", init_order);  // init_order 저장
         editor.apply();  // 변경 사항을 저장
-        System.out.println(init_path);
-        System.out.println(init_path);
-        System.out.println(init_path);
-        System.out.println("onPause");
     }
 
     @SuppressLint("MissingInflatedId")
@@ -248,7 +306,10 @@ public class MapPath extends AppCompatActivity
                 startActivity(intent);
             }
         });
-        textView = findViewById(R.id.testtext);
+
+        currentText = findViewById(R.id.currentText);
+        destText = findViewById(R.id.destText);
+
         connectToMqtt();
 
         Intent getIntent = getIntent();
@@ -416,6 +477,30 @@ public class MapPath extends AppCompatActivity
             if (init_order != null) {
                 handleFirstPointMessage(init_order);
             }
+
+            // PATCH API 요청을 위한 코드
+            connMethod = "PATCH";
+            mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/in";
+
+// 요청 바디에 최소한의 데이터를 설정
+            JSONObject body = new JSONObject();
+            String userName = AWSMobileClient.getInstance().getUsername();
+            try {
+                // 비워두거나 최소한의 정보만 보냅니다.
+                body.put("Method", "PATCH");
+                body.put("User_ID", userName);
+            } catch (JSONException e) {
+                Log.e("BODYPUTERROR", "ERRRRRRRRORRRRRR");  // 예외 처리
+            }
+
+            String bodyJson = body.toString();
+
+// PATCH 요청 후 응답 데이터를 저장하는 로직
+            ApiRequestHandler.getJSON(mURL, "PATCH", mHandler, bodyJson);
+
+
+
+
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
 
             // 3-1. 사용자가 퍼미션 거부를 한 적이 있는 경우에는
@@ -440,6 +525,7 @@ public class MapPath extends AppCompatActivity
                         PERMISSIONS_REQUEST_CODE);
             }
         }
+
 
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -471,6 +557,8 @@ public class MapPath extends AppCompatActivity
             }
         }
     };
+
+
 
     private List<LatLng> markerPositions = new ArrayList<>();
 
@@ -543,6 +631,7 @@ public class MapPath extends AppCompatActivity
         adjustCameraToMarkers(markerPositions);
     }
 
+    @SuppressLint("SetTextI18n")
     private void addMarkerWithImage(LatLng latLng) {
         // 만약 기존 마커가 있으면 제거
         if (currentMarkerWithImage != null) {
@@ -563,6 +652,16 @@ public class MapPath extends AppCompatActivity
 
         // 마커를 지도에 추가하고 해당 마커를 저장
         currentMarkerWithImage = mMap.addMarker(markerOptions);
+        if (currentMarkerWithImage != null) {
+
+            String current = getCurrentAddress(currentMarkerWithImage.getPosition());
+            current = current.replace("대한민국","");
+            currentText.setText("현재위치 : "+ current);
+        }
+        if (decodedLocName != null) {
+            decodedLocName = decodedLocName.replace("대한민국","");
+            destText.setText("목적지 : " + decodedLocName);
+        }
     }
 
     private void addMarkerWithNumber(LatLng latLng, int order) {
@@ -935,7 +1034,7 @@ public class MapPath extends AppCompatActivity
                 runOnUiThread(() -> addMarkerWithImage(latLng));
 
                 // UI 업데이트: 수신한 메시지를 TextView에 표시
-                runOnUiThread(() -> textView.setText("Latitude: " + latitude + ", Longitude: " + longitude));
+               // runOnUiThread(() -> currentText.setText("Latitude: " + latitude + ", Longitude: " + longitude));
             } else {
                 Log.e(TAG, "Invalid GPS message format: " + receivedMessage);
             }
@@ -949,7 +1048,11 @@ public class MapPath extends AppCompatActivity
     private void handlePathMessage(MqttMessage message) {
         String pathMessage = message.toString();
         Log.d(TAG, "Received Path MQTT message: " + pathMessage);
-        init_path=pathMessage;
+        if(init_path==null){
+            init_path=pathMessage;
+        }else{
+            init_path = init_path+","+pathMessage;
+        }
         List<Double[]> latLongList = new ArrayList<>();
         if(pathMessage.equals("new")){
             removeAllPolylines();
@@ -1078,10 +1181,7 @@ public class MapPath extends AppCompatActivity
                 LatLng latLng = new LatLng(latitude, longitude);
 
                 // 마커 추가 및 마커 위치 리스트에 저장
-                String finalName = name;
-                int finalOrder = order;
                 runOnUiThread(() -> {
-                    addMarkerWithColor(latLng, finalName, finalOrder);  // 마커 추가
                     markerPositions.add(latLng);  // 마커 위치 저장
                     adjustCameraToMarkers(markerPositions);  // 카메라 조정
                 });
