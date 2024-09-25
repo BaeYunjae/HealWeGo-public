@@ -76,6 +76,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -220,10 +221,15 @@ public class MapPath extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+
+
         // SharedPreferences에서 데이터를 복원
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         init_path = preferences.getString("init_path", null);  // init_path 복원
         init_order = preferences.getString("init_order", null);  // init_order 복원
+
+
     }
 
     @Override
@@ -232,6 +238,13 @@ public class MapPath extends AppCompatActivity
         // 데이터를 SharedPreferences에 저장
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
+
+        System.out.println("onCreate : "+init_path);
+        System.out.println("onCreate : "+init_path);
+        System.out.println("onCreate : "+init_path);
+        System.out.println("onCreate : "+init_path);
+        System.out.println("onCreate : "+init_path);
+
         editor.putString("init_path", init_path);  // init_path 저장
         editor.putString("init_order", init_order);  // init_order 저장
         editor.apply();  // 변경 사항을 저장
@@ -246,6 +259,7 @@ public class MapPath extends AppCompatActivity
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.path_map);
+
 
         // 뒤로가기 버튼을 처리하는 부분
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -305,6 +319,11 @@ public class MapPath extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 // 예약 후 홈 페이지로 돌아갑니다.
+                System.out.println("onCreate : "+init_path);
+                System.out.println("onCreate : "+init_path);
+                System.out.println("onCreate : "+init_path);
+                System.out.println("onCreate : "+init_path);
+                System.out.println("onCreate : "+init_path);
                 Intent intent = new Intent(MapPath.this, MainActivity.class);
                 startActivity(intent);
             }
@@ -467,13 +486,13 @@ public class MapPath extends AppCompatActivity
             }
             startLocationUpdates(); // 3. 위치 업데이트 시작
 
-            if (init_path != null && init_order != null) {
-                handleFirstPathMessage(init_path);
-                handleFirstPointMessage(init_order);
-            }
 
             // 데이터를 사용하여 필요한 작업 수행
             if (init_path != null) {
+                System.out.println("qwqqw");
+                System.out.println("qwqqw");
+                System.out.println("qwqqw");
+
                 handleFirstPathMessage(init_path);
             }
 
@@ -1051,13 +1070,25 @@ public class MapPath extends AppCompatActivity
     private void handlePathMessage(MqttMessage message) {
         String pathMessage = message.toString();
         Log.d(TAG, "Received Path MQTT message: " + pathMessage);
-        if(init_path==null){
+
+        if(pathMessage.equals("new")){
+            init_path="";
+        }
+        else if(Objects.equals(init_path, "")){
             init_path=pathMessage;
         }else{
             init_path = init_path+","+pathMessage;
         }
         List<Double[]> latLongList = new ArrayList<>();
-        if(pathMessage.equals("new")){
+
+        System.out.println(pathMessage);
+        System.out.println(pathMessage);
+        System.out.println(pathMessage);
+        System.out.println(init_path);
+        System.out.println(init_path);
+        System.out.println(init_path);
+        System.out.println("1090");
+        if(init_path.isEmpty()){
             removeAllPolylines();
         }else {
             try {
@@ -1197,7 +1228,12 @@ public class MapPath extends AppCompatActivity
 
     private void handleFirstPathMessage(String message) {
         String pathMessage = message;
+        System.out.println("line 1210");
+        System.out.println(init_path);
 
+        System.out.println(message);
+        System.out.println(message);
+        System.out.println(message);
         List<Double[]> latLongList = new ArrayList<>();
 
         try {
