@@ -1,5 +1,6 @@
 package com.example.healwego;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -146,6 +148,34 @@ public class MapPath extends AppCompatActivity
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // SharedPreferences에서 데이터를 복원
+        SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        init_path = preferences.getString("init_path", null);  // init_path 복원
+        init_order = preferences.getString("init_order", null);  // init_order 복원
+
+
+
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // 데이터를 SharedPreferences에 저장
+        SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("init_path", init_path);  // init_path 저장
+        editor.putString("init_order", init_order);  // init_order 저장
+        editor.apply();  // 변경 사항을 저장
+        System.out.println(init_path);
+        System.out.println(init_path);
+        System.out.println(init_path);
+        System.out.println("onPause");
+    }
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +185,17 @@ public class MapPath extends AppCompatActivity
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.path_map);
+
+        // 뒤로가기 버튼을 처리하는 부분
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+
+                // 예약 후 홈 페이지로 돌아갑니다.
+                Intent intent = new Intent(MapPath.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
 
         mLayout = findViewById(R.id.map_path);
 
@@ -203,7 +244,7 @@ public class MapPath extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 // 예약 후 홈 페이지로 돌아갑니다.
-                Intent intent = new Intent(MapPath.this, ReserveMainActivity.class);
+                Intent intent = new Intent(MapPath.this, MainActivity.class);
                 startActivity(intent);
             }
         });
@@ -211,8 +252,12 @@ public class MapPath extends AppCompatActivity
         connectToMqtt();
 
         Intent getIntent = getIntent();
-        init_path = getIntent.getStringExtra("global_Path");
-        init_order = getIntent.getStringExtra("order");
+        if(init_path!=null) {
+            init_path = getIntent.getStringExtra("global_Path");
+        }
+        if(init_order!=null) {
+            init_order = getIntent.getStringExtra("order");
+        }
 
     }
     // Left Button 클릭 시 수행할 작업을 위한 함수
@@ -362,6 +407,15 @@ public class MapPath extends AppCompatActivity
                 handleFirstPathMessage(init_path);
                 handleFirstPointMessage(init_order);
             }
+
+            // 데이터를 사용하여 필요한 작업 수행
+            if (init_path != null) {
+                handleFirstPathMessage(init_path);
+            }
+
+            if (init_order != null) {
+                handleFirstPointMessage(init_order);
+            }
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
 
             // 3-1. 사용자가 퍼미션 거부를 한 적이 있는 경우에는
@@ -385,7 +439,6 @@ public class MapPath extends AppCompatActivity
                 ActivityCompat.requestPermissions( this, REQUIRED_PERMISSIONS,
                         PERMISSIONS_REQUEST_CODE);
             }
-
         }
 
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -513,10 +566,6 @@ public class MapPath extends AppCompatActivity
     }
 
     private void addMarkerWithNumber(LatLng latLng, int order) {
-        System.out.println("addMarkerWithNumber = "+order);
-
-        System.out.println("addMarkerWithNumber = "+order);
-        System.out.println("addMarkerWithNumber = "+order);
         // 순서(order)에 따라 이미지를 선택
         int drawableId;
         switch (order) {
@@ -900,7 +949,7 @@ public class MapPath extends AppCompatActivity
     private void handlePathMessage(MqttMessage message) {
         String pathMessage = message.toString();
         Log.d(TAG, "Received Path MQTT message: " + pathMessage);
-
+        init_path=pathMessage;
         List<Double[]> latLongList = new ArrayList<>();
         if(pathMessage.equals("new")){
             removeAllPolylines();
@@ -969,6 +1018,7 @@ public class MapPath extends AppCompatActivity
         Polyline polyline = map.addPolyline(polylineOptions);
         polylines.add(polyline);  // 선을 리스트에 추가
     }
+
     public void removeAllPolylines() {
         runOnUiThread(() -> {
             // 저장된 모든 Polyline 객체 삭제
@@ -982,7 +1032,7 @@ public class MapPath extends AppCompatActivity
     private void handlePointMessage(MqttMessage pmessage) {
         String message = pmessage.toString();
         Log.d("MQTT", "Received Point message: " + message);
-
+        init_order=message;
         try {
             // 1. 메시지에서 불필요한 대괄호 및 따옴표 제거
             message = message.replace("[", "")  // 시작 대괄호 제거
@@ -1145,12 +1195,6 @@ public class MapPath extends AppCompatActivity
                 LatLng latLng = new LatLng(latitude, longitude);
                 int finalOrder = order;
                 runOnUiThread(() -> {
-                    System.out.println(finalOrder);
-                    System.out.println(finalOrder);
-                    System.out.println(finalOrder);
-                    System.out.println(finalOrder);
-                    System.out.println(finalOrder);
-
                     addMarkerWithNumber(latLng,finalOrder);// 마커 추가
                     markerPositions.add(latLng);  // 마커 위치 저장
                     adjustCameraToMarkers(markerPositions);  // 카메라 조정
