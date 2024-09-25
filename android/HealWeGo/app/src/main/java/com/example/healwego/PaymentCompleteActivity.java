@@ -203,12 +203,6 @@ public class PaymentCompleteActivity extends AppCompatActivity {
                 // 요소 개수 세기 및 가격 계산
                 int elementCount = jsonArray.length();
                 price = price + (elementCount * 5);
-                System.out.println(price);
-                System.out.println(price);
-                System.out.println(price);
-                System.out.println(price);
-                System.out.println(price);
-                System.out.println(price);
 
                 Log.d(TAG, "Number of elements in path message: " + elementCount);
                 Log.d(TAG, "Total distance: " + totalDistance + " km");

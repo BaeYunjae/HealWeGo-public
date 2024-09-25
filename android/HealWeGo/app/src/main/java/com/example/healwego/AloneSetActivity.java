@@ -96,18 +96,13 @@ public class AloneSetActivity extends AppCompatActivity {  // 이름 변경
 
         double dist = haversine(startLat,startLong,destLat,destLong);
 
-        Log.d(TAG, ""+dist);
-        Log.d(TAG, ""+dist);
-        Log.d(TAG, ""+dist);
-        Log.d(TAG, ""+dist);
-        Log.d(TAG, ""+dist);        Log.d(TAG, ""+dist);
-
         TextView payText = findViewById(R.id.paymentAmount);
         int result = (int) (dist*10);
         int pay = result*150;
         payText.setText(""+pay+"원");
 
     }
+    
     public static double haversine(double lat1, double lon1, double lat2, double lon2) {
         final double R = 6371; // 지구의 반지름 (단위: km)
         double dLat = Math.toRadians(lat2 - lat1);
