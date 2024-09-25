@@ -240,6 +240,7 @@ public class ChatListActivity extends AppCompatActivity {
 
             // "body" 필드를 문자열로 가져옴
             String bodyString = responseObject.getString("body");
+            Log.i("ChatListActivity", "바디: " + bodyString);
 
             // "body"를 다시 JSONObject로 변환
             JSONObject jsonResponse = new JSONObject(bodyString);
@@ -263,8 +264,7 @@ public class ChatListActivity extends AppCompatActivity {
             }
         } catch(JSONException e){
             Log.e("ChatListActivity", "응답 처리 중 오류 발생", e);
-            Toast.makeText(this, "응답 처리 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(this, "Chat 응답 처리 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
         }
     }
 
