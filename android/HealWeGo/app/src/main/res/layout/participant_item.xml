@@ -16,16 +16,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/readyButton"/>
+        app:layout_constraintEnd_toStartOf="@id/readyText"/>
 
-    <!-- Ready 버튼 -->
-    <Button
-        android:id="@+id/readyButton"
+    <!-- Ready Text-->
+    <TextView
+        android:id="@+id/readyText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Ready"
-        android:backgroundTint="@android:color/holo_red_light"
+        android:visibility="gone"
+        android:textColor="@android:color/holo_red_light"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
