@@ -15,7 +15,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -23,6 +25,7 @@ import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.amazonaws.mobile.client.AWSMobileClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -40,7 +43,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Locale;
 
@@ -73,6 +80,38 @@ public class TogetherSelectStart extends AppCompatActivity
     private View mLayout;  // Snackbar 사용하기 위해서는 View가 필요합니다.
     // (참고로 Toast에서는 Context가 필요했습니다.)
 
+    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    // POST, GET, DELETE, ...
+    private String connMethod;
+    // 보낼 정보를 담을 JSON
+    private String bodyJson;
+
+    // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
+    private static class MyHandler extends Handler {
+        private final WeakReference<TogetherSelectStart> weakReference;
+
+        // Deprecated 경고를 해결하기 위해 Looper를 명시적으로 받도록 수정
+        public MyHandler(Looper looper, TogetherSelectStart togetherSelectStart) {
+            super(looper);  // 명시적으로 Looper를 전달
+            weakReference = new WeakReference<>(togetherSelectStart);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            TogetherSelectStart togetherSelectStart = weakReference.get();
+            if (togetherSelectStart != null && !togetherSelectStart.isFinishing()) {
+                // 액티비티가 여전히 존재하는 경우에만 작업 수행
+                String jsonString = (String) msg.obj;
+                Toast.makeText(togetherSelectStart.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
+                Log.i("TogetherSelectStart", "응답: " + jsonString);
+            }
+        }
+    }
+
+    // WeakReference로 Activity에 대한 참조를 가진 MyHandler 객체
+    private final TogetherSelectStart.MyHandler mHandler = new TogetherSelectStart.MyHandler(Looper.getMainLooper(), this); // MainLooper 전달
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,8 +140,6 @@ public class TogetherSelectStart extends AppCompatActivity
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Intent getintent = getIntent();
-        String  destLocationName = getintent.getStringExtra("dest_locationName");
         Button btn = findViewById(R.id.button);
 
         // SearchView에서 검색 이벤트 처리
@@ -125,13 +162,37 @@ public class TogetherSelectStart extends AppCompatActivity
             @Override
             public void onClick(View view){
                 if (currentMarker != null) {
-                    // 마커의 위치에서 주소를 가져옴
-                    LatLng markerPosition = currentMarker.getPosition();
-                    String locationName = getCurrentAddress(markerPosition);  // 현재 마커 위치의 주소
+                    // API 유형
+                    connMethod = "PATCH";
+                    mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "user/loc";
+
+                    JSONObject body = new JSONObject();
+
+                    String userName = AWSMobileClient.getInstance().getUsername();
+                    String latitude = ""+currentMarker.getPosition().latitude;
+                    String longitude = ""+currentMarker.getPosition().longitude;
+
+                    System.out.println(userName);
+                    System.out.println(latitude);
+                    System.out.println(longitude);
+
+                    try{
+                        body.put("Method", "PATCH");
+                        body.put("User_ID", userName);
+                        body.put("User_Lat",latitude);
+                        body.put("User_Lon",longitude);
+                    }
+                    catch (JSONException e) {
+                        Log.e("BODYPUTERROR", "ERRRRRRRRORRRRRR");  // 예외 처리
+                    }
+
+                    String bodyJson = body.toString();
+
+                    // API 요청 함수
+                    ApiRequestHandler.getJSON(mURL, "PATCH", mHandler, bodyJson);
+
                     // Intent에 데이터를 추가하고 다른 액티비티로 전달
                     Intent intent = new Intent(TogetherSelectStart.this, ChatListActivity.class);
-                    intent.putExtra("start_locationName", locationName);  // 마커 위치 주소를 전달
-                    intent.putExtra("dest_locationName", destLocationName);  // 기존 목적지 정보 전달
                     startActivity(intent);
                 } else {
                     Toast.makeText(TogetherSelectStart.this, "현재 위치가 설정되지 않았습니다.", Toast.LENGTH_SHORT).show();
