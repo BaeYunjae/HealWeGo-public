@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -51,6 +50,8 @@ public class ChatListActivity extends AppCompatActivity {
     // API 요청을 위한 URL
     private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
     private String connMethod;
+
+    private int option;
 
     private final ChatListActivity.MyHandler mHandler = new ChatListActivity.MyHandler(Looper.getMainLooper(), this);
 
@@ -103,14 +104,27 @@ public class ChatListActivity extends AppCompatActivity {
         filterButton.setOnClickListener(v -> showFilterDialog());
 
         // 방 목록 요청 (기본 필터 설정 후 호출)
-        requestRoomList();
+        // requestRoomList();
 
         // 방 만들기 버튼 설정
         Button createRoomButton = findViewById(R.id.wantCreateButton);
         createRoomButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ChatListActivity.this, CreateRoomActivity.class);
-            startActivity(intent);
+            if (option == 1){
+                Toast.makeText(this, "이미 다른 방에 참여 중입니다.\n먼저 참여 중인 방에서 나와야 합니다.", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Intent intent = new Intent(ChatListActivity.this, CreateRoomActivity.class);
+                startActivity(intent);
+            }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // 페이지로 돌아올 때마다 호출하고 싶은 함수
+        requestRoomList();
     }
 
     // 방 목록 요청 메소드
@@ -218,34 +232,46 @@ public class ChatListActivity extends AppCompatActivity {
     }
 
     // 방 목록 응답 처리 메소드
-    private void handleRoomResponse(String response) {
-        List<Room> rooms = parseRoomsFromResponse(response);
+    private void handleRoomResponse(String response){
+        try {
+            Log.i("ChatListActivity", "서버 응답: " + response);
 
-        if (rooms.isEmpty()) {
-            noRoomTextView.setVisibility(View.VISIBLE);
-            recyclerViewRooms.setVisibility(View.GONE);
-        } else {
-            noRoomTextView.setVisibility(View.GONE);
-            recyclerViewRooms.setVisibility(View.VISIBLE);
+            JSONObject responseObject = new JSONObject(response);
 
-            roomListAdapter = new RoomListAdapter(this, rooms);
-            recyclerViewRooms.setAdapter(roomListAdapter);
+            // "body" 필드를 문자열로 가져옴
+            String bodyString = responseObject.getString("body");
+
+            // "body"를 다시 JSONObject로 변환
+            JSONObject jsonResponse = new JSONObject(bodyString);
+
+            option = jsonResponse.optInt("option", -1);  // 기본값으로 -1 반환
+            JSONArray roomArray = new JSONArray(jsonResponse.getString("list"));
+
+            Log.i("ChatListActivity", "옵션: " + option);
+
+            List<Room> rooms = parseRoomsFromResponse(roomArray);
+
+            if (rooms.isEmpty()) {
+                noRoomTextView.setVisibility(View.VISIBLE);
+                recyclerViewRooms.setVisibility(View.GONE);
+            } else {
+                noRoomTextView.setVisibility(View.GONE);
+                recyclerViewRooms.setVisibility(View.VISIBLE);
+
+                roomListAdapter = new RoomListAdapter(this, rooms);
+                recyclerViewRooms.setAdapter(roomListAdapter);
+            }
+        } catch(JSONException e){
+            Log.e("ChatListActivity", "응답 처리 중 오류 발생", e);
+            Toast.makeText(this, "응답 처리 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+
         }
     }
 
     // 응답에서 방 목록 파싱
-    private List<Room> parseRoomsFromResponse(String response) {
+    private List<Room> parseRoomsFromResponse(JSONArray roomArray) {
         List<Room> rooms = new ArrayList<>();
         try {
-            JSONObject jsonResponse = new JSONObject(response);
-            JSONArray roomArray = new JSONArray(jsonResponse.getString("body"));
-
-            if (jsonResponse.has("errorMessage")) {
-                String errorMessage = jsonResponse.getString("errorMessage");
-                Log.e("ChatListActivity", "서버 오류: " + errorMessage);
-                return rooms;
-            }
-
             for (int i = 0; i < roomArray.length(); i++) {
                 JSONObject roomObject = roomArray.getJSONObject(i);
 
