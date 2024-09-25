@@ -1,6 +1,5 @@
 package com.example.healwego;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,7 +22,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.window.OnBackInvokedDispatcher;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -133,8 +131,8 @@ public class PathSelect extends AppCompatActivity
         String destLatitude = "";
         String destLongitude ="";
 
-        Button btn = findViewById(R.id.start_button);
-        Button btn2 = findViewById(R.id.dest_button);
+        Button startButton = findViewById(R.id.start_button);
+        Button destButton = findViewById(R.id.dest_button);
 
 
         // 저장된 상태가 있으면 복구
@@ -164,7 +162,7 @@ public class PathSelect extends AppCompatActivity
         String finalStartLatitude = startLatitude;
         String finalStartLongitude = startLongitude;
 
-        btn.setOnClickListener(new View.OnClickListener(){
+        startButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 Intent intent = new Intent(PathSelect.this, StartSelect.class);
@@ -175,7 +173,7 @@ public class PathSelect extends AppCompatActivity
             }
         });
 
-        btn2.setOnClickListener(new View.OnClickListener(){
+        destButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
 
@@ -201,6 +199,7 @@ public class PathSelect extends AppCompatActivity
                     intent.putExtra("dest_longitude", finalDestLongitude);
                     intent.putExtra("start_latitude", finalStartLatitude);
                     intent.putExtra("start_longitude", finalStartLongitude);
+                    intent.putExtra("dest_locationName", dest_text.getText().toString());
                     startActivity(intent);
                 }else{
                     Toast.makeText(PathSelect.this, "모두 설정하세요", Toast.LENGTH_SHORT).show();
