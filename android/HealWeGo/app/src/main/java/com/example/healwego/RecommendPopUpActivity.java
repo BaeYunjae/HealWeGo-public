@@ -9,7 +9,8 @@ import android.view.Window;
 import android.widget.TextView;
 
 public class RecommendPopUpActivity extends Activity {
-    TextView txtText;
+
+    TextView title, txtText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -19,13 +20,16 @@ public class RecommendPopUpActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.recommend_popup);
         //UI 객체생성
+        title = (TextView)findViewById(R.id.title);
         txtText = (TextView)findViewById(R.id.txtText);
         //데이터 가져오기
         Intent intent = getIntent();
 
-        String data = intent.getStringExtra("data");
+        String locName = intent.getStringExtra("locName");
+        String description = intent.getStringExtra("description");
 
-        txtText.setText(data);
+        title.setText(locName);
+        txtText.setText(description);
     }
     //확인 버튼 클릭
     public void mOnClose(View v){

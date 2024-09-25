@@ -381,9 +381,10 @@ public class MainActivity extends AppCompatActivity {
                         // Toast 메시지 표시
                         Toast.makeText(context, "이미지 클릭!!", Toast.LENGTH_SHORT).show();
 
-                        // RecommendPopUpActivity 출력
+                        // RecommendPopUpActivity로 이동
                         Intent intent = new Intent(context, RecommendPopUpActivity.class);
-                        intent.putExtra("data", description);
+                        intent.putExtra("locName", locName);
+                        intent.putExtra("description", description);
                         startActivityForResult(intent, 1);
                     }
                 });
