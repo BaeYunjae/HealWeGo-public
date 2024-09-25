@@ -1,5 +1,6 @@
 package com.example.healwego;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.window.OnBackInvokedDispatcher;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -88,6 +90,7 @@ public class PathSelect extends AppCompatActivity
         outState.putString("dest_locationName", dest_textview.getText().toString());
         outState.putString("start_locationName", start_textview.getText().toString());
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,17 +194,6 @@ public class PathSelect extends AppCompatActivity
             public void onClick(View view) {
                 String dest = (String) dest_text.getText();
                 String start = (String) start_text.getText();
-
-                Log.w(TAG, finalDestLatitude );
-                Log.w(TAG, finalDestLatitude );
-                Log.w(TAG, finalDestLatitude );
-                Log.w(TAG, finalDestLatitude );
-                Log.w(TAG, finalDestLatitude );
-                Log.w(TAG, finalDestLatitude );
-                Log.w(TAG, finalDestLatitude );
-                Log.w(TAG, finalDestLatitude );
-                Log.w(TAG, finalDestLatitude );
-
 
                 if(!Objects.equals(dest, "Please Select dest") && !Objects.equals(start, "Please Select start")){
                     Intent intent = new Intent(PathSelect.this, AloneSetActivity.class);
