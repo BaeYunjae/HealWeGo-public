@@ -1,6 +1,5 @@
 package com.example.healwego;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -31,6 +30,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import java.lang.ref.WeakReference;
+import java.util.Iterator;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -50,6 +50,8 @@ public class ChatActivity extends AppCompatActivity {
     // 방장 여부 확인 (API 요청으로 바뀌어야 함)
     private boolean isHost = false;  // 방장이면 true로 설정
     private boolean isReady = false; // READY 상태 관리
+    private String hostId;  // 방장 ID
+    private String userId;  // 현재 사용자 ID
 
     // API 요청을 위한 URL
     private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
@@ -85,6 +87,9 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chatting_page);  // 채팅 레이아웃 사용
 
+        // 현재 사용자 ID 가져오기
+        userId = AWSMobileClient.getInstance().getUsername();
+
         // 뒤로가기 버튼을 처리하는 부분
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -100,7 +105,9 @@ public class ChatActivity extends AppCompatActivity {
         // Intent에서 전달된 방 생성 여부 (isHost) 값을 가져옴
         Intent intent = getIntent();
         String roomTitle = intent.getStringExtra("roomTitle");
-        isHost = intent.getBooleanExtra("isHost", false);  // 방 생성자 여부 확인
+        String usersInfo = intent.getStringExtra("usersInfo");
+        hostId = intent.getStringExtra("hostId");
+        Log.i("ChatActiviy: ", "사용자 정보: " + usersInfo);
 
         // 방 제목 설정
         chatTitle = findViewById(R.id.chatTitle);
@@ -115,7 +122,7 @@ public class ChatActivity extends AppCompatActivity {
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         chatRecyclerView.setAdapter(chatAdapter);
 
-        // 예시로 기본 메시지 추가
+        // 기본 메시지 추가 (아마 처음 입장일 때로 변경해야 할 듯)
         chatMessages.add("채팅에 오신 것을 환영합니다.");
         chatAdapter.notifyDataSetChanged();
 
@@ -127,52 +134,36 @@ public class ChatActivity extends AppCompatActivity {
         // 참여자 리스트 설정
         participantRecyclerView = headerView.findViewById(R.id.participantRecyclerView);
         participants = new ArrayList<>();
-        participantAdapter = new ParticipantAdapter(participants);
+        participantAdapter = new ParticipantAdapter(this, participants);
         participantRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         participantRecyclerView.setAdapter(participantAdapter);
+
+        // usersInfo 데이터를 처리하여 participants 리스트에 추가
+        if (usersInfo != null){
+            try{
+                JSONObject usersJson = new JSONObject(usersInfo);
+                addParticipants(usersJson);
+            } catch(JSONException e){
+                Log.e("ChatActivity", "참여자 정보 처리 오류", e);
+            }
+        }
 
         // 정산 금액 설정
         totalAmountTextView = headerView.findViewById(R.id.totalAmountTextView);
         totalAmountTextView.setText("예상 결제 요금: 16,000원");
 
-        // 예시 참여자 추가
-        participants.add(new Participant("방구대장", "(방장)", false));
-        participants.add(new Participant("자드가자", "(나)", true));  // 자기 자신 강조
-        participants.add(new Participant("예스맨", "", false));
-        participants.add(new Participant("가면감", "", false));
-        participantAdapter.notifyDataSetChanged();
-
         // 메뉴 버튼 클릭 시 Drawer 열기
-        findViewById(R.id.menuButton).setOnClickListener(v -> drawerLayout.openDrawer(navigationView));
+        findViewById(R.id.menuButton).setOnClickListener(v -> {
+            // 내비게이션 열기
+            drawerLayout.openDrawer(navigationView);
+        });
 
         // READY 또는 GO 버튼 설정
         readyButton = headerView.findViewById(R.id.readyButton);
-
-        if (isHost) {
-            // 방장이면 GO 버튼
-            readyButton.setText("GO");
-            readyButton.setOnClickListener(v -> {
-                // 방장이 GO 버튼을 누르면 PaymentCompleteActivity(자동결제 완료 페이지)로 이동
-                Intent payIntent = new Intent(ChatActivity.this, PaymentCompleteActivity.class);
-                startActivity(payIntent);  // PaymentCompleteActivity로 화면 전환
-            });
-        } else {
-            // 참여자면 READY -> CANCEL 상태로 토글
-            readyButton.setText("READY");
-            readyButton.setOnClickListener(v -> {
-                // READY 상태 토글
-                isReady = !isReady;
-
-                if (isReady) {
-                    readyButton.setText("CANCEL");
-                    readyButton.setBackgroundColor(ContextCompat.getColor(this, R.color.darkcyan));  // READY 상태 색상
-                    readyButton.setTextColor(ContextCompat.getColor(this, R.color.lightteal));  // READY 상태 글씨 색상
-                } else {
-                    readyButton.setText("READY");
-                    readyButton.setBackgroundColor(ContextCompat.getColor(this, R.color.lightteal));  // READY 전 상태 색상
-                    readyButton.setTextColor(ContextCompat.getColor(this, R.color.darkcyan));  // READY 전 상태 글씨 색상
-                }
-            });
+        if (readyButton != null) {
+            updateReadyButton();
+        } else{
+            Log.e("ChatActivity", "readyButton is null");
         }
 
         // 화살표 버튼 설정 (Drawer 닫기)
@@ -182,87 +173,137 @@ public class ChatActivity extends AppCompatActivity {
         // 나가기 버튼 설정
         ImageButton exitButton = headerView.findViewById(R.id.exitButton);
         exitButton.setOnClickListener(v -> {
-            // API 유형
-            String connMethod = "DELETE";
-            String apiURL = mURL + "room/list";
-
-            JSONObject body = new JSONObject();
-
-            String userId = AWSMobileClient.getInstance().getUsername();
-            try{
-                body.put("Method", connMethod);
-                body.put("User_ID", userId);
-            } catch(JSONException e){
-                Log.e("ChatActivity", "JSON 생성 오류");
-                return;
-            }
-
-            String bodyJson = body.toString();
-
-            // API 요청 함수
-            ApiRequestHandler.getJSON(apiURL, connMethod, mHandler, bodyJson);
-            Log.i("ChatActivity", "요청: " + bodyJson);
-
-            Intent chatListIntent = new Intent(ChatActivity.this, ChatListActivity.class);
-            startActivity(chatListIntent);  // 방 리스트로 화면 전환
+            sendDeleteRequest();
         });
 
     }
 
-    // 참여자 데이터 클래스
-    class Participant {
-        String name;
-        String role;
-        boolean isCurrentUser;
+    // addParticipants 메서드
+    private void addParticipants(JSONObject usersJson) throws JSONException {
+        Iterator<String> keys = usersJson.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();  // "userId"를 key로 사용
+            JSONObject userObject = usersJson.getJSONObject(key);
+            Log.i("participant", "참여자 정보: " + userObject);
+            String userName = userObject.optString("username", "Unknown");
+            boolean isReady = userObject.getInt("is_ready") == 1;  // 1이면 READY
+            boolean isCurrentUser = key.equals(this.userId);  // key를 사용하여 현재 사용자인지 확인
+            boolean isHost = key.equals(hostId);  // 방장 확인
 
-        Participant(String name, String role, boolean isCurrentUser) {
-            this.name = name;
-            this.role = role;
-            this.isCurrentUser = isCurrentUser;
+            String role = isHost ? "(방장)" : "";  // 방장일 경우 "방장" 역할 추가
+            Log.i("ChatActivity", "Adding participant: " + key + ", Role: " + role + ", IsReady: " + isReady + ", IsCurrentUser: " + isCurrentUser);
+
+            participants.add(new Participant(userName, role, isCurrentUser, isReady));  // key가 userId
+        }
+        Log.i("ChatActivity", "참여 인원: " + participants.size());
+
+        participantAdapter.notifyDataSetChanged();
+        checkAllReady();
+    }
+
+
+    // READY 상태 토글 및 서버에 상태 업데이트
+    private void toggleReadyState() {
+        isReady = !isReady;
+
+        // 서버에 READY 상태 업데이트
+        updateReadyStatusInDB(isReady ? 1 : 0);
+
+        for (Participant participant : participants) {
+            if (participant.isCurrentUser()) {
+                participant.setReady(isReady);
+            }
+        }
+        participantAdapter.notifyDataSetChanged();
+        checkAllReady();  // 모든 참가자가 READY 상태인지 확인하여 GO 버튼 상태 갱신
+    }
+
+    // 서버에 READY 상태 업데이트
+    private void updateReadyStatusInDB(int readyStatus) {
+        String connMethod = "PATCH";
+        String apiURL = mURL + "user/go";
+
+        JSONObject body = new JSONObject();
+        try {
+            body.put("Method", connMethod);
+            body.put("User_ID", this.userId);  // userId 대신 this.userId 사용
+        } catch (JSONException e) {
+            Log.e("ChatActivity", "PATCH JSON 생성 오류", e);
+            return;
+        }
+
+        String bodyJson = body.toString();
+        ApiRequestHandler.getJSON(apiURL, connMethod, mHandler, bodyJson);
+        Log.i("ChatActivity", "PATCH 요청: " + bodyJson);
+    }
+
+
+
+    // 방 나가기 DELETE API 요청 함수
+    private void sendDeleteRequest(){
+        // API 유형
+        String connMethod = "DELETE";
+        String apiURL = mURL + "room/list";
+
+        JSONObject body = new JSONObject();
+
+        try{
+            body.put("Method", connMethod);
+            body.put("User_ID", this.userId);
+        } catch(JSONException e){
+            Log.e("ChatActivity", "DELETE JSON 생성 오류");
+            return;
+        }
+
+        String bodyJson = body.toString();
+
+        // API 요청 함수
+        ApiRequestHandler.getJSON(apiURL, connMethod, mHandler, bodyJson);
+        Log.i("ChatActivity", "DELETE 요청: " + bodyJson);
+
+        Intent chatListIntent = new Intent(ChatActivity.this, ChatListActivity.class);
+        startActivity(chatListIntent);  // 방 리스트로 화면 전환
+    }
+
+    // 모든 참가자가 READY 상태인지 확인
+    private void checkAllReady(){
+        if (readyButton != null) {
+            boolean allReady = true;
+            for (Participant participant : participants) {
+                if (!participant.isReady()) {
+                    allReady = false;
+                    break;
+                }
+            }
+            if (this.userId.equals(hostId)) {  // this.userId로 참조
+                readyButton.setEnabled(allReady);
+                if (allReady) {
+                    readyButton.setText("GO");
+                    readyButton.setOnClickListener(v -> {
+                        // 방장이 GO 버튼을 누르면 PaymentCompleteActivity로 이동
+                        Intent payIntent = new Intent(ChatActivity.this, PaymentCompleteActivity.class);
+                        startActivity(payIntent);  // PaymentCompleteActivity로 화면 전환
+                    });
+                } else {
+                    readyButton.setText("WAITING");
+                }
+            }
+        } else{
+            Log.e("ChatActivity", "readyButton is null in checkAllReady");
         }
     }
 
-    // 참여자 리스트 어댑터
-    class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.ParticipantViewHolder> {
-
-        private ArrayList<Participant> participants;
-
-        ParticipantAdapter(ArrayList<Participant> participants) {
-            this.participants = participants;
-        }
-
-        @Override
-        public ParticipantViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getLayoutInflater().inflate(R.layout.participant_item, parent, false);
-            return new ParticipantViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(ParticipantViewHolder holder, int position) {
-            Participant participant = participants.get(position);
-            holder.nameTextView.setText(participant.name + " " + participant.role);
-
-            // 사용자가 자신일 경우 이름을 노란색으로 강조
-            if (participant.isCurrentUser) {
-                holder.nameTextView.setTextColor(Color.YELLOW);
-            } else {
-                holder.nameTextView.setTextColor(Color.WHITE);
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return participants.size();
-        }
-
-        class ParticipantViewHolder extends RecyclerView.ViewHolder {
-
-            TextView nameTextView;
-
-            ParticipantViewHolder(View itemView) {
-                super(itemView);
-                nameTextView = itemView.findViewById(R.id.participantName);
-            }
+    // READY 버튼 및 상태 갱신
+    private void updateReadyButton(){
+        if (this.userId.equals(hostId)) {  // 방장이면 GO 버튼
+            readyButton.setText("GO");
+            readyButton.setEnabled(false); // 기본적으로 비활성화, 모두 READY 상태가 되면 활성화
+            checkAllReady();  // 방장이면 모든 참가자가 READY 상태인지 체크
+        } else {
+            // 참여자면 READY -> CANCEL 상태로 토글
+            readyButton.setText(isReady ? "CANCEL" : "READY");  // 초기 상태에 따라 버튼 설정
+            readyButton.setOnClickListener(v -> toggleReadyState());  // 클릭 시 READY 상태 토글
         }
     }
+
 }

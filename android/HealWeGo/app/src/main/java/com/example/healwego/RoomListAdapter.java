@@ -135,14 +135,21 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
 
             // 3. "option" 값 처리
             int option = bodyJson.optInt("option", -1);  // 기본값으로 -1 반환
-            String msg = bodyJson.optString("msg");
+            String msg = bodyJson.optString("msg", "");
+            JSONObject users = bodyJson.optJSONObject("users");
+            String masterId = bodyJson.optString("master_ID");
+
+            Log.i("RoomListAdapter", "참여자: " + users);
             Log.i("RoomListAdapter", "옵션: " + option + "메시지: " + msg);
 
-            if (option == 1) {
+            if (option != 0) {
                 // 방 입장 가능 -> ChatActivity로 이동
                 String roomName = bodyJson.optString("roomname", "");  // 방 이름
+
                 Intent intent = new Intent(context, ChatActivity.class);
                 intent.putExtra("roomTitle", roomName);
+                intent.putExtra("usersInfo", users.toString());
+                intent.putExtra("hostId", masterId);
                 context.startActivity(intent);
             } else {
                 // 방 입장 불가
@@ -151,7 +158,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
 
         } catch (JSONException e) {
             // JSON 파싱 오류 처리
-            Toast.makeText(context, "응답 처리 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Room 응답 처리 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
         }
     }
 }
