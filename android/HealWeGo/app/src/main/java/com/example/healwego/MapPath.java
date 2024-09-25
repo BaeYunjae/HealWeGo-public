@@ -157,6 +157,8 @@ public class MapPath extends AppCompatActivity
     // 받을 정보를 담을 JSON
     private String decodedLocName;
 
+    private String carId;
+
     // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
     private static class MyHandler extends Handler {
         // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -181,7 +183,6 @@ public class MapPath extends AppCompatActivity
                 String jsonString = (String) msg.obj;
                 rcvJson=jsonString;
                 // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                Toast.makeText(mapPath.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
 
                 try {
                     // JSON 파싱
@@ -193,9 +194,11 @@ public class MapPath extends AppCompatActivity
                     String decodedLocName = URLDecoder.decode(locNameUnicode, "UTF-8");
                     mapPath.decodedLocName = decodedLocName; // 디코딩된 Loc_name 저장
 
+                    // carId 추출하고 저장
+                    mapPath.carId= bodyObject.getString("Car_ID");
+
                     // 디코딩된 값 로그 출력
                     Log.i("MapPath", "디코딩 된 Loc_name: " + decodedLocName);
-                    Toast.makeText(mapPath.getApplicationContext(), "Loc_name: " + decodedLocName, Toast.LENGTH_LONG).show();
 
                 } catch (JSONException | UnsupportedEncodingException e) {
                     e.printStackTrace();
