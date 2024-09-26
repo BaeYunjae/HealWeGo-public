@@ -38,6 +38,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import android.graphics.drawable.GradientDrawable;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
 
@@ -143,13 +144,13 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        requestRecommendation();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         // 페이지로 돌아올 때마다 호출하고 싶은 함수
+        requestRecommendation();
         requestReservation();
     }
 
@@ -194,11 +195,17 @@ public class MainActivity extends AppCompatActivity {
                 3f  // weight: 3
         );
 
+        // GradientDrawable로 둥근 테두리 설정
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setShape(GradientDrawable.RECTANGLE);
+        drawable.setCornerRadius(20f); // 모서리 둥글게 (50f로 설정)
+        drawable.setColor(getResources().getColor(R.color.teal));
+
         // 뷰 레이아웃 파라미터 설정
         LinearLayout.LayoutParams viewParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, // width
                 ViewGroup.LayoutParams.MATCH_PARENT, // height
-                4f  // weight: 3
+                5f  // weight: 3
         );
 
         try {
@@ -222,6 +229,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonAlone.setBackgroundColor(getResources().getColor(R.color.teal));
                 buttonAlone.setLayoutParams(buttonParams);
                 buttonAlone.setId(ViewCompat.generateViewId());
+                buttonAlone.setBackground(drawable);
 
                 // 두 번째 버튼 생성 및 설정
                 buttonTogether = new Button(this);
@@ -230,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonTogether.setBackgroundColor(getResources().getColor(R.color.teal));
                 buttonTogether.setLayoutParams(buttonParams);
                 buttonTogether.setId(ViewCompat.generateViewId());
+                buttonTogether.setBackground(drawable);
 
                 blankView = new View(this);
                 blankView.setLayoutParams(viewParams);
@@ -368,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
                 // 동적으로 ImageView 생성
                 ImageView imageView = new ImageView(context);
                 FrameLayout.LayoutParams imageViewParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300);
-                imageViewParams.setMargins(0, 0, 0, 50);
+                imageViewParams.setMargins(0, 0, 0, 20);
                 imageView.setLayoutParams(imageViewParams);
                 imageView.setImageBitmap(decodedImage); // 디코딩한 이미지 설정
                 imageView.setAlpha(0.5f); // 이미지 반투명 설정
