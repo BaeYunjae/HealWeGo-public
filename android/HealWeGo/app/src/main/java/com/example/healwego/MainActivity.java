@@ -2,6 +2,9 @@ package com.example.healwego;
 
 import static com.google.android.material.internal.ViewUtils.dpToPx;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -17,10 +20,13 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
     private View blankView;
 
     private Button buttonReseve;
+
+    private RelativeLayout loadView;
+    private int isLoad = 0;
 
     // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
     private static class ReserveHandler extends Handler {
@@ -115,10 +124,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // Edge-to-Edge 기능 활성화
         EdgeToEdge.enable(this);
         // 레이아웃 파일을 화면에 보여줌
         setContentView(R.layout.basic_main);
+
+        Animation loadAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.progress_image);
+        loadView = (RelativeLayout)findViewById(R.id.loadView);
+        ImageView loadImage = (ImageView) findViewById(R.id.loadImage);
+        loadImage.startAnimation(loadAnimation);
+
 
         // 시스템 바 인셋을 적용하여 화면 패딩 설정
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -228,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Toast.makeText(context, "혼자가기 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
+                        if(isLoad == 0) return;
 
                         // PathSelect로 이동
                         Intent intent = new Intent(MainActivity.this, PathSelect.class);
@@ -239,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Toast.makeText(context, "함께가기 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
+                        if(isLoad == 0) return;
 
                         // TogetherSelectStart로 이동
                         Intent intent = new Intent(MainActivity.this, TogetherSelectStart.class);
@@ -265,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Toast.makeText(context, "예약현황 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
+                        if(isLoad == 0) return;
 
                         // TogetherSelectStart로 이동
                         Intent intent = new Intent(MainActivity.this, MapPath.class);
@@ -380,6 +399,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         // Toast 메시지 표시
                         Toast.makeText(context, "이미지 클릭!!", Toast.LENGTH_SHORT).show();
+                        if(isLoad == 0) return;
 
                         // RecommendPopUpActivity로 이동
                         Intent intent = new Intent(context, RecommendPopUpActivity.class);
@@ -393,5 +413,17 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             Log.e("IMAGEVIEW", "추천 정보 파싱 오류", e);
         }
+
+        loadView.animate()
+                .alpha(0.0f)
+                .setDuration(600)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        loadView.setVisibility(View.GONE);
+                    }
+                });
+        isLoad = 1;
     }
 }
