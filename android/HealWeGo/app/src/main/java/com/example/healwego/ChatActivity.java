@@ -1,15 +1,23 @@
 package com.example.healwego;
 
+import static android.content.ContentValues.TAG;
+
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,19 +32,55 @@ import com.google.android.material.navigation.NavigationView;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
 
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import android.util.Pair;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 public class ChatActivity extends AppCompatActivity {
 
+    // MQTT
+    MqttAsyncClient mqttClient;
+    private static final String BROKER_URL = "ssl://a3boaptn83mu7y-ats.iot.ap-northeast-2.amazonaws.com:8883";
+    private String CLIENT_ID = "";
+
+    private static final String CHAT_TOPIC = "chatting/";
+    private String roomId;
+    private String chatsString;
+
     private RecyclerView chatRecyclerView;
     private ChatAdapter chatAdapter;
-    private ArrayList<String> chatMessages;  // 채팅 메시지 리스트
+    private ArrayList<Pair<String, Pair<String, String>>> chatMessages;  // 채팅 메시지 리스트
     private TextView chatTitle;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -89,6 +133,7 @@ public class ChatActivity extends AppCompatActivity {
 
         // 현재 사용자 ID 가져오기
         userId = AWSMobileClient.getInstance().getUsername();
+        CLIENT_ID = userId;
 
         // 뒤로가기 버튼을 처리하는 부분
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -104,9 +149,16 @@ public class ChatActivity extends AppCompatActivity {
 
         // Intent에서 전달된 방 생성 여부 (isHost) 값을 가져옴
         Intent intent = getIntent();
+        int isNewEnter = intent.getIntExtra("isNewEnter", 0);
         String roomTitle = intent.getStringExtra("roomTitle");
         String usersInfo = intent.getStringExtra("usersInfo");
         hostId = intent.getStringExtra("hostId");
+        roomId = intent.getStringExtra("roomId");
+
+        if (isNewEnter == 2){
+            chatsString = intent.getStringExtra("chats");
+        }
+
         Log.i("ChatActiviy: ", "사용자 정보: " + usersInfo);
 
         // 방 제목 설정
@@ -118,13 +170,43 @@ public class ChatActivity extends AppCompatActivity {
         // RecyclerView 설정
         chatRecyclerView = findViewById(R.id.chatRecyclerView);
         chatMessages = new ArrayList<>();
-        chatAdapter = new ChatAdapter(chatMessages);
+        chatAdapter = new ChatAdapter(chatMessages, userId);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         chatRecyclerView.setAdapter(chatAdapter);
 
         // 기본 메시지 추가 (아마 처음 입장일 때로 변경해야 할 듯)
-        chatMessages.add("채팅에 오신 것을 환영합니다.");
-        chatAdapter.notifyDataSetChanged();
+        if (chatsString == null) {
+            chatMessages.add(new Pair<>(userId, new Pair<>("", "채팅에 오신 것을 환영합니다.")));
+            chatAdapter.notifyDataSetChanged();
+        }
+
+        else if (isNewEnter == 2 && chatsString != null) {
+            try {
+                JSONArray chats = new JSONArray(chatsString);
+
+                // 채팅 기록을 chatMessages에 추가하고 어댑터에 알림
+                for (int i = 0; i < chats.length(); i++) {
+                    JSONArray chatItem = chats.getJSONArray(i);
+                    JSONObject chatData = chatItem.getJSONObject(1);
+                    String message = chatData.getString("message");
+                    String username = chatData.getString("username");
+                    String chatId = chatData.getString("User_ID");
+
+                    // 원하는 형식으로 메시지 생성 (예: 시간 + 메시지)
+                    String formattedMessage = message;
+
+
+                    if (!chatId.equals(userId)){
+                        formattedMessage += username + " " + formattedMessage;
+                    }
+                    chatMessages.add(new Pair<>(chatId, new Pair<>(username, formattedMessage)));
+                }
+                chatAdapter.notifyDataSetChanged();
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
 
         // DrawerLayout 및 NavigationView 설정
         drawerLayout = findViewById(R.id.drawerLayout);
@@ -176,6 +258,44 @@ public class ChatActivity extends AppCompatActivity {
             sendDeleteRequest();
         });
 
+        // MQTT 구독
+        connectToMqtt();
+
+        ImageButton sendbtn = findViewById(R.id.sendButton);
+        EditText usermsg = findViewById(R.id.messageInput);
+
+
+        sendbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String userMessage = usermsg.getText().toString().trim();
+
+                // 메시지가 비어있으면 전송하지 않음
+                if (userMessage.isEmpty()) {
+                    Toast.makeText(ChatActivity.this, "메시지를 입력하세요", Toast.LENGTH_SHORT).show();
+                    return; // 메시지가 비어 있으면 더 이상 진행하지 않음
+                }
+
+                // 메시지 보낼 때마다 새로 생성
+                JSONObject jsonObject = new JSONObject();
+                String currentTime = getCurrentKoreanTime(new Date());
+
+                try{
+                    jsonObject.put("User_ID", userId);
+                    jsonObject.put("option", "msg");
+                    jsonObject.put("message", currentTime + " " + usermsg.getText().toString());
+
+
+                    sendMessage(CHAT_TOPIC + roomId, jsonObject.toString());
+                    usermsg.setText("");  // 메시지 보낸 후 입력 필드를 비웁니다.
+
+                } catch(JSONException e){
+                    return;
+                }
+
+            }
+        });
+
     }
 
     // addParticipants 메서드
@@ -199,6 +319,15 @@ public class ChatActivity extends AppCompatActivity {
 
         participantAdapter.notifyDataSetChanged();
         checkAllReady();
+    }
+
+
+    private String getCurrentKoreanTime(Date date){
+        // 한국 시간으로 변환하여 표시
+        SimpleDateFormat koreanFormat = new SimpleDateFormat("ahh:mm", Locale.KOREA); // "a"는 오전/오후, "hh"는 12시간제
+        koreanFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));  // 한국 타임존 설정
+
+        return koreanFormat.format(date);  // 한국 시간으로 포맷팅된 시간 반환
     }
 
 
@@ -304,6 +433,164 @@ public class ChatActivity extends AppCompatActivity {
             readyButton.setText(isReady ? "CANCEL" : "READY");  // 초기 상태에 따라 버튼 설정
             readyButton.setOnClickListener(v -> toggleReadyState());  // 클릭 시 READY 상태 토글
         }
+    }
+
+    private void connectToMqtt() {
+        try {
+            mqttClient = new MqttAsyncClient(BROKER_URL, CLIENT_ID, new MemoryPersistence());
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setSocketFactory(getSocketFactory());
+
+            options.setKeepAliveInterval(60); // 초 단위, 60초마다 핑 메시지 전송
+
+            mqttClient.connect(options, null, new org.eclipse.paho.client.mqttv3.IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    System.out.println("Connected to AWS IoT Core");
+                    subscribeToTopic(CHAT_TOPIC + roomId);
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Log.e("MQTT", "Failed to connect to AWS IoT Core", exception);
+                    exception.printStackTrace();
+                }
+            });
+
+            // 메시지 수신 콜백 추가
+            mqttClient.setCallback(new MqttCallback() {
+                @Override
+                public void connectionLost(Throwable cause) {
+                    // 연결이 끊겼을 때 처리할 내용
+                    Log.e("MQTT", "MQTT Connection Lost", cause);
+                }
+
+                @Override
+                public void messageArrived(String topic, MqttMessage message) throws Exception {
+                    // Chat 토픽 처리
+
+                    if (topic.equals(CHAT_TOPIC+ roomId)) {
+                        // 콜백 함수 자리 또는 여기에 동작 구현
+                        // MQTT 메시지 수신 시 처리
+                        runOnUiThread(() -> {
+                            try {
+                                receiveMessageCallback(message);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken token) {
+                    Log.d("MQTT", "Message delivery complete");
+                }
+
+
+            });
+        } catch (MqttException e) {
+            Log.e("MQTT", "Failed to connect to MQTT broker", e);
+            e.printStackTrace();
+        }
+    }
+
+    private void subscribeToTopic(String topic) {
+        try {
+            mqttClient.subscribe(topic, 1);  // QoS 1로 토픽 구독
+            Log.d("MQTT", "Subscribed to topic: " + topic);
+        } catch (MqttException e) {
+            Log.e("MQTT", "Subscription error", e);
+            e.printStackTrace();
+        }
+    }
+
+
+    // 메시지 받을 떄 함수
+    private void receiveMessageCallback(MqttMessage rmessage) throws JSONException {
+        String msg = rmessage.toString();
+        JSONObject jsonObject = new JSONObject(msg);
+
+        String senderId = jsonObject.getString("User_ID");
+        String message = jsonObject.getString("message");
+
+        // 상대방 메시지를 받았을 경우 닉네임도 추가
+        if (!senderId.equals(userId)) {
+            // 상대방 메시지일 경우 상대방 닉네임 추가
+            String senderName = jsonObject.optString("username", "상대방");
+            chatMessages.add(new Pair<>(senderId, new Pair<>(senderName, message)));
+        } else {
+            // 사용자 본인이 보낸 메시지일 경우, 오른쪽에 표시되도록 처리
+            chatMessages.add(new Pair<>(senderId, new Pair<>("나", message)));
+        }
+
+        // 어댑터에 데이터가 변경되었음을 알림 (새로 추가된 메시지를 반영)
+        chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+
+        // RecyclerView를 마지막 메시지로 스크롤
+        chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
+    }
+
+    // 메시지 보낼 떄 함수
+    private void sendMessage(String topic, String message) {
+        try {
+            MqttMessage mqttMessage = new MqttMessage();
+            mqttMessage.setPayload(message.getBytes());
+            mqttClient.publish(topic, mqttMessage);
+            System.out.println("MQTT Message sent to topic '" + topic + "': " + message);
+        } catch (MqttException e) {
+            Log.e("MQTT", "Error sending");
+            e.printStackTrace();
+        }
+    }
+
+
+    private SSLSocketFactory getSocketFactory() {
+        try {
+            // CA 인증서 로드
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            InputStream caInput = getAssets().open("AmazonRootCA1.pem");
+            X509Certificate caCert = (X509Certificate) cf.generateCertificate(caInput);
+
+            // 클라이언트 인증서 로드
+            InputStream crtInput = getAssets().open("certificate.pem.crt");
+            X509Certificate clientCert = (X509Certificate) cf.generateCertificate(crtInput);
+
+            // Private Key 로드
+            PrivateKey privateKey = loadPrivateKey();
+
+            // KeyStore 생성
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore.load(null, null);
+            keyStore.setCertificateEntry("caCert", caCert);
+            keyStore.setCertificateEntry("clientCert", clientCert);
+            keyStore.setKeyEntry("privateKey", privateKey, "password".toCharArray(), new java.security.cert.Certificate[]{clientCert});
+
+            // TrustManagerFactory 및 KeyManagerFactory 초기화
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(keyStore);
+
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(keyStore, "password".toCharArray());
+
+            // SSLContext 초기화
+            SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
+            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+            return sslContext.getSocketFactory();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private PrivateKey loadPrivateKey() throws Exception {
+        PemReader pemReader = new PemReader(new InputStreamReader(getAssets().open("private.pem.key")));
+        PemObject pemObject = pemReader.readPemObject();
+        byte[] keyBytes = pemObject.getContent();
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA"); // 또는 "EC" (키 타입에 따라 다름)
+        return keyFactory.generatePrivate(keySpec);
     }
 
 }
