@@ -3,18 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/messageLayout"
     android:padding="8dp">
+
+    <!-- 사용자 이름을 표시할 TextView -->
+    <TextView
+        android:id="@+id/chatUsernameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginBottom="4dp"/>
 
     <!-- 채팅 메시지를 표시할 TextView -->
     <TextView
         android:id="@+id/chatMessageTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Chat message"
         android:textSize="16sp"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chatUsernameTextView"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:padding="10dp"/>
+
+    <!-- 시간 표시 TextView -->
+    <TextView
+        android:id="@+id/chatTimeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@android:color/darker_gray"
+        app:layout_constraintBottom_toBottomOf="@id/chatMessageTextView"
+        app:layout_constraintStart_toStartOf="@id/chatMessageTextView"
+        app:layout_constraintEnd_toEndOf="@id/chatMessageTextView"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

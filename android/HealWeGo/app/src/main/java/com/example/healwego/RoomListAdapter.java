@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -138,6 +139,8 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
             String msg = bodyJson.optString("msg", "");
             JSONObject users = bodyJson.optJSONObject("users");
             String masterId = bodyJson.optString("master_ID");
+            String roomId = bodyJson.optString("Rooms_ID");
+            JSONArray chats = bodyJson.optJSONArray("Chats");
 
             Log.i("RoomListAdapter", "참여자: " + users);
             Log.i("RoomListAdapter", "옵션: " + option + "메시지: " + msg);
@@ -150,6 +153,11 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
                 intent.putExtra("roomTitle", roomName);
                 intent.putExtra("usersInfo", users.toString());
                 intent.putExtra("hostId", masterId);
+                intent.putExtra("roomId", roomId);
+                intent.putExtra("isNewEnter", option);
+                if (option == 2){
+                    intent.putExtra("chats", chats.toString());
+                }
                 context.startActivity(intent);
             } else {
                 // 방 입장 불가
