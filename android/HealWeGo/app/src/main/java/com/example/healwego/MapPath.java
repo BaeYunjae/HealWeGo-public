@@ -675,14 +675,13 @@ public class MapPath extends AppCompatActivity
         // 마커를 지도에 추가하고 해당 마커를 저장
         currentMarkerWithImage = mMap.addMarker(markerOptions);
         if (currentMarkerWithImage != null) {
-
             String current = getCurrentAddress(currentMarkerWithImage.getPosition());
             current = current.replace("대한민국","");
-            currentText.setText("현재위치 : "+ current);
+            currentText.setText("현재위치 : "+ current +"                  ");
         }
         if (decodedLocName != null) {
             decodedLocName = decodedLocName.replace("대한민국","");
-            destText.setText("목적지 : " + decodedLocName);
+            destText.setText("목적지 : " + decodedLocName+"                  ");
         }
     }
 
