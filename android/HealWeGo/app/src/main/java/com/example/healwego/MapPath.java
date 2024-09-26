@@ -104,7 +104,7 @@ public class MapPath extends AppCompatActivity
     private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
     private Toast currentToast;
-    private List<Polyline> polylines = new ArrayList<>();  // 그려진 선들을 저장하는 리스트
+    private final List<Polyline> polylines = new ArrayList<>();  // 그려진 선들을 저장하는 리스트
 
     // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
     private static final int PERMISSIONS_REQUEST_CODE = 100;
@@ -122,12 +122,11 @@ public class MapPath extends AppCompatActivity
     2 : 비상 정지 상태
      */
     int state = 0;
-    int isFinished = 0;
+    private static int isFinished = 0;
     boolean board_avail = false;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest locationRequest;
-    private Location location;
     private View mLayout;  // Snackbar 사용하기 위해서는 View가 필요합니다.
     // (참고로 Toast에서는 Context가 필요했습니다.)
 
@@ -162,13 +161,9 @@ public class MapPath extends AppCompatActivity
 
     // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
     private static class MyHandler extends Handler {
-        // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         private final WeakReference<MapPath> weakReference;
 
-        private String rcvJson;
-
         // Deprecated 경고를 해결하기 위해 Looper를 명시적으로 받도록 수정
-        // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         public MyHandler(Looper looper, MapPath mapPath) {
             super(looper);  // 명시적으로 Looper를 전달
             weakReference = new WeakReference<>(mapPath);
@@ -176,14 +171,10 @@ public class MapPath extends AppCompatActivity
 
         @Override
         public void handleMessage(Message msg) {
-            // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             MapPath mapPath = weakReference.get();
-            // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            if (mapPath != null && !mapPath.isFinishing()) {
+            if (mapPath != null && !mapPath.isFinishing() && MapPath.isFinished == 0) {
                 // 액티비티가 여전히 존재하는 경우에만 작업 수행
                 String jsonString = (String) msg.obj;
-                rcvJson=jsonString;
-                // 여기 ExampleActivity 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
                 try {
                     // JSON 파싱
@@ -222,14 +213,10 @@ public class MapPath extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-
-
         // SharedPreferences에서 데이터를 복원
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         init_path = preferences.getString("init_path", null);  // init_path 복원
         init_order = preferences.getString("init_order", null);  // init_order 복원
-
-
     }
 
     @Override
@@ -238,13 +225,6 @@ public class MapPath extends AppCompatActivity
         // 데이터를 SharedPreferences에 저장
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-
-        System.out.println("onCreate : "+init_path);
-        System.out.println("onCreate : "+init_path);
-        System.out.println("onCreate : "+init_path);
-        System.out.println("onCreate : "+init_path);
-        System.out.println("onCreate : "+init_path);
-
         editor.putString("init_path", init_path);  // init_path 저장
         editor.putString("init_order", init_order);  // init_order 저장
         editor.apply();  // 변경 사항을 저장
@@ -319,11 +299,6 @@ public class MapPath extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 // 예약 후 홈 페이지로 돌아갑니다.
-                System.out.println("onCreate : "+init_path);
-                System.out.println("onCreate : "+init_path);
-                System.out.println("onCreate : "+init_path);
-                System.out.println("onCreate : "+init_path);
-                System.out.println("onCreate : "+init_path);
                 Intent intent = new Intent(MapPath.this, MainActivity.class);
                 startActivity(intent);
             }
@@ -358,6 +333,22 @@ public class MapPath extends AppCompatActivity
         }
         else if(state == 1){
             if(isFinished==1) {
+                connMethod = "DELETE";
+                mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/list";
+
+                JSONObject body = new JSONObject();
+                String userName = AWSMobileClient.getInstance().getUsername();
+                try {
+                    // 비워두거나 최소한의 정보만 보냅니다.
+                    body.put("Method", "DELETE");
+                    body.put("User_ID", userName);
+                } catch (JSONException e) {
+                    Log.e("BODYPUTERROR", "ERRRRRRRRORRRRRR");  // 예외 처리
+                }
+
+                String bodyJson = body.toString();
+                ApiRequestHandler.getJSON(mURL, "DELETE", mHandler, bodyJson);
+
                 new AlertDialog.Builder(this)
                         .setMessage("이용해 주셔서 감사합니다")  // 메시지 설정
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -489,10 +480,6 @@ public class MapPath extends AppCompatActivity
 
             // 데이터를 사용하여 필요한 작업 수행
             if (init_path != null) {
-                System.out.println("qwqqw");
-                System.out.println("qwqqw");
-                System.out.println("qwqqw");
-
                 handleFirstPathMessage(init_path);
             }
 
@@ -565,7 +552,7 @@ public class MapPath extends AppCompatActivity
             List<Location> locationList = locationResult.getLocations();
 
             if (!locationList.isEmpty()) {
-                location = locationList.get(locationList.size() - 1);
+                Location location = locationList.get(locationList.size() - 1);
                 //location = locationList.get(0);
                 currentPosition
                         = new LatLng(location.getLatitude(), location.getLongitude());
@@ -973,7 +960,9 @@ public class MapPath extends AppCompatActivity
 
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    // GPS 토픽 처리
+                    // GPS 토픽
+                    Log.d(TAG, topic);
+                    Log.d(TAG, message.toString());
                     if (topic.equals(GPS_TOPIC)) {
                         new Thread(() -> handleGpsMessage(message)).start(); // GPS 메시지는 별도의 쓰레드에서 처리
                     }
@@ -987,19 +976,10 @@ public class MapPath extends AppCompatActivity
                     else if (topic.equals(SIGNAL_ROS_TOPIC)){
                         String jsonString = message.toString();
                         JSONObject jsonObject = new JSONObject(jsonString);
-
                         // finish와 user_id 값 추출
                         int finish = jsonObject.getInt("finish");
                         String userId = jsonObject.getString("user_id");
-
-                        // 각 key-value 쌍을 처리
-
-
-                        // 값 출력 (저장하는 대신 예시로 출력)
-                        System.out.println("Finish: " + finish);
-                        System.out.println("User ID: " + userId);
                         String Name = AWSMobileClient.getInstance().getUsername();
-
                         if(finish==1){
                             isFinished = 1;
                         }
@@ -1079,14 +1059,6 @@ public class MapPath extends AppCompatActivity
             init_path = init_path+","+pathMessage;
         }
         List<Double[]> latLongList = new ArrayList<>();
-
-        System.out.println(pathMessage);
-        System.out.println(pathMessage);
-        System.out.println(pathMessage);
-        System.out.println(init_path);
-        System.out.println(init_path);
-        System.out.println(init_path);
-        System.out.println("1090");
         if(init_path.isEmpty()){
             removeAllPolylines();
         }else {
@@ -1107,6 +1079,7 @@ public class MapPath extends AppCompatActivity
                         longitude = Double.parseDouble(part.split(":")[1].trim());
                         latLongList.add(new Double[]{latitude, longitude});
                     }
+
 
 
                 }
@@ -1227,12 +1200,6 @@ public class MapPath extends AppCompatActivity
 
     private void handleFirstPathMessage(String message) {
         String pathMessage = message;
-        System.out.println("line 1210");
-        System.out.println(init_path);
-
-        System.out.println(message);
-        System.out.println(message);
-        System.out.println(message);
         List<Double[]> latLongList = new ArrayList<>();
 
         try {
@@ -1242,7 +1209,6 @@ public class MapPath extends AppCompatActivity
             pathMessage = pathMessage.replace("\"", ""); // "" 제거
             pathMessage = pathMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
 
-            System.out.println(pathMessage);
             String[] parts = pathMessage.split(","); // 쉼표로 나눈다
 
             // 이전 위도와 경도
@@ -1343,33 +1309,6 @@ public class MapPath extends AppCompatActivity
         }
     }
 
-    // 마커를 추가하는 함수, 방문 순서에 따른 색상을 지정
-    private void addMarkerWithColor(LatLng latLng, String title, int order) {
-
-        // 순서에 따라 마커 색상 설정
-        float markerColor;
-        switch (order) {
-            case 1:
-                markerColor = BitmapDescriptorFactory.HUE_RED;
-                break;
-            case 2:
-                markerColor = BitmapDescriptorFactory.HUE_GREEN;
-                break;
-            case 3:
-                markerColor = BitmapDescriptorFactory.HUE_BLUE;
-                break;
-            default:
-                markerColor = BitmapDescriptorFactory.HUE_ORANGE; // 기본값
-                break;
-        }
-
-        // 마커 옵션 설정
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(latLng)
-                .title(title)
-                .icon(BitmapDescriptorFactory.defaultMarker(markerColor));
-        mMap.addMarker(markerOptions);
-    }
 
     private void sendMessage(String topic, String message) {
         try {
