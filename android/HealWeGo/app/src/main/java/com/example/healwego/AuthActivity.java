@@ -2,6 +2,7 @@ package com.example.healwego;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -53,7 +54,11 @@ public class AuthActivity extends AppCompatActivity {
     private void showSignIn() {
         try {
             AWSMobileClient.getInstance().showSignIn(this,
-                    SignInUIOptions.builder().nextActivity(MemInfoActivity.class).build());
+                    SignInUIOptions.builder()
+                            .logo(R.drawable.logo)
+                            .backgroundColor(Color.argb(255, 188, 226, 220))
+                            .nextActivity(MemInfoActivity.class)
+                            .build());
         } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
