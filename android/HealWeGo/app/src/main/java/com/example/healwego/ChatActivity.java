@@ -75,6 +75,7 @@ public class ChatActivity extends AppCompatActivity {
     private String CLIENT_ID = "";
 
     private static final String CHAT_TOPIC = "chatting/";
+
     private String roomId;
     private String chatsString;
 
@@ -92,13 +93,13 @@ public class ChatActivity extends AppCompatActivity {
     private ImageButton backToChatButton;
 
     // 방장 여부 확인 (API 요청으로 바뀌어야 함)
-    private boolean isHost = false;  // 방장이면 true로 설정
+    private boolean afterCreate = false;  // 방장이면 true로 설정
     private boolean isReady = false; // READY 상태 관리
     private String hostId;  // 방장 ID
     private String userId;  // 현재 사용자 ID
 
     // API 요청을 위한 URL
-    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
 
     // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
     private static class MyHandler extends Handler {
@@ -154,6 +155,7 @@ public class ChatActivity extends AppCompatActivity {
         String usersInfo = intent.getStringExtra("usersInfo");
         hostId = intent.getStringExtra("hostId");
         roomId = intent.getStringExtra("roomId");
+        afterCreate = intent.getBooleanExtra("isHost", false);
 
         if (isNewEnter == 2){
             chatsString = intent.getStringExtra("chats");
@@ -250,7 +252,9 @@ public class ChatActivity extends AppCompatActivity {
 
         // 화살표 버튼 설정 (Drawer 닫기)
         backToChatButton = headerView.findViewById(R.id.backToChatButton);
-        backToChatButton.setOnClickListener(v -> drawerLayout.closeDrawer(navigationView));
+        backToChatButton.setOnClickListener(v -> {
+            drawerLayout.closeDrawer(navigationView);
+        });
 
         // 나가기 버튼 설정
         ImageButton exitButton = headerView.findViewById(R.id.exitButton);
@@ -286,6 +290,7 @@ public class ChatActivity extends AppCompatActivity {
                     jsonObject.put("message", currentTime + " " + usermsg.getText().toString());
 
 
+
                     sendMessage(CHAT_TOPIC + roomId, jsonObject.toString());
                     usermsg.setText("");  // 메시지 보낸 후 입력 필드를 비웁니다.
 
@@ -311,6 +316,12 @@ public class ChatActivity extends AppCompatActivity {
             boolean isHost = key.equals(hostId);  // 방장 확인
 
             String role = isHost ? "(방장)" : "";  // 방장일 경우 "방장" 역할 추가
+
+            // afterCreate가 true이면 현재 사용자가 방장임을 표시
+            if (afterCreate && isCurrentUser) {
+                role = "(방장)";
+            }
+
             Log.i("ChatActivity", "Adding participant: " + key + ", Role: " + role + ", IsReady: " + isReady + ", IsCurrentUser: " + isCurrentUser);
 
             participants.add(new Participant(userName, role, isCurrentUser, isReady));  // key가 userId
@@ -318,7 +329,6 @@ public class ChatActivity extends AppCompatActivity {
         Log.i("ChatActivity", "참여 인원: " + participants.size());
 
         participantAdapter.notifyDataSetChanged();
-        checkAllReady();
     }
 
 
@@ -344,7 +354,6 @@ public class ChatActivity extends AppCompatActivity {
             }
         }
         participantAdapter.notifyDataSetChanged();
-        checkAllReady();  // 모든 참가자가 READY 상태인지 확인하여 GO 버튼 상태 갱신
     }
 
     // 서버에 READY 상태 업데이트
@@ -394,40 +403,16 @@ public class ChatActivity extends AppCompatActivity {
         startActivity(chatListIntent);  // 방 리스트로 화면 전환
     }
 
-    // 모든 참가자가 READY 상태인지 확인
-    private void checkAllReady(){
-        if (readyButton != null) {
-            boolean allReady = true;
-            for (Participant participant : participants) {
-                if (!participant.isReady()) {
-                    allReady = false;
-                    break;
-                }
-            }
-            if (this.userId.equals(hostId)) {  // this.userId로 참조
-                readyButton.setEnabled(allReady);
-                if (allReady) {
-                    readyButton.setText("GO");
-                    readyButton.setOnClickListener(v -> {
-                        // 방장이 GO 버튼을 누르면 PaymentCompleteActivity로 이동
-                        Intent payIntent = new Intent(ChatActivity.this, PaymentCompleteActivity.class);
-                        startActivity(payIntent);  // PaymentCompleteActivity로 화면 전환
-                    });
-                } else {
-                    readyButton.setText("WAITING");
-                }
-            }
-        } else{
-            Log.e("ChatActivity", "readyButton is null in checkAllReady");
-        }
-    }
-
     // READY 버튼 및 상태 갱신
     private void updateReadyButton(){
-        if (this.userId.equals(hostId)) {  // 방장이면 GO 버튼
+        if (afterCreate || this.userId.equals(hostId)) {  // 방장이면 GO 버튼
             readyButton.setText("GO");
-            readyButton.setEnabled(false); // 기본적으로 비활성화, 모두 READY 상태가 되면 활성화
-            checkAllReady();  // 방장이면 모든 참가자가 READY 상태인지 체크
+            readyButton.setEnabled(true); // 기본적으로 활성화, DB에서 처리
+            readyButton.setOnClickListener(v -> {
+                // 방장이 GO 버튼을 누르면 PaymentCompleteActivity로 이동
+                Intent payIntent = new Intent(ChatActivity.this, PaymentCompleteActivity.class);
+                startActivity(payIntent);  // PaymentCompleteActivity로 화면 전환
+            });
         } else {
             // 참여자면 READY -> CANCEL 상태로 토글
             readyButton.setText(isReady ? "CANCEL" : "READY");  // 초기 상태에 따라 버튼 설정
@@ -508,6 +493,30 @@ public class ChatActivity extends AppCompatActivity {
 
     // 메시지 받을 떄 함수
     private void receiveMessageCallback(MqttMessage rmessage) throws JSONException {
+        String msg = rmessage.toString();
+        JSONObject jsonObject = new JSONObject(msg);
+
+        String senderId = jsonObject.getString("User_ID");
+        String message = jsonObject.getString("message");
+
+        // 상대방 메시지를 받았을 경우 닉네임도 추가
+        if (!senderId.equals(userId)) {
+            // 상대방 메시지일 경우 상대방 닉네임 추가
+            String senderName = jsonObject.optString("username", "상대방");
+            chatMessages.add(new Pair<>(senderId, new Pair<>(senderName, message)));
+        } else {
+            // 사용자 본인이 보낸 메시지일 경우, 오른쪽에 표시되도록 처리
+            chatMessages.add(new Pair<>(senderId, new Pair<>("나", message)));
+        }
+
+        // 어댑터에 데이터가 변경되었음을 알림 (새로 추가된 메시지를 반영)
+        chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+
+        // RecyclerView를 마지막 메시지로 스크롤
+        chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
+    }
+
+    private void receiveReadyCallback(MqttMessage rmessage) throws JSONException {
         String msg = rmessage.toString();
         JSONObject jsonObject = new JSONObject(msg);
 
