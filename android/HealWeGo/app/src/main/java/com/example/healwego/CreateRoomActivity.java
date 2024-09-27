@@ -252,8 +252,6 @@ public class CreateRoomActivity extends AppCompatActivity {
         int genderFilter = getGenderFilter();
 
         String userId = AWSMobileClient.getInstance().getUsername();
-        String userLat = "37.5665";  // 임의의 사용자 위치 (DB에서 userid로 접근해 가져와야 함)
-        String userLon = "126.9780"; // 임의의 사용자 위치
 
         // 현재 시간 기준으로 출발 시간을 선택
         String startTime = selectedTime.replace(":", "");  // 시분 형식으로 포맷팅
