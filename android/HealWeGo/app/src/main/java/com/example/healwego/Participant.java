@@ -5,12 +5,14 @@ public class Participant {
     private String role; // 방장 여부 등 역할
     private boolean isCurrentUser; // 현재 사용자인지 여부
     private boolean isReady; // READY 상태
+    private String id;
 
-    public Participant(String name, String role, boolean isCurrentUser, boolean isReady) {
+    public Participant(String name, String role, boolean isCurrentUser, boolean isReady, String id) {
         this.name = name;
         this.role = role;
         this.isCurrentUser = isCurrentUser;
         this.isReady = isReady;
+        this.id = id;
     }
 
     public String getName() {
@@ -32,4 +34,9 @@ public class Participant {
     public void setReady(boolean ready) {
         isReady = ready;
     }
+
+    public String getId() {
+        return id;
+    };
+
 }

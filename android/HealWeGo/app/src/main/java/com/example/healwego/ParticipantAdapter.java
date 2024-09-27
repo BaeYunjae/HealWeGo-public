@@ -38,7 +38,6 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
     public void onBindViewHolder(@NonNull ParticipantViewHolder holder, int position) {
         Participant participant = participants.get(position);
 
-
         // 참여자 이름과 역할 설정 (이름을 먼저 초기화)
         String displayName = participant.getName() + " " + participant.getRole();
         holder.nameTextView.setText(displayName);  // 이름과 역할을 명확히 초기화
@@ -50,7 +49,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
             holder.readyText.setVisibility(View.GONE);
         }
 
-        // 사용자가 자신일 경우 이름을 노란색으로 강조
+        // 사용자가 자신일 경우 이름을 teal로 강조
         if (participant.isCurrentUser()) {
             holder.nameTextView.setTextColor(ContextCompat.getColor(context, R.color.teal));
         } else {
@@ -80,7 +79,6 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
     public static class ParticipantViewHolder extends RecyclerView.ViewHolder {
 
         TextView nameTextView;
-        TextView readyStatusTextView; // READY 상태 표시
         TextView readyText;  // READY / CANCEL 버튼
 
         public ParticipantViewHolder(@NonNull View itemView) {
@@ -94,4 +92,21 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
     public interface OnReadyStatusChangedListener {
         void onReadyStatusChanged(String userName, boolean isReady);
     }
+
+    // 사용자 ID로 참여자의 READY 상태를 업데이트하는 메서드 추가
+    public void updateParticipantReadyState(String userId, boolean isReady) {
+        for (Participant participant : participants) {
+            Log.i("MQTT", participant.getId() + " " + userId);
+            if (participant.getId().equals(userId)) {  // userId에 맞는 참여자 찾기
+                participant.setReady(isReady);  // READY 상태 변경
+                // 리스너를 통해 ChatActivity에서 상태 변경 처리
+                if (readyStatusChangedListener != null) {
+                    readyStatusChangedListener.onReadyStatusChanged(participant.getName(), isReady);
+                }
+                notifyDataSetChanged();  // UI 업데이트
+                break;  // 찾았으면 더 이상 반복할 필요 없음
+            }
+        }
+    }
+
 }

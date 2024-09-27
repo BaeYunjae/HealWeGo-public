@@ -92,6 +92,8 @@ public class ChatActivity extends AppCompatActivity {
     private Button readyButton;
     private ImageButton backToChatButton;
 
+    private JSONObject participantsInfos;
+
     // 방장 여부 확인 (API 요청으로 바뀌어야 함)
     private boolean afterCreate = false;  // 방장이면 true로 설정
     private boolean isReady = false; // READY 상태 관리
@@ -119,6 +121,7 @@ public class ChatActivity extends AppCompatActivity {
                 String jsonString = (String) msg.obj;
                 Toast.makeText(chatActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
                 Log.i("ChatActivity", "응답: " + jsonString);
+                chatActivity.handleParticipantsResponse(jsonString);
             }
         }
     }
@@ -265,6 +268,7 @@ public class ChatActivity extends AppCompatActivity {
         // MQTT 구독
         connectToMqtt();
 
+
         ImageButton sendbtn = findViewById(R.id.sendButton);
         EditText usermsg = findViewById(R.id.messageInput);
 
@@ -289,8 +293,6 @@ public class ChatActivity extends AppCompatActivity {
                     jsonObject.put("option", "msg");
                     jsonObject.put("message", currentTime + " " + usermsg.getText().toString());
 
-
-
                     sendMessage(CHAT_TOPIC + roomId, jsonObject.toString());
                     usermsg.setText("");  // 메시지 보낸 후 입력 필드를 비웁니다.
 
@@ -303,9 +305,10 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    // addParticipants 메서드
+    // addParticipant 메서드
     private void addParticipants(JSONObject usersJson) throws JSONException {
         Iterator<String> keys = usersJson.keys();
+        participants.clear();
         while (keys.hasNext()) {
             String key = keys.next();  // "userId"를 key로 사용
             JSONObject userObject = usersJson.getJSONObject(key);
@@ -324,7 +327,7 @@ public class ChatActivity extends AppCompatActivity {
 
             Log.i("ChatActivity", "Adding participant: " + key + ", Role: " + role + ", IsReady: " + isReady + ", IsCurrentUser: " + isCurrentUser);
 
-            participants.add(new Participant(userName, role, isCurrentUser, isReady));  // key가 userId
+            participants.add(new Participant(userName, role, isCurrentUser, isReady, key));  // key가 userId
         }
         Log.i("ChatActivity", "참여 인원: " + participants.size());
 
@@ -375,7 +378,23 @@ public class ChatActivity extends AppCompatActivity {
         Log.i("ChatActivity", "PATCH 요청: " + bodyJson);
     }
 
+    private void handleParticipantsResponse(String response){
+        try{
+            JSONObject responseObject = new JSONObject(response);
 
+            String body = responseObject.optString("body", null);
+
+            JSONObject bodyJson = new JSONObject(body);
+            Log.i("Chat", bodyJson.toString());
+
+            participantsInfos = bodyJson.optJSONObject("users");
+            Log.i("Chat", participantsInfos.toString());
+
+        } catch(JSONException e){
+            Log.i("Parti Error", "Error");
+            return;
+        }
+    }
 
     // 방 나가기 DELETE API 요청 함수
     private void sendDeleteRequest(){
@@ -403,6 +422,28 @@ public class ChatActivity extends AppCompatActivity {
         startActivity(chatListIntent);  // 방 리스트로 화면 전환
     }
 
+/*    // 참여자 목록 가져오기
+    private void getParticipantsList(){
+        JSONObject body = new JSONObject();
+        String connMethod = "PATCH";
+
+        try {
+            body.put("Method", connMethod);
+            body.put("User_ID", this.userId);
+        } catch (JSONException e) {
+            Log.e("RoomListAdapter", "JSON 생성 오류", e);
+            return;
+        }
+
+        String bodyJson = body.toString();
+        String apiUrl = mURL + "room/in";
+
+        // API 요청 시작 (비동기 처리)
+        ApiRequestHandler.getJSON(apiUrl, connMethod, mHandler, bodyJson);
+        Log.i("RoomListAdapter", "요청: " + bodyJson);
+    }*/
+
+
     // READY 버튼 및 상태 갱신
     private void updateReadyButton(){
         if (afterCreate || this.userId.equals(hostId)) {  // 방장이면 GO 버튼
@@ -414,9 +455,32 @@ public class ChatActivity extends AppCompatActivity {
                 startActivity(payIntent);  // PaymentCompleteActivity로 화면 전환
             });
         } else {
-            // 참여자면 READY -> CANCEL 상태로 토글
+            // 참여자면 READY -> CANCEL 상태로 토글 (Callback해야 함)
             readyButton.setText(isReady ? "CANCEL" : "READY");  // 초기 상태에 따라 버튼 설정
-            readyButton.setOnClickListener(v -> toggleReadyState());  // 클릭 시 READY 상태 토글
+            Log.i("MQTT READY", "취소: " + "되나");
+            readyButton.setOnClickListener(v -> {
+                toggleReadyState();
+
+                // 메시지 보낼 때마다 새로 생성
+                JSONObject jsonObject = new JSONObject();
+
+                try{
+                    jsonObject.put("User_ID", userId);
+                    jsonObject.put("option", "ready");
+                    if (isReady){
+                        jsonObject.put("message", "READY");
+                    }
+                    else{
+                        jsonObject.put("message", "CANCEL");
+                    }
+
+                    sendMessage(CHAT_TOPIC + roomId, jsonObject.toString());
+                } catch(JSONException e){
+                    Log.i("MQTT", "ready" + e);
+                    return;
+                }
+
+            });  // 클릭 시 READY 상태 토글
         }
     }
 
@@ -433,6 +497,20 @@ public class ChatActivity extends AppCompatActivity {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     System.out.println("Connected to AWS IoT Core");
                     subscribeToTopic(CHAT_TOPIC + roomId);
+
+                    // 내비게이션 갱신 메시지 보냄
+                    try{
+                        JSONObject jsonObject = new JSONObject();
+
+                        jsonObject.put("User_ID", userId);
+                        jsonObject.put("option", "enter");
+                        jsonObject.put("message", "");
+
+                        sendMessage(CHAT_TOPIC + roomId, jsonObject.toString());
+                    } catch(JSONException e){
+                        Log.i("MQTT 갱신", "실패");
+                        return;
+                    }
                 }
 
                 @Override
@@ -496,48 +574,49 @@ public class ChatActivity extends AppCompatActivity {
         String msg = rmessage.toString();
         JSONObject jsonObject = new JSONObject(msg);
 
-        String senderId = jsonObject.getString("User_ID");
-        String message = jsonObject.getString("message");
-
-        // 상대방 메시지를 받았을 경우 닉네임도 추가
-        if (!senderId.equals(userId)) {
-            // 상대방 메시지일 경우 상대방 닉네임 추가
-            String senderName = jsonObject.optString("username", "상대방");
-            chatMessages.add(new Pair<>(senderId, new Pair<>(senderName, message)));
-        } else {
-            // 사용자 본인이 보낸 메시지일 경우, 오른쪽에 표시되도록 처리
-            chatMessages.add(new Pair<>(senderId, new Pair<>("나", message)));
-        }
-
-        // 어댑터에 데이터가 변경되었음을 알림 (새로 추가된 메시지를 반영)
-        chatAdapter.notifyItemInserted(chatMessages.size() - 1);
-
-        // RecyclerView를 마지막 메시지로 스크롤
-        chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
-    }
-
-    private void receiveReadyCallback(MqttMessage rmessage) throws JSONException {
-        String msg = rmessage.toString();
-        JSONObject jsonObject = new JSONObject(msg);
+        Log.i("MQTT", "수신: " + msg);
 
         String senderId = jsonObject.getString("User_ID");
+        String option = jsonObject.getString("option");
         String message = jsonObject.getString("message");
 
-        // 상대방 메시지를 받았을 경우 닉네임도 추가
-        if (!senderId.equals(userId)) {
-            // 상대방 메시지일 경우 상대방 닉네임 추가
-            String senderName = jsonObject.optString("username", "상대방");
-            chatMessages.add(new Pair<>(senderId, new Pair<>(senderName, message)));
-        } else {
-            // 사용자 본인이 보낸 메시지일 경우, 오른쪽에 표시되도록 처리
-            chatMessages.add(new Pair<>(senderId, new Pair<>("나", message)));
+        if (option.equals("msg")) {
+            // 상대방 메시지를 받았을 경우 닉네임도 추가
+            if (!senderId.equals(userId)) {
+                // 상대방 메시지일 경우 상대방 닉네임 추가
+                chatMessages.add(new Pair<>(senderId, new Pair<>("상대방", message)));
+            } else {
+                // 사용자 본인이 보낸 메시지일 경우, 오른쪽에 표시되도록 처리
+                chatMessages.add(new Pair<>(senderId, new Pair<>("나", message)));
+            }
+
+            // 어댑터에 데이터가 변경되었음을 알림 (새로 추가된 메시지를 반영)
+            chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+
+            // RecyclerView를 마지막 메시지로 스크롤
+            chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
+        }
+        else if (option.equals("ready")){ // ready
+            // 참여자 READY 상태 업데이트
+            if (message.equals("READY")){
+                Log.i("MQTT", "READY");
+                participantAdapter.updateParticipantReadyState(senderId, true);
+            }
+            else{
+                Log.i("MQTT", "CANCEL");
+                participantAdapter.updateParticipantReadyState(senderId, false);
+
+            }
+        }
+        else if (option.equals("enter")){
+            Log.i("MQTT 방장", "들어옴?");
+/*            getParticipantsList();  // API 요청
+
+            if (participantsInfos != null){
+                addParticipants(participantsInfos);
+            }*/
         }
 
-        // 어댑터에 데이터가 변경되었음을 알림 (새로 추가된 메시지를 반영)
-        chatAdapter.notifyItemInserted(chatMessages.size() - 1);
-
-        // RecyclerView를 마지막 메시지로 스크롤
-        chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
     }
 
     // 메시지 보낼 떄 함수
