@@ -5,15 +5,17 @@ public class Room {
     private String roomName;
     private String theme;
     private String locName;
+    private String time;
     private int numUsers;
     private String gender;
 
     // 생성자
-    public Room(String roomId, String roomName, String theme, String locName, int numUsers, String gender) {
+    public Room(String roomId, String roomName, String theme, String locName, String time, int numUsers, String gender) {
         this.roomId = roomId;
         this.roomName = roomName;
         this.theme = theme;
         this.locName = locName;
+        this.time = time;
         this.numUsers = numUsers;
         this.gender = gender;
     }
@@ -23,6 +25,7 @@ public class Room {
     public String getRoomName() { return roomName; }
     public String getTheme() { return theme; }
     public String getLocName() { return locName; }
-    public int getNumUsers() { return numUsers; }
+    public String getTime() { return time; }
+    public String getNumUsers() { return String.valueOf(numUsers); }
     public String getGender() { return gender; }
 }
