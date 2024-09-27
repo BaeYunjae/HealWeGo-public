@@ -18,6 +18,7 @@ import com.amazonaws.mobile.client.AWSMobileClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -73,12 +74,36 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
         Room room = roomList.get(position);
 
         // Room 정보를 TextView에 설정
+//        holder.textRoomInfo.setText(
+//                "Room Name: " + room.getRoomName() +
+//                        "\nTheme: " + room.getTheme() +
+//                        "\nLocation: " + room.getLocName() +
+//                        "\nNumber of Users: " + room.getNumUsers() +
+//                        "\n" + room.getGender()
+//        );
+
         holder.textRoomInfo.setText(
-                "Room Name: " + room.getRoomName() +
-                        "\nTheme: " + room.getTheme() +
-                        "\nLocation: " + room.getLocName() +
-                        "\nNumber of Users: " + room.getNumUsers() +
-                        "\n" + room.getGender()
+                room.getRoomName()
+        );
+        holder.locationInfo.setText(
+                room.getLocName()
+        );
+        holder.themeTag.setText(
+                room.getTheme()
+        );
+        holder.genderTag.setText(
+                room.getGender()
+        );
+
+        String peopleFill = room.getNumUsers() + "/4";
+        holder.peopleInfo.setText(
+                peopleFill
+        );
+
+        String timeTemp = room.getTime();
+        String timeInfo = timeTemp.substring(0, 2) + ":" + timeTemp.substring(2);
+        holder.timeTag.setText(
+                timeInfo
         );
 
         // 클릭 이벤트 처리
@@ -113,10 +138,21 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
 
     public static class RoomViewHolder extends RecyclerView.ViewHolder {
         TextView textRoomInfo;
+        TextView locationInfo;
+        TextView themeTag;
+        TextView genderTag;
+        TextView timeTag;
+        TextView peopleInfo;
 
         public RoomViewHolder(View itemView) {
             super(itemView);
             textRoomInfo = itemView.findViewById(R.id.textRoomInfo);
+            locationInfo = itemView.findViewById(R.id.locationInfo);
+            themeTag = itemView.findViewById(R.id.themeTag);
+            genderTag = itemView.findViewById(R.id.genderTag);
+            timeTag = itemView.findViewById(R.id.timeTag);
+            peopleInfo = itemView.findViewById(R.id.peopleInfo);
+
         }
     }
 
