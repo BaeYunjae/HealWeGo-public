@@ -48,7 +48,7 @@ public class ChatListActivity extends AppCompatActivity {
     private String selectedTheme = "";
 
     // API 요청을 위한 URL
-    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
     private String connMethod;
 
     private int option;
@@ -135,7 +135,7 @@ public class ChatListActivity extends AppCompatActivity {
         String userId = AWSMobileClient.getInstance().getUsername();
 
         connMethod = "PATCH";
-        mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/list";
+        mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/list";
 
         try{
             body.put("Method", connMethod);

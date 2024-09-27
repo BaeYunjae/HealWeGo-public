@@ -80,7 +80,7 @@ public class TogetherSelectStart extends AppCompatActivity
     private View mLayout;  // Snackbar 사용하기 위해서는 View가 필요합니다.
     // (참고로 Toast에서는 Context가 필요했습니다.)
 
-    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
     // POST, GET, DELETE, ...
     private String connMethod;
     // 보낼 정보를 담을 JSON
@@ -164,7 +164,7 @@ public class TogetherSelectStart extends AppCompatActivity
                 if (currentMarker != null) {
                     // API 유형
                     connMethod = "PATCH";
-                    mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "user/loc";
+                    mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "user/loc";
 
                     JSONObject body = new JSONObject();
 

@@ -32,7 +32,7 @@ public class MemInfoActivity extends AppCompatActivity {
     private Button nextButton;
 
     // API 요청을 위한 URL
-    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
     // POST, GET, DELETE, ...
     private String connMethod;
     // 보낼 정보를 담을 JSON
@@ -109,7 +109,7 @@ public class MemInfoActivity extends AppCompatActivity {
         // API 호출에 필요한 정보
         // API 유형
         connMethod = "POST";
-        mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "user/info";
+        mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "user/info";
 
         JSONObject body = new JSONObject();
         String userId = AWSMobileClient.getInstance().getUsername();

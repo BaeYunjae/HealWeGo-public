@@ -51,7 +51,7 @@ public class AloneSetActivity extends AppCompatActivity {  // 이름 변경
     }
 
     private String selectedTime;
-    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
     private String connMethod;
     private final AloneSetActivity.MyHandler mHandler = new AloneSetActivity.MyHandler(Looper.getMainLooper(), this); // MainLooper 전달
 
@@ -104,7 +104,7 @@ public class AloneSetActivity extends AppCompatActivity {  // 이름 변경
 
                 // API 유형
                 connMethod = "POST";
-                mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "user/path";
+                mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "user/path";
 
                 JSONObject body = new JSONObject();
 

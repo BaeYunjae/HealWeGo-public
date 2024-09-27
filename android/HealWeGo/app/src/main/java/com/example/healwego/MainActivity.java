@@ -53,7 +53,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     // API 요청을 위한 URL
-    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
     private String connMethod;
     // 보낼 정보를 담을 JSON
     private String bodyJson;
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         // API 호출에 필요한 정보
         // API 유형
         connMethod = "GET";
-        mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "user/info";
+        mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "user/info";
 
         try{
             body.put("Method", connMethod);
@@ -316,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
         // API 호출에 필요한 정보
         // API 유형
         connMethod = "PATCH";
-        mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "recommend-destination";
+        mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "recommend-destination";
 
         try{
             body.put("Method", connMethod);

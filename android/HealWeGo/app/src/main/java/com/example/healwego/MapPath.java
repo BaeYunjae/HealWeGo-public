@@ -149,7 +149,7 @@ public class MapPath extends AppCompatActivity
     private String init_order;
     boolean firstCameraUpdate = false;
 
-    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
     // POST, GET, DELETE, ...
     private String connMethod;
     // 보낼 정보를 담을 JSON
@@ -334,7 +334,7 @@ public class MapPath extends AppCompatActivity
         else if(state == 1){
             if(isFinished==1) {
                 connMethod = "DELETE";
-                mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/list";
+                mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/list";
 
                 JSONObject body = new JSONObject();
                 String userName = AWSMobileClient.getInstance().getUsername();
@@ -489,7 +489,7 @@ public class MapPath extends AppCompatActivity
 
             // PATCH API 요청을 위한 코드
             connMethod = "PATCH";
-            mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/in";
+            mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/in";
 
 // 요청 바디에 최소한의 데이터를 설정
             JSONObject body = new JSONObject();

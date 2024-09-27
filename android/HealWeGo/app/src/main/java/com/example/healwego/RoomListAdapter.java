@@ -27,7 +27,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
     private Context context;
 
     // API 요청을 위한 URL
-    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
 
     public RoomListAdapter(Context context, List<Room> roomList) {
         this.roomList = roomList;

@@ -23,7 +23,7 @@ public class ExampleActivity extends AppCompatActivity {
     // 테스트용 버튼
     private Button apiButton;
     // API 요청을 위한 URL
-    private String mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
     // POST, GET, DELETE, ...
     private String connMethod;
     // 보낼 정보를 담을 JSON
@@ -74,7 +74,7 @@ public class ExampleActivity extends AppCompatActivity {
                 if (v == apiButton) {
                     // API 유형
                     connMethod = "PATCH";
-                    mURL = "https://e2fqrjfyj9.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "car/on";
+                    mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "car/on";
 
                     JSONObject body = new JSONObject();
 
