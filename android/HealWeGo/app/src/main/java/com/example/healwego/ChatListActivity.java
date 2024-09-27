@@ -279,6 +279,7 @@ public class ChatListActivity extends AppCompatActivity {
                 String roomName = roomObject.getString("roomname");
                 String theme = roomObject.getString("theme");
                 String locName = roomObject.getString("Loc_name");
+                String time = roomObject.getString("start");
                 int numUsers = roomObject.getInt("num");
 
                 int genderValue = roomObject.getInt("gender");
@@ -292,7 +293,7 @@ public class ChatListActivity extends AppCompatActivity {
                 }
 
                 if (filterRoomByGender(genderValue)) {
-                    Room room = new Room(roomId, roomName, theme, locName, numUsers, gender);
+                    Room room = new Room(roomId, roomName, theme, locName, time, numUsers, gender);
                     rooms.add(room);
                 }
             }
