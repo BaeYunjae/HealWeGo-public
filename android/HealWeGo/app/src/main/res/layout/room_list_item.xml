@@ -4,18 +4,127 @@
     android:layout_height="wrap_content"
     android:padding="10dp">
 
-    <TextView
-        android:id="@+id/textRoomInfo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="방 정보가 여기에 표시됩니다"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
-        android:background="@color/palecyan"
-        android:padding="10dp"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/room_list_theme">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="4">
+
+            <TextView
+                android:id="@+id/textRoomInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="방 제목"
+                android:textSize="25sp"
+                android:textColor="@android:color/black"
+                android:fontFamily="@font/locus_sangsang"
+                android:paddingTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingBottom="10dp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="5dp"
+                android:paddingBottom="10dp">
+
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/marker" />
+
+                <TextView
+                    android:id="@+id/locationInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/locus_sangsang"
+                    android:text="장소명"
+                    android:textSize="20sp"
+                    android:paddingLeft="10dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="10dp"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:id="@+id/themeTag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="테마"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:fontFamily="@font/locus_sangsang"
+                    android:background="@drawable/room_list_tag"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/genderTag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="성별"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:fontFamily="@font/locus_sangsang"
+                    android:background="@drawable/room_list_tag"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:gravity="center"
+                    android:layout_marginLeft="5dp"/>
+
+                <TextView
+                    android:id="@+id/timeTag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="시간"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:fontFamily="@font/locus_sangsang"
+                    android:background="@drawable/room_list_tag"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:gravity="center"
+                    android:layout_marginLeft="5dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/peopleInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="0/4"
+            android:textSize="30sp"
+            android:fontFamily="@font/locus_sangsang"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingRight="10dp"/>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,157 +7,158 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="160dp"
-        android:layout_height="35dp"
-        android:text="같이 갈래요?"
-        android:textSize="20sp"
-        android:layout_marginRight="180dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="460dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
 
-
-    <!-- 방이 없을 때 표시할 TextView (ScrollView 위에 배치) -->
-    <TextView
-        android:id="@+id/noRoomTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="방이 없어요! 직접 만들어보실래요?"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/themeButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp" />
-
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="330dp"
-        android:layout_height="470dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/themeButton">
-
-        <!-- RecyclerView로 방 목록을 동적으로 표시 -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewRooms"
+        <ImageView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="20dp"
-            app:layout_constraintTop_toBottomOf="@id/themeButton"
-            app:layout_constraintBottom_toTopOf="@id/wantCreateButton"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:padding="10dp"
-            tools:listitem="@layout/room_list_item" />
+            android:layout_height="120dp"
+            android:src="@drawable/logo"
+            android:layout_marginTop="10dp"/>
 
-    </ScrollView>
+        <LinearLayout
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="40dp">
 
-    <ImageButton
-        android:id="@+id/filterButton"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="160dp"
-        android:background="@null"
-        android:scaleType="fitCenter"
-        android:contentDescription="필터 버튼"
-        app:layout_constraintStart_toEndOf="@id/themeButton"
-        app:layout_constraintBottom_toBottomOf="@id/themeButton"
-        app:srcCompat="@drawable/filter"/>
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="함께 가기"
+                android:textSize="40sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:fontFamily="@font/locus_sangsang"/>
 
-    <HorizontalScrollView
-        android:id="@+id/themeButton"
-        android:layout_width="280dp"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:layout_marginTop="5dp"
-        app:layout_constraintTop_toBottomOf="@id/textView1"
-        app:layout_constraintEnd_toStartOf="@+id/filterButton">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                />
+
+            <ImageButton
+                android:id="@+id/filterButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="필터 버튼"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/filter" />
+
+        </LinearLayout>
 
 
         <LinearLayout
-            android:id="@+id/theme"
-            android:layout_width="wrap_content"
+            android:id="@+id/themeButton"
+            android:layout_width="400dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="160dp">
+            android:gravity="center"
+            android:layout_marginTop="10dp">
 
-            <!-- 첫 번째 버튼 -->
-            <android.widget.Button
-                android:id="@+id/healing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/selector_theme_button"
-                android:text="#힐링"
-                android:textColor="@drawable/selector_text_color"
-                android:textSize="18sp" />
+                <!-- 첫 번째 버튼 -->
+                <android.widget.Button
+                    android:id="@+id/healing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40sp"
+                    android:background="@drawable/selector_theme_button"
+                    android:text="#힐링"
+                    android:fontFamily="@font/locus_sangsang"
+                    android:textColor="@drawable/selector_text_color"
+                    android:textSize="18sp" />
 
-            <!-- 두 번째 버튼 -->
-            <android.widget.Button
-                android:id="@+id/extreme"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/selector_theme_button"
-                android:text="#익스트림"
-                android:textColor="@drawable/selector_text_color"
-                android:textSize="18sp" />
+                <!-- 두 번째 버튼 -->
+                <android.widget.Button
+                    android:id="@+id/extreme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40sp"
+                    android:layout_marginLeft="5dp"
+                    android:background="@drawable/selector_theme_button"
+                    android:text="#익스트림"
+                    android:fontFamily="@font/locus_sangsang"
+                    android:textColor="@drawable/selector_text_color"
+                    android:textSize="18sp" />
 
-            <!-- 세 번째 버튼 -->
-            <android.widget.Button
-                android:id="@+id/meeting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/selector_theme_button"
-                android:text="#만남"
-                android:textColor="@drawable/selector_text_color"
-                android:textSize="18sp" />
+                <!-- 세 번째 버튼 -->
+                <android.widget.Button
+                    android:id="@+id/meeting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40sp"
+                    android:layout_marginLeft="5dp"
+                    android:background="@drawable/selector_theme_button"
+                    android:text="#만남"
+                    android:fontFamily="@font/locus_sangsang"
+                    android:textColor="@drawable/selector_text_color"
+                    android:textSize="18sp" />
 
-            <android.widget.Button
-                android:id="@+id/eating"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/selector_theme_button"
-                android:text="#먹부림"
-                android:textColor="@drawable/selector_text_color"
-                android:textSize="18sp" />
+                <android.widget.Button
+                    android:id="@+id/eating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40sp"
+                    android:layout_marginLeft="5dp"
+                    android:background="@drawable/selector_theme_button"
+                    android:text="#먹부림"
+                    android:fontFamily="@font/locus_sangsang"
+                    android:textColor="@drawable/selector_text_color"
+                    android:textSize="18sp" />
+
         </LinearLayout>
 
-    </HorizontalScrollView>
 
-    <android.widget.Button
-        android:id="@+id/wantCreateButton"
+        <!-- 방이 없을 때 표시할 TextView (ScrollView 위에 배치) -->
+        <TextView
+            android:id="@+id/noRoomTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="방이 없어요! 직접 만들어보실래요?"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:visibility="gone"
+            android:layout_marginTop="20dp" />
+
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="400dp"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:layout_gravity="center">
+
+            <!-- RecyclerView로 방 목록을 동적으로 표시 -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewRooms"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="20dp"
+                android:padding="10dp"
+                tools:listitem="@layout/room_list_item" />
+
+        </ScrollView>
+
+    </LinearLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="220dp"
-        android:layout_marginBottom="20dp"
-        android:text="방 만들기"
-        android:textSize="20dp"
-        android:background="@drawable/tag_button"
-        android:backgroundTint="@color/teal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
+        android:layout_height="match_parent"
+        android:gravity="bottom">
+
+        <android.widget.Button
+            android:id="@+id/wantCreateButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="220dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="방 만들기"
+            android:textSize="20dp"
+            android:background="@drawable/tag_button"
+            android:backgroundTint="@color/teal"
+            />
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
