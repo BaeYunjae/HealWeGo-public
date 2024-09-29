@@ -163,14 +163,14 @@ public class PaymentCompleteActivity extends AppCompatActivity {
             if (Objects.equals(pathMessage, "init")){
                 pathMessage=message.toString();
             }else {
-                pathMessage = pathMessage +","+ message;
+                pathMessage = pathMessage +"|"+ message;
             }
             System.out.println(message);
             Log.d(TAG, "Received Path MQTT message: " + pathMessage);
-
+            String tempMessage = message.toString();
             try {
                 // JSON 배열로 변환하여 처리
-                JSONArray jsonArray = new JSONArray(pathMessage); // JSON 배열로 변환
+                JSONArray jsonArray = new JSONArray(tempMessage); // JSON 배열로 변환
 
                 // 이전 위도와 경도
                 double prev_latitude = 0.0;
