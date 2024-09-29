@@ -105,6 +105,7 @@ public class MapPath extends AppCompatActivity
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
     private Toast currentToast;
     private final List<Polyline> polylines = new ArrayList<>();  // 그려진 선들을 저장하는 리스트
+    private List<Marker> markers = new ArrayList<>(); // 추가된 마커들을 저장하는 리스트
 
     // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
     private static final int PERMISSIONS_REQUEST_CODE = 100;
@@ -150,6 +151,7 @@ public class MapPath extends AppCompatActivity
     boolean firstCameraUpdate = false;
 
     private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
+    ;
     // POST, GET, DELETE, ...
     private String connMethod;
     // 보낼 정보를 담을 JSON
@@ -334,7 +336,7 @@ public class MapPath extends AppCompatActivity
         else if(state == 1){
             if(isFinished==1) {
                 connMethod = "DELETE";
-                mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/list";
+                mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/"+ "room/list";
 
                 JSONObject body = new JSONObject();
                 String userName = AWSMobileClient.getInstance().getUsername();
@@ -365,7 +367,7 @@ public class MapPath extends AppCompatActivity
                 showToastMessage("아직 도착 안했습니다");
             }
         }else if(state == 2){
-           showToastMessage("이동부터 하세요");
+            showToastMessage("이동부터 하세요");
         }
     }
 
@@ -489,7 +491,7 @@ public class MapPath extends AppCompatActivity
 
             // PATCH API 요청을 위한 코드
             connMethod = "PATCH";
-            mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/in";
+            mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/"+ "room/in";
 
 // 요청 바디에 최소한의 데이터를 설정
             JSONObject body = new JSONObject();
@@ -710,11 +712,22 @@ public class MapPath extends AppCompatActivity
                     .anchor(0.5f, 0.5f);  // 이미지의 중심이 좌표에 맞도록 설정
 
             // 마커를 지도에 추가하고 해당 마커를 저장
-            mMap.addMarker(markerOptions);
+            Marker marker = mMap.addMarker(markerOptions);
+            if (marker != null) {
+                markers.add(marker); // 마커 리스트에 추가
+            }
         }
 
     }
-
+    private void removeAllMarkers() {
+        runOnUiThread(() -> {
+            // 저장된 모든 Marker 객체 삭제
+            for (Marker marker : markers) {
+                marker.remove();  // 지도에서 마커 제거
+            }
+            markers.clear();  // 리스트 비우기
+        });
+    }
     private void showToastMessage(String message) {
         // 현재 표시 중인 Toast가 있다면 취소
         if (currentToast != null) {
@@ -1035,7 +1048,7 @@ public class MapPath extends AppCompatActivity
                 runOnUiThread(() -> addMarkerWithImage(latLng));
 
                 // UI 업데이트: 수신한 메시지를 TextView에 표시
-               // runOnUiThread(() -> currentText.setText("Latitude: " + latitude + ", Longitude: " + longitude));
+                // runOnUiThread(() -> currentText.setText("Latitude: " + latitude + ", Longitude: " + longitude));
             } else {
                 Log.e(TAG, "Invalid GPS message format: " + receivedMessage);
             }
@@ -1056,7 +1069,7 @@ public class MapPath extends AppCompatActivity
         else if(Objects.equals(init_path, "")){
             init_path=pathMessage;
         }else{
-            init_path = init_path+","+pathMessage;
+            init_path = init_path+"|"+pathMessage;
         }
         List<Double[]> latLongList = new ArrayList<>();
         if(init_path.isEmpty()){
@@ -1142,6 +1155,7 @@ public class MapPath extends AppCompatActivity
         String message = pmessage.toString();
         Log.d("MQTT", "Received Point message: " + message);
         init_order=message;
+        removeAllMarkers();
         try {
             // 1. 메시지에서 불필요한 대괄호 및 따옴표 제거
             message = message.replace("[", "")  // 시작 대괄호 제거
@@ -1185,9 +1199,10 @@ public class MapPath extends AppCompatActivity
 
                 // LatLng 객체 생성
                 LatLng latLng = new LatLng(latitude, longitude);
-
+                int finalOrder = order;
                 // 마커 추가 및 마커 위치 리스트에 저장
                 runOnUiThread(() -> {
+                    addMarkerWithNumber(latLng,finalOrder);// 마커 추가
                     markerPositions.add(latLng);  // 마커 위치 저장
                     adjustCameraToMarkers(markerPositions);  // 카메라 조정
                 });
@@ -1201,50 +1216,65 @@ public class MapPath extends AppCompatActivity
     private void handleFirstPathMessage(String message) {
         String pathMessage = message;
         List<Double[]> latLongList = new ArrayList<>();
-
+        removeAllPolylines();
         try {
-            pathMessage = pathMessage.replace("new","");
-            pathMessage = pathMessage.replace("[","");
-            pathMessage = pathMessage.replace("{", "").replace("}", ""); // {} 제거
-            pathMessage = pathMessage.replace("\"", ""); // "" 제거
-            pathMessage = pathMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
+            int cnt=0;
+            // "||" 기준으로 pathMessage를 분할
+            String[] messageParts = pathMessage.split("\\|");
+            for (String partMessage : messageParts) {
 
-            String[] parts = pathMessage.split(","); // 쉼표로 나눈다
+                // 각 partMessage에 대해서 새로운 경로 좌표 리스트를 초기화
+                partMessage = partMessage.replace("new", "");
+                partMessage = partMessage.replace("[", "");
+                partMessage = partMessage.replace("{", "").replace("}", ""); // {} 제거
+                partMessage = partMessage.replace("\"", ""); // "" 제거
+                partMessage = partMessage.replace("]", ""); // "]" 제거 (마지막 값에서 문제 발생 방지)
 
-            // 이전 위도와 경도
-            double prev_latitude = 0.0;
-            double prev_longitude = 0.0;
-            boolean isFirstPoint = true;
-            double latitude = 0.0;
-            double longitude = 0.0;
+                String[] parts = partMessage.split(","); // 쉼표로 나눈다
 
-            for (String part : parts) {
-                if (part.contains("latitude")) {
-                    latitude = Double.parseDouble(part.split(":")[1].trim());
+                System.out.println(partMessage);
+                System.out.println(partMessage);
+                System.out.println(partMessage);
+                System.out.println("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+                // 이전 위도와 경도
+                double prev_latitude = 0.0;
+                double prev_longitude = 0.0;
+                boolean isFirstPoint = true;
+                double latitude = 0.0;
+                double longitude = 0.0;
+
+                for (String part : parts) {
+                    if (part.contains("latitude")) {
+                        latitude = Double.parseDouble(part.split(":")[1].trim());
+                    }
+
+                    if (part.contains("longitude")) {
+                        longitude = Double.parseDouble(part.split(":")[1].trim());
+                        latLongList.add(new Double[]{latitude, longitude});
+                    }
                 }
 
-                if (part.contains("longitude")) {
-                    longitude = Double.parseDouble(part.split(":")[1].trim());
-                    latLongList.add(new Double[]{latitude, longitude});
+                for (Double[] latLong : latLongList) {
+                    latitude = latLong[0];
+                    longitude = latLong[1];
+
+                    if (!isFirstPoint) {
+                        LatLng startLatLng = new LatLng(latitude, longitude);  // 현재 좌표
+                        LatLng endLatLng = new LatLng(prev_latitude, prev_longitude);  // 이전 좌표
+                        drawLineBetweenPoints(mMap, startLatLng, endLatLng, Color.RED, 5);
+                    } else {
+                        isFirstPoint = false; // 첫 번째 지점 처리 완료
+                    }
+
+                    // 현재 지점을 다음 계산을 위한 이전 지점으로 저장
+                    prev_latitude = latitude;
+                    prev_longitude = longitude;
                 }
+                // 각 partMessage에 대한 latLongList를 다 처리했으므로 초기화
+                latLongList.clear();
+
             }
 
-            for (Double[] latLong : latLongList) {
-                latitude = latLong[0];
-                longitude = latLong[1];
-
-                if (!isFirstPoint) {
-                    LatLng startLatLng = new LatLng(latitude, longitude);  // 서울 좌표 예시
-                    LatLng endLatLng = new LatLng(prev_latitude, prev_longitude);    // 다른 좌표 예시
-                    drawLineBetweenPoints(mMap, startLatLng, endLatLng, Color.RED, 5);
-                } else {
-                    isFirstPoint = false; // 첫 번째 지점 처리 완료
-                }
-
-                // 현재 지점을 다음 계산을 위한 이전 지점으로 저장
-                prev_latitude = latitude;
-                prev_longitude = longitude;
-            }
         } catch (NumberFormatException e) {
             Log.e(TAG, "Error parsing path message: " + e.getMessage());
             e.printStackTrace();
@@ -1253,7 +1283,7 @@ public class MapPath extends AppCompatActivity
 
     private void handleFirstPointMessage(String pmessage) {
         String message = pmessage;
-
+        removeAllMarkers();
         try {
             // 1. 메시지에서 불필요한 대괄호 및 따옴표 제거
             message = message.replace("[", "")  // 시작 대괄호 제거
