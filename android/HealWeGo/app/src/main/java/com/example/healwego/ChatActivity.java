@@ -115,7 +115,6 @@ public class ChatActivity extends AppCompatActivity {
                 Toast.makeText(chatActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
                 Log.i("ChatActivity", "응답: " + jsonString);
                 chatActivity.handleParticipantsResponse(jsonString);
-                System.out.println("125");
             }
         }
     }
@@ -126,18 +125,14 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chatting_page);  // 채팅 레이아웃 사용
 
-
+        // 현재 사용자 ID 가져오기
         userId = AWSMobileClient.getInstance().getUsername();
-
-
         CLIENT_ID = userId;
-        // 뒤로가기 버튼을 처리하는 부분
+
+                // 뒤로가기 버튼을 처리하는 부분
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -210,7 +205,7 @@ public class ChatActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        // 현재 사용자 ID 가져오기
+    
         // DrawerLayout 및 NavigationView 설정
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.nav_view);
@@ -254,20 +249,13 @@ public class ChatActivity extends AppCompatActivity {
         // 화살표 버튼 설정 (Drawer 닫기)
         backToChatButton = headerView.findViewById(R.id.backToChatButton);
         backToChatButton.setOnClickListener(v -> {
-
             drawerLayout.closeDrawer(navigationView);
         });
 
         // 나가기 버튼 설정
         ImageButton exitButton = headerView.findViewById(R.id.exitButton);
         exitButton.setOnClickListener(v -> {
-
-
-
             sendDeleteRequest();
-
-
-
         });
 
         // MQTT 구독
@@ -391,15 +379,17 @@ public class ChatActivity extends AppCompatActivity {
 
             JSONObject bodyJson = new JSONObject(body);
             Log.i("Chat", bodyJson.toString());
+
+            //여기 와서도 roomId가 null이면 다시 구독
             if(roomId==null){
                 roomId = bodyJson.getString("Rooms_ID");
                 subscribeToTopic(CHAT_TOPIC + roomId);
             }
             participantsInfos = bodyJson.optJSONObject("users");
             Log.i("Chat", participantsInfos.toString());
-            addParticipants(participantsInfos);
 
-            System.out.println("392");
+            //방 참여자 목록 갱신
+            addParticipants(participantsInfos);
         } catch(JSONException e){
             Log.i("Parti Error", "Error");
             return;
@@ -425,6 +415,7 @@ public class ChatActivity extends AppCompatActivity {
         String bodyJson = body.toString();
 
         // API 요청 함수
+        // DELETE처리를 위한 핸들러 생성
         ApiRequestHandler.getJSON(apiURL, connMethod, new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
