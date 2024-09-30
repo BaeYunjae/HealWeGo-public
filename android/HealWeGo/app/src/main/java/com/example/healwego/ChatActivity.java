@@ -489,8 +489,57 @@ public class ChatActivity extends AppCompatActivity {
             readyButton.setEnabled(true); // 기본적으로 활성화, DB에서 처리
             readyButton.setOnClickListener(v -> {
                 // 방장이 GO 버튼을 누르면 PaymentCompleteActivity로 이동
-                Intent payIntent = new Intent(ChatActivity.this, PaymentCompleteActivity.class);
-                startActivity(payIntent);  // PaymentCompleteActivity로 화면 전환
+                String connMethod = "PATCH";
+                String apiURL = mURL + "user/go";
+
+                JSONObject body = new JSONObject();
+
+                try{
+                    body.put("Method", connMethod);
+                    body.put("User_ID", this.userId);
+                } catch(JSONException e){
+                    Log.e("ChatActivity", "JSON 생성 오류");
+                    return;
+                }
+
+                String bodyJson = body.toString();
+
+                // API 요청 함수
+                // 처리를 위한 핸들러 생성
+                ApiRequestHandler.getJSON(apiURL, connMethod, new Handler(Looper.getMainLooper()) {
+                    @Override
+                    public void handleMessage(Message msg) {
+                        String response = (String) msg.obj;
+
+                        try {
+                            JSONObject responseObject = new JSONObject(response);
+                            String body = responseObject.getString("body");
+                            JSONObject optionObject = new JSONObject(body);
+                            String option = optionObject.getString("option");
+
+                            if (option.equals("go")){
+                                // mqtt 쏴야하고
+                                // 성공 후 MQTT 메시지 전송
+                                JSONObject jsonObject = new JSONObject();
+                                try {
+                                    jsonObject.put("User_ID", userId);
+                                    jsonObject.put("option", "go");
+                                    jsonObject.put("message", "");   
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                sendMqttMessage(CHAT_TOPIC + roomId, jsonObject.toString());
+                                // intent 넘기고
+                                Intent payIntent = new Intent(ChatActivity.this, PaymentCompleteActivity.class);
+                                startActivity(payIntent);  // PaymentCompleteActivity로 화면 전환
+                            }else{
+                                Toast.makeText(ChatActivity.this, "아직 다 준비 안했", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            Log.e("ChatActivity", "응답 처리 오류", e);
+                        }
+                    }
+                }, bodyJson);
             });
         } else {
             // 참여자면 READY -> CANCEL 상태로 토글 (Callback해야 함)
@@ -652,6 +701,9 @@ public class ChatActivity extends AppCompatActivity {
                 Log.i("MQTT 방장", "ㅇㅇ들어옴");
                 getParticipantsList();  // API 요청
             }
+        } else if (option.equals("go")) {
+            Intent payIntent = new Intent(ChatActivity.this, PaymentCompleteActivity.class);
+            startActivity(payIntent);  // PaymentCompleteActivity로 화면 전환
         }
 
     }
