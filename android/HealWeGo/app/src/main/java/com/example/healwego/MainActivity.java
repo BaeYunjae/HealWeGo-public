@@ -1,5 +1,6 @@
 package com.example.healwego;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.google.android.material.internal.ViewUtils.dpToPx;
 
 import android.animation.Animator;
@@ -11,6 +12,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -35,6 +37,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -190,21 +193,21 @@ public class MainActivity extends AppCompatActivity {
 
         // 버튼 레이아웃 파라미터 설정
         LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, // width
-                ViewGroup.LayoutParams.MATCH_PARENT, // height
+                MATCH_PARENT, // width
+                MATCH_PARENT, // height
                 3f  // weight: 3
         );
 
         // GradientDrawable로 둥근 테두리 설정
         GradientDrawable drawable = new GradientDrawable();
         drawable.setShape(GradientDrawable.RECTANGLE);
-        drawable.setCornerRadius(20f); // 모서리 둥글게 (50f로 설정)
+        drawable.setCornerRadius(40f); // 모서리 둥글게 (40f로 설정)
         drawable.setColor(getResources().getColor(R.color.teal));
 
         // 뷰 레이아웃 파라미터 설정
         LinearLayout.LayoutParams viewParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, // width
-                ViewGroup.LayoutParams.MATCH_PARENT, // height
+                MATCH_PARENT, // width
+                MATCH_PARENT, // height
                 5f  // weight: 3
         );
 
@@ -221,10 +224,15 @@ public class MainActivity extends AppCompatActivity {
             // 4. 파싱한 결과를 바탕으로 레이아웃 그림
             int option = bodyJson.getInt("option");
 
+            TextView nameText = (TextView)findViewById(R.id.userName);
+            String userName = bodyJson.getString("username") + "님, ";
+            nameText.setText(userName);
+
             if(option == 0){ // 참여 중인 방이 없는 상태
                 // 첫 번째 버튼 생성 및 설정
                 buttonAlone = new Button(this);
                 buttonAlone.setText("혼자 가기");
+                buttonAlone.setTextColor(getResources().getColor(R.color.white));
                 buttonAlone.setTextSize(18);
                 buttonAlone.setBackgroundColor(getResources().getColor(R.color.teal));
                 buttonAlone.setLayoutParams(buttonParams);
@@ -234,6 +242,7 @@ public class MainActivity extends AppCompatActivity {
                 // 두 번째 버튼 생성 및 설정
                 buttonTogether = new Button(this);
                 buttonTogether.setText("함께 가기");
+                buttonTogether.setTextColor(getResources().getColor(R.color.white));
                 buttonTogether.setTextSize(18);
                 buttonTogether.setBackgroundColor(getResources().getColor(R.color.teal));
                 buttonTogether.setLayoutParams(buttonParams);
@@ -281,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
                 buttonReseve = new Button(this);
                 buttonReseve.setText(displayTxt);
+                buttonReseve.setTextColor(getResources().getColor(R.color.white));
                 buttonReseve.setTextSize(18);
                 buttonReseve.setBackgroundColor(getResources().getColor(R.color.teal));
                 buttonReseve.setLayoutParams(buttonParams);
@@ -336,8 +346,10 @@ public class MainActivity extends AppCompatActivity {
     private void handleRecommendResponse(String response){
 
         Context context = this;
-        LinearLayout parentLayout = (LinearLayout) findViewById(R.id.scrollLayout);
-        parentLayout.removeAllViews();
+
+        int[] imageViews = {R.id.imageView1, R.id.imageView2, R.id.imageView3, R.id.imageView4, R.id.imageView5};
+        int[] textViews = {R.id.placeText1, R.id.placeText2, R.id.placeText3, R.id.placeText4, R.id.placeText5};
+
         Log.i("RESPONSE", "RESPONSE" + response);
         try {
             // 1. 응답을 JSONObject로 변환
@@ -366,42 +378,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("DECODED", "description : " + description);
                 Log.i("DECODED", "decodedImage : " + decodedImage);
 
-                // 동적으로 FrameLayout 생성
-                FrameLayout frameLayout = new FrameLayout(this);
-                FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT
-                );
-                frameLayout.setLayoutParams(frameLayoutParams);
+                ImageView imageView = (ImageView)findViewById(imageViews[i]);
+                TextView textView = (TextView)findViewById(textViews[i]);
 
-                // 동적으로 ImageView 생성
-                ImageView imageView = new ImageView(context);
-                FrameLayout.LayoutParams imageViewParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300);
-                imageViewParams.setMargins(0, 0, 0, 20);
-                imageView.setLayoutParams(imageViewParams);
-                imageView.setImageBitmap(decodedImage); // 디코딩한 이미지 설정
-                imageView.setAlpha(0.5f); // 이미지 반투명 설정
-                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
-                // TextView 생성 및 설정 (왼쪽 정렬 및 상하 중앙 정렬)
-                TextView textView = new TextView(this);
-                FrameLayout.LayoutParams textParams = new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT
-                );
-
-                textParams.gravity = Gravity.CENTER_VERTICAL | Gravity.START;  // gravity 설정: 상하 중앙, 왼쪽 정렬
-                textView.setLayoutParams(textParams);
+                imageView.setImageBitmap(decodedImage);
                 textView.setText(locName);
-                textView.setTextSize(20);
-                textView.setTextColor(getResources().getColor(android.R.color.black));
-
-                // FrameLayout에 ImageView와 TextView 추가
-                frameLayout.addView(imageView);
-                frameLayout.addView(textView);
-
-                // 부모 레이아웃에 추가 (예: LinearLayout)
-                parentLayout.addView(frameLayout);
 
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -434,5 +415,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         isLoad = 1;
+    }
+
+    public static int ConvertDPtoPX(Context context, int dp) {
+        float density = context.getResources().getDisplayMetrics().density;
+        return Math.round((float) dp * density);
     }
 }

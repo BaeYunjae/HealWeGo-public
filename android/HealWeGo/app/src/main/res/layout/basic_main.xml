@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@drawable/gradient">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,43 +15,64 @@
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="80dp"
             android:src="@drawable/logo"
-            android:layout_marginTop="10dp"
+
             />
 
-        <TextView
-            android:id="@+id/textView1"
-            android:layout_width="160dp"
-            android:layout_height="35dp"
-            android:layout_marginTop="30dp"
-            android:layout_gravity="center"
-            android:layout_marginRight="80dp"
-            android:layout_marginBottom="10dp"
-            android:text="오늘은..."
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.163"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <LinearLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="330dp"
-            android:layout_height="100dp"
-            android:orientation="horizontal"
-            android:layout_gravity="center"
-            app:layout_constraintBottom_toTopOf="@+id/textView2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView1">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/room_list_tag">
 
-            <TextView
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="239dp"
-                android:text="Now Loading..."
-                android:textSize="20sp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/userName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginTop="20dp"
+                    android:text="홍길동님, "
+                    android:textColor="@color/black"
+                    android:textSize="20sp"/>
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="오늘은 어떻게 갈까요?"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="350dp"
+                android:layout_height="100dp"
+                android:orientation="horizontal"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="239dp"
+                    android:text="Now Loading..."
+                    android:textSize="20sp" />
+            </LinearLayout>
+
         </LinearLayout>
 
         <TextView
@@ -58,151 +80,221 @@
             android:layout_width="160dp"
             android:layout_height="35dp"
             android:text="여기는 어때요?"
+            android:textColor="@color/black"
             android:textSize="20sp"
-            android:layout_gravity="center"
-            android:layout_marginRight="80dp"
+            android:layout_marginLeft="40dp"
             android:layout_marginTop="20dp"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:layout_marginBottom="10dp"/>
 
-        <ScrollView
+        <HorizontalScrollView
             android:id="@+id/scrollView"
-            android:layout_width="330dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_gravity="center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView2">
+            android:layout_gravity="center">
 
             <LinearLayout
                 android:id="@+id/scrollLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
                 <!-- FrameLayout을 사용하여 ImageView와 TextView를 겹치게 배치 -->
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/background_radius"
+                    android:clipToOutline="true">
 
                     <ImageView
                         android:id="@+id/imageView1"
-                        android:layout_width="330dp"
-                        android:layout_height="120dp"
-                        android:layout_marginBottom="10dp"
-                        android:alpha="0.5"
+                        android:layout_width="200dp"
+                        android:layout_height="match_parent"
                         android:contentDescription="을왕리 해수욕장 정보"
                         android:scaleType="centerCrop"
                         app:srcCompat="@drawable/eurwangri_beach" />
 
-                    <TextView
-                        android:id="@+id/placeText1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical|start"
-                        android:layout_marginStart="10dp"
-                        android:gravity="center|left"
-                        android:paddingLeft="30dp"
-                        android:text="추천 장소\n로딩중..."
-                        android:textColor="@android:color/black"
-                        android:textSize="20sp" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#66000000"
+                        android:gravity="bottom|center">
+
+                        <TextView
+                            android:id="@+id/placeText1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="10dp"
+                            android:text="추천 장소가\n없어요"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp" />
+
+                    </RelativeLayout>
 
                 </FrameLayout>
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/background_radius"
+                    android:clipToOutline="true">
 
                     <ImageView
                         android:id="@+id/imageView2"
-                        android:layout_width="330dp"
-                        android:layout_height="120dp"
-                        android:layout_marginBottom="10dp"
-                        android:alpha="0.5"
+                        android:layout_width="200dp"
+                        android:layout_height="match_parent"
                         android:contentDescription="을왕리 해수욕장 정보"
                         android:scaleType="centerCrop"
                         app:srcCompat="@drawable/eurwangri_beach" />
 
-                    <TextView
-                        android:id="@+id/placeText2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical|start"
-                        android:layout_marginStart="10dp"
-                        android:gravity="center|left"
-                        android:paddingLeft="30dp"
-                        android:text="추천 장소\n로딩중..."
-                        android:textColor="@android:color/black"
-                        android:textSize="20sp" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#66000000"
+                        android:gravity="bottom|center">
+
+                        <TextView
+                            android:id="@+id/placeText2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="10dp"
+                            android:text="추천 장소가\n없어요"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp" />
+
+                    </RelativeLayout>
 
                 </FrameLayout>
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/background_radius"
+                    android:clipToOutline="true">
 
                     <ImageView
                         android:id="@+id/imageView3"
-                        android:layout_width="330dp"
-                        android:layout_height="120dp"
-                        android:layout_marginBottom="10dp"
-                        android:alpha="0.5"
+                        android:layout_width="200dp"
+                        android:layout_height="match_parent"
                         android:contentDescription="을왕리 해수욕장 정보"
                         android:scaleType="centerCrop"
                         app:srcCompat="@drawable/eurwangri_beach" />
 
-                    <TextView
-                        android:id="@+id/placeText3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical|start"
-                        android:layout_marginStart="10dp"
-                        android:gravity="center|left"
-                        android:paddingLeft="30dp"
-                        android:text="추천 장소\n로딩중..."
-                        android:textColor="@android:color/black"
-                        android:textSize="20sp" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#66000000"
+                        android:gravity="bottom|center">
+
+                        <TextView
+                            android:id="@+id/placeText3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="10dp"
+                            android:text="추천 장소가\n없어요"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp" />
+
+                    </RelativeLayout>
 
                 </FrameLayout>
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/background_radius"
+                    android:clipToOutline="true">
 
                     <ImageView
                         android:id="@+id/imageView4"
-                        android:layout_width="330dp"
-                        android:layout_height="120dp"
-                        android:layout_marginBottom="10dp"
-                        android:alpha="0.5"
+                        android:layout_width="200dp"
+                        android:layout_height="match_parent"
                         android:contentDescription="을왕리 해수욕장 정보"
                         android:scaleType="centerCrop"
                         app:srcCompat="@drawable/eurwangri_beach" />
 
-                    <TextView
-                        android:id="@+id/placeText4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical|start"
-                        android:layout_marginStart="10dp"
-                        android:gravity="center|left"
-                        android:paddingLeft="30dp"
-                        android:text="추천 장소\n로딩중..."
-                        android:textColor="@android:color/black"
-                        android:textSize="20sp" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#66000000"
+                        android:gravity="bottom|center">
+
+                        <TextView
+                            android:id="@+id/placeText4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="10dp"
+                            android:text="추천 장소가\n없어요"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp" />
+
+                    </RelativeLayout>
+
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/background_radius"
+                    android:clipToOutline="true">
+
+                    <ImageView
+                        android:id="@+id/imageView5"
+                        android:layout_width="200dp"
+                        android:layout_height="match_parent"
+                        android:contentDescription="을왕리 해수욕장 정보"
+                        android:scaleType="centerCrop"
+                        app:srcCompat="@drawable/eurwangri_beach" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#66000000"
+                        android:gravity="bottom|center">
+
+                        <TextView
+                            android:id="@+id/placeText5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingBottom="10dp"
+                            android:text="추천 장소가\n없어요"
+                            android:textAlignment="center"
+                            android:gravity="center"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp" />
+
+                    </RelativeLayout>
 
                 </FrameLayout>
 
             </LinearLayout>
 
-        </ScrollView>
+        </HorizontalScrollView>
 
     </LinearLayout>
 
