@@ -1,43 +1,32 @@
 package com.example.healwego;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static com.google.android.material.internal.ViewUtils.dpToPx;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -50,8 +39,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonTogether;
     private View blankView;
 
-    private Button buttonReseve;
+    private Button buttonReserve;
+    private Button buttonCancel;
 
     private RelativeLayout loadView;
     private int isLoad = 0;
@@ -194,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         // 버튼 레이아웃 파라미터 설정
         LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
                 MATCH_PARENT, // width
-                MATCH_PARENT, // height
+                WRAP_CONTENT, // height
                 3f  // weight: 3
         );
 
@@ -208,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams viewParams = new LinearLayout.LayoutParams(
                 MATCH_PARENT, // width
                 MATCH_PARENT, // height
-                5f  // weight: 3
+                5f  // weight: 5
         );
 
         try {
@@ -238,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonAlone.setLayoutParams(buttonParams);
                 buttonAlone.setId(ViewCompat.generateViewId());
                 buttonAlone.setBackground(drawable);
+                buttonAlone.setMinHeight(ConvertDPtoPX(this, 100));
 
                 // 두 번째 버튼 생성 및 설정
                 buttonTogether = new Button(this);
@@ -248,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonTogether.setLayoutParams(buttonParams);
                 buttonTogether.setId(ViewCompat.generateViewId());
                 buttonTogether.setBackground(drawable);
+                buttonTogether.setMinHeight(ConvertDPtoPX(this, 100));
 
                 blankView = new View(this);
                 blankView.setLayoutParams(viewParams);
@@ -286,19 +276,43 @@ public class MainActivity extends AppCompatActivity {
                 String roomName = bodyJson.getString("roomname");
                 String locName = bodyJson.getString("Loc_name");
                 String start = bodyJson.getString("start");
+                start = start.substring(0, 2) + ":" + start.substring(2);
                 String displayTxt = roomName + "\n목적지 : " + locName + "\n출발 시각 : " + start;
 
-                buttonReseve = new Button(this);
-                buttonReseve.setText(displayTxt);
-                buttonReseve.setTextColor(getResources().getColor(R.color.white));
-                buttonReseve.setTextSize(18);
-                buttonReseve.setBackgroundColor(getResources().getColor(R.color.teal));
-                buttonReseve.setLayoutParams(buttonParams);
-                buttonReseve.setId(ViewCompat.generateViewId());
+                LinearLayout linearLayout = new LinearLayout(this);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, // width
+                        WRAP_CONTENT  // height
+                );
 
-                parentLayout.addView(buttonReseve);
+                // orientation을 vertical로 설정
+                linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-                buttonReseve.setOnClickListener(new View.OnClickListener() {
+                // layoutParams를 적용
+                linearLayout.setLayoutParams(layoutParams);
+
+                buttonReserve = new Button(this);
+                buttonReserve.setText(displayTxt);
+                buttonReserve.setTextColor(getResources().getColor(R.color.white));
+                buttonReserve.setTextSize(18);
+                buttonReserve.setLayoutParams(buttonParams);
+                buttonReserve.setId(ViewCompat.generateViewId());
+                buttonReserve.setBackground(getResources().getDrawable(R.drawable.reserve_button));
+
+                buttonCancel = new Button(this);
+                buttonCancel.setText("예약 취소");
+                buttonCancel.setTextColor(getResources().getColor(R.color.white));
+                buttonCancel.setTextSize(18);
+                viewParams.setMargins(0, 20, 0, 0);
+                buttonCancel.setLayoutParams(viewParams);
+                buttonCancel.setId(ViewCompat.generateViewId());
+                buttonCancel.setBackground(getResources().getDrawable(R.drawable.cancel_button));
+
+                linearLayout.addView(buttonReserve);
+                linearLayout.addView(buttonCancel);
+                parentLayout.addView(linearLayout);
+
+                buttonReserve.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Toast.makeText(context, "예약현황 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
@@ -306,6 +320,19 @@ public class MainActivity extends AppCompatActivity {
 
                         // TogetherSelectStart로 이동
                         Intent intent = new Intent(MainActivity.this, MapPath.class);
+                        startActivity(intent);
+                    }
+                });
+
+                buttonCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v){
+                        Toast.makeText(context, "예약취소 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
+                        if(isLoad == 0) return;
+
+                        // cancelPopUp으로 이동
+                        Intent intent = new Intent(MainActivity.this, CancelPopUp.class);
+                        intent.putExtra("data", displayTxt);
                         startActivity(intent);
                     }
                 });
