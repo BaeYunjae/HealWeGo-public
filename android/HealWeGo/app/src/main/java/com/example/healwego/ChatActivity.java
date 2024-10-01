@@ -193,10 +193,6 @@ public class ChatActivity extends AppCompatActivity {
                     // 원하는 형식으로 메시지 생성 (예: 시간 + 메시지)
                     String formattedMessage = message;
 
-
-                    if (!chatId.equals(userId)){
-                        formattedMessage += username + " " + formattedMessage;
-                    }
                     chatMessages.add(new Pair<>(chatId, new Pair<>(username, formattedMessage)));
                 }
                 chatAdapter.notifyDataSetChanged();
@@ -379,6 +375,10 @@ public class ChatActivity extends AppCompatActivity {
 
             JSONObject bodyJson = new JSONObject(body);
             Log.i("Chat", bodyJson.toString());
+
+            // hostId및 ready버튼 업데이트
+            hostId = bodyJson.getString("master_ID");
+            updateReadyButton();
 
             //여기 와서도 roomId가 null이면 다시 구독
             if(roomId==null){
