@@ -4,6 +4,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -29,6 +30,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         public TextView chatUsernameTextView;
         public TextView chatTimeTextView;
         public ConstraintLayout messageLayout;
+        public LinearLayout messageTimeContainer;
 
         public ChatViewHolder(View itemView) {
             super(itemView);
@@ -36,6 +38,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
             chatUsernameTextView = itemView.findViewById(R.id.chatUsernameTextView);
             chatTimeTextView = itemView.findViewById(R.id.chatTimeTextView);
             messageLayout = itemView.findViewById(R.id.messageLayout);
+            messageTimeContainer = itemView.findViewById(R.id.messageTimeContainer);
         }
     }
 
@@ -69,6 +72,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
         // 현재 사용자가 보낸 메시지일 경우
         if (senderId.equals(currentUserId)) {
+            //message container의 gravity를 end로 설정 해서 오른쪽에 배치
+            holder.messageTimeContainer.setGravity(Gravity.END);
+
+            //time view를 지웠다가 다시 추가해 채팅의 왼쪽에 오도록
+            holder.messageTimeContainer.removeView(holder.chatTimeTextView);  // 시간 텍스트 뷰 제거
+            holder.messageTimeContainer.addView(holder.chatTimeTextView, 0);
+
             // 사용자가 보낸 메시지: 오른쪽 정렬, 이름 숨김, 시간은 왼쪽에 표시
             holder.chatUsernameTextView.setVisibility(View.GONE);  // 이름 숨기기
             holder.chatTimeTextView.setVisibility(View.VISIBLE);
@@ -79,10 +89,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
             holder.chatMessageTextView.setBackgroundResource(R.drawable.bubble_background_right);  // 오른쪽 정렬용 배경
             holder.chatMessageTextView.setGravity(Gravity.END);
 
-            // 시간은 메시지 왼쪽에 표시
-            constraintSet.clear(R.id.chatTimeTextView, ConstraintSet.END);
-            constraintSet.connect(R.id.chatTimeTextView, ConstraintSet.START, R.id.chatMessageTextView, ConstraintSet.START, 8);
-            holder.chatTimeTextView.setGravity(Gravity.START);
         } else {
             // 상대방이 보낸 메시지: 왼쪽 정렬, 이름 표시, 시간은 오른쪽에 표시
             holder.chatUsernameTextView.setText(userName);  // 상대방 이름 표시
@@ -97,7 +103,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
             // 시간은 메시지 오른쪽에 표시
             constraintSet.clear(R.id.chatTimeTextView, ConstraintSet.START);
-            constraintSet.connect(R.id.chatTimeTextView, ConstraintSet.END, R.id.chatMessageTextView, ConstraintSet.END, 8);
+            constraintSet.connect(R.id.chatTimeTextView, ConstraintSet.START, R.id.chatMessageTextView, ConstraintSet.END, 0);  // 메시지와 시간 사이의 간격 8dp 설정
+            constraintSet.connect(R.id.chatTimeTextView, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);  // 부모 뷰의 끝에 배치
             holder.chatTimeTextView.setGravity(Gravity.END);
         }
 
