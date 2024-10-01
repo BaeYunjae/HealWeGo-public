@@ -92,6 +92,7 @@ public class ChatActivity extends AppCompatActivity {
     private boolean isReady = false; // READY 상태 관리
     private String hostId;  // 방장 ID
     private String userId;  // 현재 사용자 ID
+    private String myUserName; // 현재 사용자 userName
 
     // API 요청을 위한 URL
     private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
@@ -281,6 +282,7 @@ public class ChatActivity extends AppCompatActivity {
                     jsonObject.put("User_ID", userId);
                     jsonObject.put("option", "msg");
                     jsonObject.put("message", currentTime + " " + usermsg.getText().toString());
+                    jsonObject.put("userName",myUserName);
 
                     sendMqttMessage(CHAT_TOPIC + roomId, jsonObject.toString());
                     usermsg.setText("");  // 메시지 보낸 후 입력 필드를 비웁니다.
@@ -312,6 +314,10 @@ public class ChatActivity extends AppCompatActivity {
             // afterCreate가 true이면 현재 사용자가 방장임을 표시
             if (afterCreate && isCurrentUser) {
                 role = "(방장)";
+            }
+
+            if (isCurrentUser){
+                myUserName = userName;
             }
 
             Log.i("ChatActivity", "Adding participant: " + key + ", Role: " + role + ", IsReady: " + isReady + ", IsCurrentUser: " + isCurrentUser);
@@ -668,10 +674,11 @@ public class ChatActivity extends AppCompatActivity {
         String message = jsonObject.getString("message");
 
         if (option.equals("msg")) {
+            String userName = jsonObject.getString("userName");
             // 상대방 메시지를 받았을 경우 닉네임도 추가
             if (!senderId.equals(userId)) {
                 // 상대방 메시지일 경우 상대방 닉네임 추가
-                chatMessages.add(new Pair<>(senderId, new Pair<>("상대방", message)));
+                chatMessages.add(new Pair<>(senderId, new Pair<>(userName, message)));
             } else {
                 // 사용자 본인이 보낸 메시지일 경우, 오른쪽에 표시되도록 처리
                 chatMessages.add(new Pair<>(senderId, new Pair<>("나", message)));
