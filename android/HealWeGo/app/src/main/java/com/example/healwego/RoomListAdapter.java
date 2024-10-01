@@ -73,15 +73,6 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
     public void onBindViewHolder(RoomViewHolder holder, int position) {
         Room room = roomList.get(position);
 
-        // Room 정보를 TextView에 설정
-//        holder.textRoomInfo.setText(
-//                "Room Name: " + room.getRoomName() +
-//                        "\nTheme: " + room.getTheme() +
-//                        "\nLocation: " + room.getLocName() +
-//                        "\nNumber of Users: " + room.getNumUsers() +
-//                        "\n" + room.getGender()
-//        );
-
         holder.textRoomInfo.setText(
                 room.getRoomName()
         );
@@ -101,10 +92,19 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
         );
 
         String timeTemp = room.getTime();
-        String timeInfo = timeTemp.substring(0, 2) + ":" + timeTemp.substring(2);
+        String timeInfo = timeTemp.substring(0, 3) + ":" + timeTemp.substring(3);
         holder.timeTag.setText(
                 timeInfo
         );
+
+        // 첫 번째 방이고 option 값이 특정 조건을 만족할 때 배경을 변경
+        if (position == 0 && room.getOption() == 1) {  // option 값이 1인 경우 예시
+            holder.itemView.setBackgroundResource(R.drawable.first_room_background);
+
+            // TextView 글자 색상 변경
+            holder.textRoomInfo.setTextColor(context.getResources().getColor(R.color.white));
+            holder.peopleInfo.setTextColor(context.getResources().getColor(R.color.white));
+        }
 
         // 클릭 이벤트 처리
         holder.itemView.setOnClickListener(v -> {
