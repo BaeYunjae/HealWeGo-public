@@ -95,7 +95,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 public class MapPath extends AppCompatActivity
         implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback{
-
+    
     private GoogleMap mMap;
     private Marker currentMarker = null;
     private Marker currentMarkerWithImage;
@@ -103,7 +103,7 @@ public class MapPath extends AppCompatActivity
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;  // 1초
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
-    private Toast currentToast;
+    private Toast currentToast; //현재 토스트 메시지
     private final List<Polyline> polylines = new ArrayList<>();  // 그려진 선들을 저장하는 리스트
     private List<Marker> markers = new ArrayList<>(); // 추가된 마커들을 저장하는 리스트
 
@@ -117,14 +117,14 @@ public class MapPath extends AppCompatActivity
     Location mCurrentLocatiion;
     LatLng currentPosition;
 
-    /*
-    0 : 탑승 안한 상태
-    1 : 탑승 중
-    2 : 비상 정지 상태
-     */
-    int state = 0;
-    private static int isFinished = 0;
-    boolean board_avail = false;
+    private static final int STATE_IDLE = 0;
+    private static final int STATE_BOARDING = 1;
+    private static final int STATE_EMERGENCY_STOP = 2;
+    //0 : 탑승 안한 상태 1 : 탑승 중 2 : 비상 정지 상태
+    private int state = STATE_IDLE;
+
+    private static int isFinished = 0; // 차량이 목적지까지 도착했는지 아닌지
+    boolean board_avail = false; // 현재 차량이 내가 탑승 가능한 상태인지
 
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest locationRequest;
@@ -132,26 +132,26 @@ public class MapPath extends AppCompatActivity
     // (참고로 Toast에서는 Context가 필요했습니다.)
 
     private static final String BROKER_URL = "ssl://a3boaptn83mu7y-ats.iot.ap-northeast-2.amazonaws.com:8883";
+    
     private static final String CLIENT_ID = "AndroidClient";
-    private static final String GPS_TOPIC = "gps/001";
-    private static final String PATH_TOPIC = "path/001";
-    private static final String POINT_TOPIC = "path/points/ros/001";
+    private static final String GPS_TOPIC = "gps/001"; // 차량의 현재 위치를 받을 토픽
+    private static final String PATH_TOPIC = "path/001"; // 차량의 경로를 받을 토픽
+    private static final String POINT_TOPIC = "path/points/ros/001"; // 차량의 방문 순서를 받을 토픽
 
-    private static final String SIGNAL_ROS_TOPIC = "signal/ros/001";
-    private static final String SIGNAL_APP_TOPIC = "signal/app/001";
-
-
+    private static final String SIGNAL_ROS_TOPIC = "signal/ros/001"; // 차량에게서 받는 신호 토픽
+    private static final String SIGNAL_APP_TOPIC = "signal/app/001"; // 차량에게 신호 보낼 토픽
 
     private MqttAsyncClient mqttClient;
 
-    private TextView currentText;// TextView 선언
-    private TextView destText;
-    private String init_path;
-    private String init_order;
+    private TextView currentText; // 차량의 현재 위치를 보여줄 텍스트뷰
+    private TextView destText; // 차량의 목적지를 보여줄 텍스트 뷰
+    private String init_path; // 전 페이지에서 넘어오는 path를 받을 텍스트 뷰
+    private String init_order; // 전 페이지에서 넘어오는 order를 받을 텍스트 뷰
+
     boolean firstCameraUpdate = false;
 
     private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
-    ;
+
     // POST, GET, DELETE, ...
     private String connMethod;
     // 보낼 정보를 담을 JSON
@@ -205,7 +205,6 @@ public class MapPath extends AppCompatActivity
 
     private final MapPath.MyHandler mHandler = new MapPath.MyHandler(Looper.getMainLooper(), this); // MainLooper 전달
 
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -216,6 +215,7 @@ public class MapPath extends AppCompatActivity
         super.onResume();
 
         // SharedPreferences에서 데이터를 복원
+        // 나갔다 들어왔을 때도 경로가 유지되도록
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         init_path = preferences.getString("init_path", null);  // init_path 복원
         init_order = preferences.getString("init_order", null);  // init_order 복원
@@ -225,6 +225,7 @@ public class MapPath extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         // 데이터를 SharedPreferences에 저장
+        // 뒤로가기 버튼이나 그럴 때 경로 저장
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("init_path", init_path);  // init_path 저장
@@ -241,18 +242,6 @@ public class MapPath extends AppCompatActivity
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.path_map);
-
-
-        // 뒤로가기 버튼을 처리하는 부분
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-
-                // 예약 후 홈 페이지로 돌아갑니다.
-                Intent intent = new Intent(MapPath.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
 
         mLayout = findViewById(R.id.map_path);
 
@@ -271,6 +260,17 @@ public class MapPath extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // 뒤로가기 버튼을 처리하는 부분
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+
+                // 홈페이지로 돌아가기
+                Intent intent = new Intent(MapPath.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
 
         Button leftBtn = findViewById(R.id.leftButton);
         Button rightBtn = findViewById(R.id.rightButton);
@@ -311,6 +311,7 @@ public class MapPath extends AppCompatActivity
 
         connectToMqtt();
 
+        // Intent로 초기 경로와 초기 순서를 가져옴
         Intent getIntent = getIntent();
         if(init_path!=null) {
             init_path = getIntent.getStringExtra("global_Path");
@@ -320,21 +321,27 @@ public class MapPath extends AppCompatActivity
         }
 
     }
+
     // Left Button 클릭 시 수행할 작업을 위한 함수
     private void handleLeftButtonClick() {
         Button btn = findViewById(R.id.leftButton);
-        if (state == 0 && board_avail){
+
+        // 탑승 가능 상태일 때
+        if (state == STATE_IDLE && board_avail){
             sendMessage(SIGNAL_APP_TOPIC,"{" +
                     "\"command\" : \"boarding\"" +
                     "}");
-            state = 1;
+            state = STATE_BOARDING;
             btn.setText("하차");
         }
-        else if (state == 0){
+        // 탑승 불가능 상태
+        else if (state == STATE_IDLE){
             showToastMessage("아직 차가 도착하지 않았습니다");
         }
-        else if(state == 1){
+        else if(state == STATE_BOARDING){
+            // 차량 운행이 완전 종료일 때
             if(isFinished==1) {
+                // DELETE 요청 보냄
                 connMethod = "DELETE";
                 mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/"+ "room/list";
 
@@ -364,20 +371,24 @@ public class MapPath extends AppCompatActivity
                         })
                         .show();  // 다이얼로그 표시
             }else{
+                // 아직 차량이 목적지에 도착 안했는데 하차를 누를 때
                 showToastMessage("아직 도착 안했습니다");
             }
-        }else if(state == 2){
-            showToastMessage("이동부터 하세요");
+        }else if(state == STATE_EMERGENCY_STOP){
+            // 비상 정지 상태에서 하차버튼 누를 때
+            showToastMessage("이동부터 하셔야 합니다.");
         }
     }
 
     // Right Button 클릭 시 수행할 작업을 위한 함수
     private void handleRightButtonClick() {
         Button btn = findViewById(R.id.rightButton);
-        if (state == 0){
-            showToastMessage("탑승부터 하세요");
+        if (state == STATE_IDLE){
+            // 탑승을 아직 안했는데 비상 정지 버튼 누를 때
+            showToastMessage("탑승을 아직 안했습니다.");
         }
-        else if(state == 1){
+        else if(state == STATE_BOARDING){
+            // 비상정지 버튼 누를 때
             new AlertDialog.Builder(this)
                     .setTitle("주의")  // 타이틀 설정
                     .setMessage("차량을 정지하시겠습니까?")  // 메시지 설정
@@ -385,7 +396,7 @@ public class MapPath extends AppCompatActivity
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // Yes를 눌렀을 때 동작
-                            state = 2;
+                            state = STATE_EMERGENCY_STOP;
                             btn.setText("이동 재개");
                             sendMessage(SIGNAL_APP_TOPIC,"{" +
                                     "\"command\" : \"stop\"" +
@@ -399,14 +410,15 @@ public class MapPath extends AppCompatActivity
                         }
                     })
                     .show();  // 다이얼로그 표시
-        }else if(state == 2){
-            state = 1;
+        }else if(state == STATE_EMERGENCY_STOP){
+            state = STATE_BOARDING;
             btn.setText("비상 정지");
             sendMessage(SIGNAL_APP_TOPIC,"{" +
                     "\"command\" : \"resume\"" +
                     "}");
         }
     }
+
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
@@ -509,9 +521,6 @@ public class MapPath extends AppCompatActivity
 // PATCH 요청 후 응답 데이터를 저장하는 로직
             ApiRequestHandler.getJSON(mURL, "PATCH", mHandler, bodyJson);
 
-
-
-
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
 
             // 3-1. 사용자가 퍼미션 거부를 한 적이 있는 경우에는
@@ -569,10 +578,9 @@ public class MapPath extends AppCompatActivity
         }
     };
 
-
-
     private List<LatLng> markerPositions = new ArrayList<>();
 
+    // 카메라를 마커에 따라 조절하는 함수
     private void adjustCameraToMarkers(List<LatLng> markerPositions) {
         if (markerPositions == null || markerPositions.isEmpty()) {
             return;
@@ -719,6 +727,7 @@ public class MapPath extends AppCompatActivity
         }
 
     }
+
     private void removeAllMarkers() {
         runOnUiThread(() -> {
             // 저장된 모든 Marker 객체 삭제
@@ -728,6 +737,7 @@ public class MapPath extends AppCompatActivity
             markers.clear();  // 리스트 비우기
         });
     }
+
     private void showToastMessage(String message) {
         // 현재 표시 중인 Toast가 있다면 취소
         if (currentToast != null) {
@@ -738,7 +748,6 @@ public class MapPath extends AppCompatActivity
         currentToast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
         currentToast.show();
     }
-
 
     @Override
     protected void onStart() {
@@ -790,12 +799,7 @@ public class MapPath extends AppCompatActivity
         }
     }
 
-    public boolean checkLocationServicesStatus() {
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-    }
 
 
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
@@ -836,111 +840,7 @@ public class MapPath extends AppCompatActivity
     }
 
 
-    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-    //여기부터는 런타임 퍼미션 처리을 위한 메소드들
-    private boolean checkPermission() {
-        int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-        int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION);
-        if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
-                hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED   ) {
-            return true;
-        }
-        return false;
-    }
-    /*
-     * ActivityCompat.requestPermissions를 사용한 퍼미션 요청의 결과를 리턴받는 메소드입니다.
-     */
-    @Override
-    public void onRequestPermissionsResult(int permsRequestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grandResults) {
-        super.onRequestPermissionsResult(permsRequestCode, permissions, grandResults);
-        if (permsRequestCode == PERMISSIONS_REQUEST_CODE && grandResults.length == REQUIRED_PERMISSIONS.length) {
-            // 요청 코드가 PERMISSIONS_REQUEST_CODE 이고, 요청한 퍼미션 개수만큼 수신되었다면
-            boolean check_result = true;
-            // 모든 퍼미션을 허용했는지 체크합니다.
-            for (int result : grandResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    check_result = false;
-                    break;
-                }
-            }
 
-            if (check_result) {
-
-                // 퍼미션을 허용했다면 위치 업데이트를 시작합니다.
-                startLocationUpdates();
-            } else {
-                // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])
-                        || ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[1])) {
-                    // 사용자가 거부만 선택한 경우에는 앱을 다시 실행하여 허용을 선택하면 앱을 사용할 수 있습니다.
-                    Snackbar.make(mLayout, "퍼미션이 거부되었습니다. 앱을 다시 실행하여 퍼미션을 허용해주세요. ",
-                            Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            finish();
-                        }
-                    }).show();
-                } else {
-                    // "다시 묻지 않음"을 사용자가 체크하고 거부를 선택한 경우에는 설정(앱 정보)에서 퍼미션을 허용해야 앱을 사용할 수 있습니다.
-                    Snackbar.make(mLayout, "퍼미션이 거부되었습니다. 설정(앱 정보)에서 퍼미션을 허용해야 합니다. ",
-                            Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            finish();
-                        }
-                    }).show();
-                }
-            }
-        }
-    }
-
-    //여기부터는 GPS 활성화를 위한 메소드들
-    private void showDialogForLocationServiceSetting() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(MapPath.this);
-        builder.setTitle("위치 서비스 비활성화");
-        builder.setMessage("앱을 사용하기 위해서는 위치 서비스가 필요합니다.\n"
-                + "위치 설정을 수정하실래요?");
-        builder.setCancelable(true);
-        builder.setPositiveButton("설정", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                Intent callGPSSettingIntent
-                        = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivityForResult(callGPSSettingIntent, GPS_ENABLE_REQUEST_CODE);
-            }
-        });
-        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.cancel();
-            }
-        });
-        builder.create().show();
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case GPS_ENABLE_REQUEST_CODE:
-                //사용자가 GPS 활성 시켰는지 검사
-                if (checkLocationServicesStatus()) {
-                    if (checkLocationServicesStatus()) {
-
-                        Log.d(TAG, "onActivityResult : GPS 활성화 되있음");
-                        needRequest = true;
-                        return;
-                    }
-                }
-                break;
-        }
-    }
 
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     //MQTT
@@ -1057,7 +957,29 @@ public class MapPath extends AppCompatActivity
         }
     }
 
-    // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
+    // 노드와 노드 사이에 선을 잇는 함수
+    public void drawLineBetweenPoints(GoogleMap map, LatLng startLatLng, LatLng endLatLng, int color, float width) {
+        // PolylineOptions 생성하고 선의 시작점과 끝점 추가
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .add(startLatLng)  // 시작 좌표
+                .add(endLatLng)    // 끝 좌표
+                .width(width)      // 선의 두께
+                .color(color);     // 선의 색깔
+
+        Polyline polyline = map.addPolyline(polylineOptions);
+        polylines.add(polyline);  // 선을 리스트에 추가
+    }
+
+    public void removeAllPolylines() {
+        runOnUiThread(() -> {
+            // 저장된 모든 Polyline 객체 삭제
+            for (Polyline polyline : polylines) {
+                polyline.remove();  // 지도에서 Polyline 제거
+            }
+            polylines.clear();  // 리스트 비우기
+        });
+    }
+
     // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
     private void handlePathMessage(MqttMessage message) {
         String pathMessage = message.toString();
@@ -1129,27 +1051,7 @@ public class MapPath extends AppCompatActivity
         }
     }
 
-    public void drawLineBetweenPoints(GoogleMap map, LatLng startLatLng, LatLng endLatLng, int color, float width) {
-        // PolylineOptions 생성하고 선의 시작점과 끝점 추가
-        PolylineOptions polylineOptions = new PolylineOptions()
-                .add(startLatLng)  // 시작 좌표
-                .add(endLatLng)    // 끝 좌표
-                .width(width)      // 선의 두께
-                .color(color);     // 선의 색깔
 
-        Polyline polyline = map.addPolyline(polylineOptions);
-        polylines.add(polyline);  // 선을 리스트에 추가
-    }
-
-    public void removeAllPolylines() {
-        runOnUiThread(() -> {
-            // 저장된 모든 Polyline 객체 삭제
-            for (Polyline polyline : polylines) {
-                polyline.remove();  // 지도에서 Polyline 제거
-            }
-            polylines.clear();  // 리스트 비우기
-        });
-    }
 
     private void handlePointMessage(MqttMessage pmessage) {
         String message = pmessage.toString();
@@ -1232,10 +1134,6 @@ public class MapPath extends AppCompatActivity
 
                 String[] parts = partMessage.split(","); // 쉼표로 나눈다
 
-                System.out.println(partMessage);
-                System.out.println(partMessage);
-                System.out.println(partMessage);
-                System.out.println("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
                 // 이전 위도와 경도
                 double prev_latitude = 0.0;
                 double prev_longitude = 0.0;
@@ -1339,7 +1237,7 @@ public class MapPath extends AppCompatActivity
         }
     }
 
-
+    //MQTT메시지를 보내는 함수
     private void sendMessage(String topic, String message) {
         try {
             MqttMessage mqttMessage = new MqttMessage();
@@ -1349,6 +1247,16 @@ public class MapPath extends AppCompatActivity
         } catch (MqttException e) {
             e.printStackTrace();
         }
+    }
+
+    //여기서 부터는 설정 함수
+    // MQTT, GPS
+    // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    public boolean checkLocationServicesStatus() {
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
     private SSLSocketFactory getSocketFactory() {
@@ -1396,6 +1304,110 @@ public class MapPath extends AppCompatActivity
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA"); // 또는 "EC" (키 타입에 따라 다름)
         return keyFactory.generatePrivate(keySpec);
+    }
+
+    private boolean checkPermission() {
+        int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION);
+        if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
+                hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED   ) {
+            return true;
+        }
+        return false;
+    }
+    /*
+     * ActivityCompat.requestPermissions를 사용한 퍼미션 요청의 결과를 리턴받는 메소드입니다.
+     */
+    @Override
+    public void onRequestPermissionsResult(int permsRequestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grandResults) {
+        super.onRequestPermissionsResult(permsRequestCode, permissions, grandResults);
+        if (permsRequestCode == PERMISSIONS_REQUEST_CODE && grandResults.length == REQUIRED_PERMISSIONS.length) {
+            // 요청 코드가 PERMISSIONS_REQUEST_CODE 이고, 요청한 퍼미션 개수만큼 수신되었다면
+            boolean check_result = true;
+            // 모든 퍼미션을 허용했는지 체크합니다.
+            for (int result : grandResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    check_result = false;
+                    break;
+                }
+            }
+
+            if (check_result) {
+
+                // 퍼미션을 허용했다면 위치 업데이트를 시작합니다.
+                startLocationUpdates();
+            } else {
+                // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])
+                        || ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[1])) {
+                    // 사용자가 거부만 선택한 경우에는 앱을 다시 실행하여 허용을 선택하면 앱을 사용할 수 있습니다.
+                    Snackbar.make(mLayout, "퍼미션이 거부되었습니다. 앱을 다시 실행하여 퍼미션을 허용해주세요. ",
+                            Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            finish();
+                        }
+                    }).show();
+                } else {
+                    // "다시 묻지 않음"을 사용자가 체크하고 거부를 선택한 경우에는 설정(앱 정보)에서 퍼미션을 허용해야 앱을 사용할 수 있습니다.
+                    Snackbar.make(mLayout, "퍼미션이 거부되었습니다. 설정(앱 정보)에서 퍼미션을 허용해야 합니다. ",
+                            Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            finish();
+                        }
+                    }).show();
+                }
+            }
+        }
+    }
+
+    //여기부터는 GPS 활성화를 위한 메소드들
+    private void showDialogForLocationServiceSetting() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MapPath.this);
+        builder.setTitle("위치 서비스 비활성화");
+        builder.setMessage("앱을 사용하기 위해서는 위치 서비스가 필요합니다.\n"
+                + "위치 설정을 수정하실래요?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("설정", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                Intent callGPSSettingIntent
+                        = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivityForResult(callGPSSettingIntent, GPS_ENABLE_REQUEST_CODE);
+            }
+        });
+        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+        builder.create().show();
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case GPS_ENABLE_REQUEST_CODE:
+                //사용자가 GPS 활성 시켰는지 검사
+                if (checkLocationServicesStatus()) {
+                    if (checkLocationServicesStatus()) {
+
+                        Log.d(TAG, "onActivityResult : GPS 활성화 되있음");
+                        needRequest = true;
+                        return;
+                    }
+                }
+                break;
+        }
     }
 }
 
