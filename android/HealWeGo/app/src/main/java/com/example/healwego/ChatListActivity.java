@@ -250,7 +250,8 @@ public class ChatListActivity extends AppCompatActivity {
 
             Log.i("ChatListActivity", "옵션: " + option);
 
-            List<Room> rooms = parseRoomsFromResponse(roomArray);
+            List<Room> rooms = parseRoomsFromResponse(roomArray, option);
+
 
             if (rooms.isEmpty()) {
                 noRoomTextView.setVisibility(View.VISIBLE);
@@ -269,7 +270,7 @@ public class ChatListActivity extends AppCompatActivity {
     }
 
     // 응답에서 방 목록 파싱
-    private List<Room> parseRoomsFromResponse(JSONArray roomArray) {
+    private List<Room> parseRoomsFromResponse(JSONArray roomArray, int option) {
         List<Room> rooms = new ArrayList<>();
         try {
             for (int i = 0; i < roomArray.length(); i++) {
@@ -277,23 +278,23 @@ public class ChatListActivity extends AppCompatActivity {
 
                 String roomId = roomObject.getString("Rooms_ID");
                 String roomName = roomObject.getString("roomname");
-                String theme = roomObject.getString("theme");
+                String theme = "#" + roomObject.getString("theme");
                 String locName = roomObject.getString("Loc_name");
-                String time = roomObject.getString("start");
+                String time = "#" + roomObject.getString("start");
                 int numUsers = roomObject.getInt("num");
 
                 int genderValue = roomObject.getInt("gender");
                 String gender;
                 if (genderValue == 0) {
-                    gender = "남성만";
+                    gender = "#남성만";
                 } else if (genderValue == 1) {
-                    gender = "여성만";
+                    gender = "#여성만";
                 } else {
-                    gender = "성별무관";
+                    gender = "#성별무관";
                 }
 
                 if (filterRoomByGender(genderValue)) {
-                    Room room = new Room(roomId, roomName, theme, locName, time, numUsers, gender);
+                    Room room = new Room(roomId, roomName, theme, locName, time, numUsers, gender, option);
                     rooms.add(room);
                 }
             }
