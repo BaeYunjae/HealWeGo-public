@@ -1,0 +1,76 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="450dp"
+    android:orientation="vertical"
+    android:background="@drawable/line">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="예약 취소"
+        android:textColor="@color/red"
+        android:textAlignment="center"
+        android:textSize="25sp"
+        android:background="@drawable/line"
+        android:padding="10dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="예약 현황"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:textAlignment="center"
+        android:layout_marginTop="10dp"/>
+        
+    <TextView
+        android:id="@+id/reserveText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/teal"
+        android:background="@drawable/background_radius"
+        android:layout_margin="20dp"
+        android:padding="10dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="예약 취소하시겠습니까?\n취소 후에는 다시 예약이 불가능합니다."
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:layout_marginLeft="20dp"/>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp">
+        
+        <TextView
+            android:id="@+id/yesBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="예"
+            android:textSize="20sp"
+            android:textColor="@color/blue"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/line"/>
+
+        <TextView
+            android:id="@+id/noBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="아니오"
+            android:textSize="20sp"
+            android:textColor="@color/red"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/line"/>
+        
+    </LinearLayout>
+
+</LinearLayout>
