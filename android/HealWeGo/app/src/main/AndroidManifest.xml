@@ -48,6 +48,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CancelPopUp"
+            android:theme="@style/Theme.AppCompat.Dialog"/>
         <activity
             android:name=".AuthActivity"
             android:exported="true"
