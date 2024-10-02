@@ -15,16 +15,15 @@
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="120dp"
             android:src="@drawable/logo"
-
             />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
@@ -33,7 +32,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/userName"
@@ -42,17 +41,20 @@
                     android:layout_marginLeft="30dp"
                     android:layout_marginTop="20dp"
                     android:text="홍길동님, "
+                    android:fontFamily="@font/locus_sangsang"
                     android:textColor="@color/black"
-                    android:textSize="20sp"/>
+                    android:textSize="22sp"/>
 
                 <TextView
                     android:id="@+id/textView1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginTop="5dp"
                     android:text="오늘은 어떻게 갈까요?"
+                    android:fontFamily="@font/locus_sangsang"
                     android:textColor="@color/black"
-                    android:textSize="20sp"/>
+                    android:textSize="22sp"/>
 
             </LinearLayout>
 
@@ -60,10 +62,12 @@
                 android:id="@+id/linearLayout"
                 android:layout_width="350dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:layout_gravity="center"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp">
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="10dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -71,6 +75,7 @@
                     android:layout_gravity="center"
                     android:textAlignment="center"
                     android:text="Now Loading..."
+                    android:fontFamily="@font/locus_sangsang"
                     android:textSize="20sp" />
             </LinearLayout>
 
@@ -81,8 +86,9 @@
             android:layout_width="160dp"
             android:layout_height="35dp"
             android:text="여기는 어때요?"
+            android:fontFamily="@font/locus_sangsang"
             android:textColor="@color/black"
-            android:textSize="20sp"
+            android:textSize="22sp"
             android:layout_marginLeft="40dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"/>
@@ -132,6 +138,7 @@
                             android:layout_weight="1"
                             android:paddingBottom="10dp"
                             android:text="추천 장소가\n없어요"
+                            android:fontFamily="@font/locus_sangsang"
                             android:textAlignment="center"
                             android:gravity="center"
                             android:textColor="@android:color/white"
@@ -170,6 +177,7 @@
                             android:layout_weight="1"
                             android:paddingBottom="10dp"
                             android:text="추천 장소가\n없어요"
+                            android:fontFamily="@font/locus_sangsang"
                             android:textAlignment="center"
                             android:gravity="center"
                             android:textColor="@android:color/white"
@@ -208,6 +216,7 @@
                             android:layout_weight="1"
                             android:paddingBottom="10dp"
                             android:text="추천 장소가\n없어요"
+                            android:fontFamily="@font/locus_sangsang"
                             android:textAlignment="center"
                             android:gravity="center"
                             android:textColor="@android:color/white"
@@ -246,6 +255,7 @@
                             android:layout_weight="1"
                             android:paddingBottom="10dp"
                             android:text="추천 장소가\n없어요"
+                            android:fontFamily="@font/locus_sangsang"
                             android:textAlignment="center"
                             android:gravity="center"
                             android:textColor="@android:color/white"
@@ -284,6 +294,7 @@
                             android:layout_weight="1"
                             android:paddingBottom="10dp"
                             android:text="추천 장소가\n없어요"
+                            android:fontFamily="@font/locus_sangsang"
                             android:textAlignment="center"
                             android:gravity="center"
                             android:textColor="@android:color/white"
@@ -313,6 +324,7 @@
             android:layout_centerInParent="true"
             android:paddingTop="200dp"
             android:text="Now Loading..."
+            android:fontFamily="@font/locus_sangsang"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="34sp" />
