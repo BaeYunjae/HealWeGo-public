@@ -9,5 +9,7 @@
     <color name="darkcyan">#FF134650</color>
     <color name="palecyan">#FFBCE2DC</color>
     <color name="red">#F44C36</color>
+    <color name="darkred">#DC0000</color>
+
     <color name="blue">#215CF3</color>
 </resources>
