@@ -173,13 +173,8 @@ public class ChatActivity extends AppCompatActivity {
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         chatRecyclerView.setAdapter(chatAdapter);
 
-        // 기본 메시지 추가 (아마 처음 입장일 때로 변경해야 할 듯)
-        if (chatsString == null) {
-            chatMessages.add(new Pair<>(userId, new Pair<>("", "채팅에 오신 것을 환영합니다.")));
-            chatAdapter.notifyDataSetChanged();
-        }
 
-        else if (isNewEnter == 2 && chatsString != null) {
+        if (isNewEnter == 2 && chatsString != null) {
             try {
                 JSONArray chats = new JSONArray(chatsString);
 
@@ -197,6 +192,11 @@ public class ChatActivity extends AppCompatActivity {
                     chatMessages.add(new Pair<>(chatId, new Pair<>(username, formattedMessage)));
                 }
                 chatAdapter.notifyDataSetChanged();
+
+
+                // 마지막 메시지로 스크롤
+                chatRecyclerView.scrollToPosition(chatMessages.size());  // 마지막 메시지로 스크롤
+
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -685,7 +685,7 @@ public class ChatActivity extends AppCompatActivity {
             }
 
             // 어댑터에 데이터가 변경되었음을 알림 (새로 추가된 메시지를 반영)
-            chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+            chatAdapter.notifyItemInserted(chatMessages.size());
 
             // RecyclerView를 마지막 메시지로 스크롤
             chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
