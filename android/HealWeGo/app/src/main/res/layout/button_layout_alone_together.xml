@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginTop="5dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="5dp">
+
+    <!-- 혼자 가기 버튼 -->
+    <LinearLayout
+        android:id="@+id/buttonAlone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:elevation="10dp"
+        android:translationZ="10dp"
+        android:background="@drawable/button_background"
+        android:layout_margin="5dp">
+
+        <TextView
+            android:id="@+id/aloneText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="혼자 가기"
+            android:textColor="@android:color/white"
+            android:textSize="25sp"
+            android:gravity="center"
+            android:fontFamily="@font/locus_sangsang"
+            android:textAlignment="center" />
+
+        <ImageView
+            android:id="@+id/aloneImage"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:src="@drawable/person_img"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:contentDescription="혼자 가기 이미지" />
+
+    </LinearLayout>
+
+    <!-- 함께 가기 버튼 -->
+    <LinearLayout
+        android:id="@+id/buttonTogether"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:elevation="10dp"
+        android:translationZ="10dp"
+        android:background="@drawable/button_background"
+        android:layout_margin="5dp"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/togetherText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="함께 가기"
+            android:textColor="@android:color/white"
+            android:textSize="25sp"
+            android:gravity="center"
+            android:fontFamily="@font/locus_sangsang"
+            android:textAlignment="center" />
+
+        <ImageView
+            android:id="@+id/togetherImage"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:src="@drawable/people_img"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="2dp"
+            android:contentDescription="함께 가기 이미지" />
+
+    </LinearLayout>
+
+</LinearLayout>
