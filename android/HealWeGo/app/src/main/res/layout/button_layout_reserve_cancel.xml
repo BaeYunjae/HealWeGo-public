@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="10dp"
+    android:gravity="center_vertical">
+
+    <!-- 예약된 일정 버튼 -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/buttonReserve"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="예약된 일정 정보"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:paddingTop="10dp"
+        android:paddingBottom="30dp"
+        android:background="@drawable/button_background"
+        android:gravity="center" />
+
+    <!-- 예약 취소 버튼 -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/buttonCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="예약 취소"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:paddingTop="10dp"
+        android:paddingBottom="30dp"
+        android:background="@drawable/cancel_button"
+        android:gravity="center" />
+
+</LinearLayout>
