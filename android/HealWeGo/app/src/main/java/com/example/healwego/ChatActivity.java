@@ -129,11 +129,14 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chatting_page);  // 채팅 레이아웃 사용
 
+        // MQTT 구독
+        connectToMqtt();
+
         // 현재 사용자 ID 가져오기
         userId = AWSMobileClient.getInstance().getUsername();
         CLIENT_ID = userId;
 
-                // 뒤로가기 버튼을 처리하는 부분
+        // 뒤로가기 버튼을 처리하는 부분
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -147,6 +150,20 @@ public class ChatActivity extends AppCompatActivity {
 
         // Intent에서 전달된 방 생성 여부 (isHost) 값을 가져옴
         Intent intent = getIntent();
+        int resultIntent = intent.getIntExtra("result", 0);
+        if(resultIntent == 1){
+            // DELETE 성공 후 MQTT 메시지 전송
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("User_ID", userId);
+                jsonObject.put("option", "enter");
+                jsonObject.put("message", userId);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            sendMqttMessage(CHAT_TOPIC + roomId, jsonObject.toString());
+        }
         int isNewEnter = intent.getIntExtra("isNewEnter", 0);
         String roomTitle = intent.getStringExtra("roomTitle");
         String usersInfo = intent.getStringExtra("usersInfo");
@@ -252,12 +269,9 @@ public class ChatActivity extends AppCompatActivity {
         // 나가기 버튼 설정
         ImageButton exitButton = headerView.findViewById(R.id.exitButton);
         exitButton.setOnClickListener(v -> {
-            sendDeleteRequest();
+            Intent chatPopUpIntent = new Intent(ChatActivity.this, ChatPopUpActivity.class);
+            startActivity(chatPopUpIntent);
         });
-
-        // MQTT 구독
-        connectToMqtt();
-
 
         ImageButton sendbtn = findViewById(R.id.sendButton);
         EditText usermsg = findViewById(R.id.messageInput);
@@ -294,6 +308,14 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onResume() {
+        // 현재 사용자 ID 가져오기
+        super.onResume();
+        userId = AWSMobileClient.getInstance().getUsername();
+        CLIENT_ID = userId;
     }
 
     // addParticipant 메서드
@@ -776,5 +798,4 @@ public class ChatActivity extends AppCompatActivity {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA"); // 또는 "EC" (키 타입에 따라 다름)
         return keyFactory.generatePrivate(keySpec);
     }
-
 }
