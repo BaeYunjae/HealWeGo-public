@@ -9,12 +9,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -27,7 +30,9 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import android.graphics.drawable.GradientDrawable;
@@ -37,6 +42,7 @@ import com.amazonaws.mobile.client.AWSMobileClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.lang.ref.WeakReference;
 
@@ -54,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Button buttonReserve;
     private Button buttonCancel;
+
+    private TextView nameText;
+    private TextView messageText;
 
     private RelativeLayout loadView;
     private int isLoad = 0;
@@ -127,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
         ImageView loadImage = (ImageView) findViewById(R.id.loadImage);
         loadImage.startAnimation(loadAnimation);
 
+        nameText = (TextView)findViewById(R.id.userName);
+        messageText = (TextView)findViewById(R.id.textView1);
 
         // 시스템 바 인셋을 적용하여 화면 패딩 설정
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -182,8 +193,19 @@ public class MainActivity extends AppCompatActivity {
         // 버튼 레이아웃 파라미터 설정
         LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
                 MATCH_PARENT, // width
-                WRAP_CONTENT, // height
-                3f  // weight: 3
+                WRAP_CONTENT // height
+        );
+
+        LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                3f
+        );
+
+        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(
+                ConvertDPtoPX(this, 80),
+                ConvertDPtoPX(this, 80),
+                1f
         );
 
         // GradientDrawable로 둥근 테두리 설정
@@ -212,39 +234,75 @@ public class MainActivity extends AppCompatActivity {
             // 4. 파싱한 결과를 바탕으로 레이아웃 그림
             int option = bodyJson.getInt("option");
 
-            TextView nameText = (TextView)findViewById(R.id.userName);
             String userName = bodyJson.getString("username") + "님, ";
             nameText.setText(userName);
 
             if(option == 0){ // 참여 중인 방이 없는 상태
-                // 첫 번째 버튼 생성 및 설정
-                buttonAlone = new Button(this);
-                buttonAlone.setText("혼자 가기");
-                buttonAlone.setTextColor(getResources().getColor(R.color.white));
-                buttonAlone.setTextSize(18);
-                buttonAlone.setBackgroundColor(getResources().getColor(R.color.teal));
+
+                messageText.setText("오늘은 어떻게 갈까요?");
+
+                LinearLayout buttonAlone = new LinearLayout(this);
+                buttonAlone.setOrientation(LinearLayout.HORIZONTAL);
                 buttonAlone.setLayoutParams(buttonParams);
-                buttonAlone.setId(ViewCompat.generateViewId());
-                buttonAlone.setBackground(drawable);
-                buttonAlone.setMinHeight(ConvertDPtoPX(this, 100));
+                buttonAlone.setBackgroundColor(getResources().getColor(R.color.teal));
+                buttonAlone.setBackground(getResources().getDrawable(R.drawable.button_background));
+                buttonAlone.setLayoutParams(buttonParams); // LayoutParams를 LinearLayout에 설정
 
-                // 두 번째 버튼 생성 및 설정
-                buttonTogether = new Button(this);
-                buttonTogether.setText("함께 가기");
-                buttonTogether.setTextColor(getResources().getColor(R.color.white));
-                buttonTogether.setTextSize(18);
-                buttonTogether.setBackgroundColor(getResources().getColor(R.color.teal));
+                buttonAlone.setElevation(ConvertDPtoPX(this, 10)); // 10dp를 픽셀로 변환
+                buttonAlone.setTranslationZ(ConvertDPtoPX(this, 10)); // 10dp를 픽셀로 변환
+
+                TextView aloneText = new TextView(this);
+                aloneText.setText("혼자 가기");
+                aloneText.setTextColor(getResources().getColor(R.color.white));
+                aloneText.setTextSize(25);
+                aloneText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                Typeface customFont = ResourcesCompat.getFont(this, R.font.locus_sangsang); // R.font.custom_font는 폰트 파일
+                aloneText.setTypeface(customFont);
+
+                textParams.gravity = Gravity.CENTER_VERTICAL;  // 텍스트를 수직 중앙에 정렬
+                aloneText.setLayoutParams(textParams);
+                aloneText.setGravity(Gravity.CENTER_VERTICAL);  // 텍스트 자체를 중앙 정렬
+
+                ImageView aloneImage = new ImageView(this);
+                aloneImage.setImageResource(R.drawable.person_img);
+                imageParams.gravity = Gravity.CENTER;
+                imageParams.setMargins(0, 10, 0, 0);
+                aloneImage.setLayoutParams(imageParams);
+                aloneImage.setForegroundGravity(Gravity.CENTER);
+
+                buttonAlone.addView(aloneText);
+                buttonAlone.addView(aloneImage);
+
+
+                LinearLayout buttonTogether = new LinearLayout(this);
+                buttonTogether.setOrientation(LinearLayout.HORIZONTAL);
+                buttonParams.setMargins(0, 20, 0, 0);
                 buttonTogether.setLayoutParams(buttonParams);
-                buttonTogether.setId(ViewCompat.generateViewId());
-                buttonTogether.setBackground(drawable);
-                buttonTogether.setMinHeight(ConvertDPtoPX(this, 100));
+                buttonTogether.setBackgroundColor(getResources().getColor(R.color.teal));
+                buttonTogether.setBackground(getResources().getDrawable(R.drawable.button_background));
 
-                blankView = new View(this);
-                blankView.setLayoutParams(viewParams);
-                blankView.setId(ViewCompat.generateViewId());
+                buttonTogether.setElevation(ConvertDPtoPX(this, 10)); // 10dp를 픽셀로 변환
+                buttonTogether.setTranslationZ(ConvertDPtoPX(this, 10)); // 10dp를 픽셀로 변환
+
+                TextView togetherText = new TextView(this);
+                togetherText.setText("함께 가기");
+                togetherText.setTextColor(getResources().getColor(R.color.white));
+                togetherText.setTextSize(25);
+                togetherText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                togetherText.setTypeface(customFont);
+
+                togetherText.setLayoutParams(textParams);
+                togetherText.setGravity(Gravity.CENTER_VERTICAL);  // 텍스트 자체를 중앙 정렬
+
+                ImageView togetherImage = new ImageView(this);
+                togetherImage.setImageResource(R.drawable.people_img);
+
+                togetherImage.setLayoutParams(imageParams);
+
+                buttonTogether.addView(togetherText);
+                buttonTogether.addView(togetherImage);
 
                 parentLayout.addView(buttonAlone);
-                parentLayout.addView(blankView);
                 parentLayout.addView(buttonTogether);
 
                 // onClickListener 추가
@@ -273,6 +331,9 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
             else if(option == 1){ // 예약 완료 상태
+
+                messageText.setText("예약된 일정이 있습니다.");
+
                 String roomName = bodyJson.getString("roomname");
                 String locName = bodyJson.getString("Loc_name");
                 String start = bodyJson.getString("start");
@@ -297,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonReserve.setTextSize(18);
                 buttonReserve.setLayoutParams(buttonParams);
                 buttonReserve.setId(ViewCompat.generateViewId());
-                buttonReserve.setBackground(getResources().getDrawable(R.drawable.reserve_button));
+                buttonReserve.setBackground(getResources().getDrawable(R.drawable.button_background));
 
                 buttonCancel = new Button(this);
                 buttonCancel.setText("예약 취소");
@@ -308,9 +369,8 @@ public class MainActivity extends AppCompatActivity {
                 buttonCancel.setId(ViewCompat.generateViewId());
                 buttonCancel.setBackground(getResources().getDrawable(R.drawable.cancel_button));
 
-                linearLayout.addView(buttonReserve);
-                linearLayout.addView(buttonCancel);
-                parentLayout.addView(linearLayout);
+                parentLayout.addView(buttonReserve);
+                parentLayout.addView(buttonCancel);
 
                 buttonReserve.setOnClickListener(new View.OnClickListener() {
                     @Override
