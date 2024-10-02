@@ -18,6 +18,7 @@ import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -190,37 +191,6 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout parentLayout = (LinearLayout)findViewById(R.id.linearLayout);
         parentLayout.removeAllViews();
 
-        // 버튼 레이아웃 파라미터 설정
-        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
-                MATCH_PARENT, // width
-                WRAP_CONTENT // height
-        );
-
-        LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                3f
-        );
-
-        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(
-                ConvertDPtoPX(this, 80),
-                ConvertDPtoPX(this, 80),
-                1f
-        );
-
-        // GradientDrawable로 둥근 테두리 설정
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setShape(GradientDrawable.RECTANGLE);
-        drawable.setCornerRadius(40f); // 모서리 둥글게 (40f로 설정)
-        drawable.setColor(getResources().getColor(R.color.teal));
-
-        // 뷰 레이아웃 파라미터 설정
-        LinearLayout.LayoutParams viewParams = new LinearLayout.LayoutParams(
-                MATCH_PARENT, // width
-                MATCH_PARENT, // height
-                5f  // weight: 5
-        );
-
         try {
             // 1. 응답을 JSONObject로 변환
             JSONObject responseObject = new JSONObject(response);
@@ -241,69 +211,12 @@ public class MainActivity extends AppCompatActivity {
 
                 messageText.setText("오늘은 어떻게 갈까요?");
 
-                LinearLayout buttonAlone = new LinearLayout(this);
-                buttonAlone.setOrientation(LinearLayout.HORIZONTAL);
-                buttonAlone.setLayoutParams(buttonParams);
-                buttonAlone.setBackgroundColor(getResources().getColor(R.color.teal));
-                buttonAlone.setBackground(getResources().getDrawable(R.drawable.button_background));
-                buttonAlone.setLayoutParams(buttonParams); // LayoutParams를 LinearLayout에 설정
+                View aloneTogetherView = getLayoutInflater().inflate(R.layout.button_layout_alone_together, parentLayout, false);
+                LinearLayout buttonAlone = aloneTogetherView.findViewById(R.id.buttonAlone);
+                LinearLayout buttonTogether = aloneTogetherView.findViewById(R.id.buttonTogether);
 
-                buttonAlone.setElevation(ConvertDPtoPX(this, 10)); // 10dp를 픽셀로 변환
-                buttonAlone.setTranslationZ(ConvertDPtoPX(this, 10)); // 10dp를 픽셀로 변환
-
-                TextView aloneText = new TextView(this);
-                aloneText.setText("혼자 가기");
-                aloneText.setTextColor(getResources().getColor(R.color.white));
-                aloneText.setTextSize(25);
-                aloneText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                Typeface customFont = ResourcesCompat.getFont(this, R.font.locus_sangsang); // R.font.custom_font는 폰트 파일
-                aloneText.setTypeface(customFont);
-
-                textParams.gravity = Gravity.CENTER_VERTICAL;  // 텍스트를 수직 중앙에 정렬
-                aloneText.setLayoutParams(textParams);
-                aloneText.setGravity(Gravity.CENTER_VERTICAL);  // 텍스트 자체를 중앙 정렬
-
-                ImageView aloneImage = new ImageView(this);
-                aloneImage.setImageResource(R.drawable.person_img);
-                imageParams.gravity = Gravity.CENTER;
-                imageParams.setMargins(0, 10, 0, 0);
-                aloneImage.setLayoutParams(imageParams);
-                aloneImage.setForegroundGravity(Gravity.CENTER);
-
-                buttonAlone.addView(aloneText);
-                buttonAlone.addView(aloneImage);
-
-
-                LinearLayout buttonTogether = new LinearLayout(this);
-                buttonTogether.setOrientation(LinearLayout.HORIZONTAL);
-                buttonParams.setMargins(0, 20, 0, 0);
-                buttonTogether.setLayoutParams(buttonParams);
-                buttonTogether.setBackgroundColor(getResources().getColor(R.color.teal));
-                buttonTogether.setBackground(getResources().getDrawable(R.drawable.button_background));
-
-                buttonTogether.setElevation(ConvertDPtoPX(this, 10)); // 10dp를 픽셀로 변환
-                buttonTogether.setTranslationZ(ConvertDPtoPX(this, 10)); // 10dp를 픽셀로 변환
-
-                TextView togetherText = new TextView(this);
-                togetherText.setText("함께 가기");
-                togetherText.setTextColor(getResources().getColor(R.color.white));
-                togetherText.setTextSize(25);
-                togetherText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                togetherText.setTypeface(customFont);
-
-                togetherText.setLayoutParams(textParams);
-                togetherText.setGravity(Gravity.CENTER_VERTICAL);  // 텍스트 자체를 중앙 정렬
-
-                ImageView togetherImage = new ImageView(this);
-                togetherImage.setImageResource(R.drawable.people_img);
-
-                togetherImage.setLayoutParams(imageParams);
-
-                buttonTogether.addView(togetherText);
-                buttonTogether.addView(togetherImage);
-
-                parentLayout.addView(buttonAlone);
-                parentLayout.addView(buttonTogether);
+                // Add the inflated layout to the parentLayout
+                parentLayout.addView(aloneTogetherView);
 
                 // onClickListener 추가
                 buttonAlone.setOnClickListener(new View.OnClickListener() {
@@ -334,43 +247,24 @@ public class MainActivity extends AppCompatActivity {
 
                 messageText.setText("예약된 일정이 있습니다.");
 
+                // 버튼 레이아웃을 XML에서 인플레이트
+                LayoutInflater inflater = LayoutInflater.from(this);
+                View buttonLayout = inflater.inflate(R.layout.button_layout_reserve_cancel, parentLayout, false);
+
+                // 인플레이트한 레이아웃에서 버튼 객체를 찾음
+                Button buttonReserve = buttonLayout.findViewById(R.id.buttonReserve);
+                Button buttonCancel = buttonLayout.findViewById(R.id.buttonCancel);
+
+                // 예약된 일정 정보 세팅
                 String roomName = bodyJson.getString("roomname");
                 String locName = bodyJson.getString("Loc_name");
                 String start = bodyJson.getString("start");
                 start = start.substring(0, 2) + ":" + start.substring(2);
                 String displayTxt = roomName + "\n목적지 : " + locName + "\n출발 시각 : " + start;
-
-                LinearLayout linearLayout = new LinearLayout(this);
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT, // width
-                        WRAP_CONTENT  // height
-                );
-
-                // orientation을 vertical로 설정
-                linearLayout.setOrientation(LinearLayout.VERTICAL);
-
-                // layoutParams를 적용
-                linearLayout.setLayoutParams(layoutParams);
-
-                buttonReserve = new Button(this);
                 buttonReserve.setText(displayTxt);
-                buttonReserve.setTextColor(getResources().getColor(R.color.white));
-                buttonReserve.setTextSize(18);
-                buttonReserve.setLayoutParams(buttonParams);
-                buttonReserve.setId(ViewCompat.generateViewId());
-                buttonReserve.setBackground(getResources().getDrawable(R.drawable.button_background));
 
-                buttonCancel = new Button(this);
-                buttonCancel.setText("예약 취소");
-                buttonCancel.setTextColor(getResources().getColor(R.color.white));
-                buttonCancel.setTextSize(18);
-                viewParams.setMargins(0, 20, 0, 0);
-                buttonCancel.setLayoutParams(viewParams);
-                buttonCancel.setId(ViewCompat.generateViewId());
-                buttonCancel.setBackground(getResources().getDrawable(R.drawable.cancel_button));
-
-                parentLayout.addView(buttonReserve);
-                parentLayout.addView(buttonCancel);
+                // 버튼들을 parentLayout에 추가
+                parentLayout.addView(buttonLayout);
 
                 buttonReserve.setOnClickListener(new View.OnClickListener() {
                     @Override
