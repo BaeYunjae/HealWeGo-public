@@ -30,6 +30,7 @@ import com.amazonaws.mobile.client.AWSMobileClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.lang.ref.WeakReference;
 
@@ -105,7 +106,8 @@ public class CreateRoomActivity extends AppCompatActivity {
         buttonThemeMeeting = findViewById(R.id.buttonThemeMeeting);
 
         // 처음 실행 시 "힐링" 테마를 기본 선택 상태로 설정
-        buttonThemeHealing.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.teal));
+        buttonThemeHealing.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.darkteal));
+        buttonThemeHealing.setTextColor(ContextCompat.getColor(CreateRoomActivity.this, android.R.color.white));
 
         // 클릭했을 때 선택된 버튼의 색깔을 바꾸고 나머지는 기본 색으로 설정
         View.OnClickListener themeButtonClickListener = new View.OnClickListener() {
@@ -113,11 +115,16 @@ public class CreateRoomActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // 모든 버튼의 색을 초기화 (기본 색상)
                 buttonThemeHealing.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));
-                buttonThemeExtreme.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));
-                buttonThemeFood.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));
-                buttonThemeMeeting.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));
-                // 클릭된 버튼의 색깔을 teal로 변경
-                v.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.teal));
+                buttonThemeHealing.setTextColor(ContextCompat.getColor(CreateRoomActivity.this, android.R.color.black));
+                buttonThemeExtreme.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));;
+                buttonThemeExtreme.setTextColor(ContextCompat.getColor(CreateRoomActivity.this, android.R.color.black));
+                buttonThemeFood.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));;
+                buttonThemeFood.setTextColor(ContextCompat.getColor(CreateRoomActivity.this, android.R.color.black));
+                buttonThemeMeeting.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.lightteal));;
+                buttonThemeMeeting.setTextColor(ContextCompat.getColor(CreateRoomActivity.this, android.R.color.black));
+                // 클릭된 버튼의 색깔을 darkteal로 변경
+                v.setBackgroundTintList(ContextCompat.getColorStateList(CreateRoomActivity.this, R.color.darkteal));
+                ((TextView) v).setTextColor(ContextCompat.getColor(CreateRoomActivity.this, android.R.color.white));
 
                 // 선택된 테마에 따라 selectedTheme 값을 업데이트
                 if (v.getId() == R.id.buttonThemeHealing) {
