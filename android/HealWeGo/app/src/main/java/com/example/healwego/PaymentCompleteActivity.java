@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;  // Intent를 사용하기 위해 추가
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;  // View를 사용하기 위해 추가
@@ -31,6 +32,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.KeyFactory;
@@ -87,7 +90,12 @@ public class PaymentCompleteActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 }
                 Intent intent = new Intent(PaymentCompleteActivity.this, MapPath.class);
-                intent.putExtra("global_Path", pathMessage);
+                SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("first_global_path", pathMessage);
+                editor.apply();
+
+               //intent.putExtra("global_Path", pathMessage);
                 intent.putExtra("order",pointMessage);
                 startActivity(intent);  // MapPath Activity 시작
             }
