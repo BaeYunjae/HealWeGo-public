@@ -28,32 +28,35 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="20dp">
 
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="3"/>
 
-        <TextView
-            android:id="@+id/yesBtn"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:text="예"
-            android:textSize="20sp"
-            android:textColor="@color/blue"
-            android:gravity="center"
-            android:layout_weight="1"/>
-
-        <TextView
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/noBtn"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="아니오"
             android:textSize="20sp"
-            android:textColor="@color/red"
+            android:background="@drawable/no_button"
+            android:textColor="@color/white"
             android:gravity="center"
-            android:layout_weight="1"/>
+            android:layout_marginRight="30dp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/yesBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="예"
+            android:background="@drawable/yes_button"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:gravity="center"/>
+
 
     </LinearLayout>
 
