@@ -1,0 +1,17 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 그림자 효과 (아래쪽만) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/black"/> <!-- teal 색상으로 그림자 -->
+            <corners android:radius="50dp"/> <!-- 둥근 모서리 -->
+        </shape>
+    </item>
+
+    <!-- 실제 버튼 -->
+    <item android:top="0dp" android:left="0dp" android:right="2dp" android:bottom="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/darkcyan"/>
+            <corners android:radius="50dp"/> <!-- 둥근 모서리 -->
+        </shape>
+    </item>
+</layer-list>
