@@ -74,6 +74,9 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -174,6 +177,8 @@ public class MapPath extends AppCompatActivity
     private Double beforeLat = -1.0;
     private Double beforeLong = -1.0;
 
+    private HashMap<String,Integer> orderMap = new HashMap<>();
+
     // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
     private static class MyHandler extends Handler {
         private final WeakReference<MapPath> weakReference;
@@ -269,7 +274,9 @@ public class MapPath extends AppCompatActivity
 
         // Intent로 초기 경로와 초기 순서를 가져옴
         Intent getIntent = getIntent();
-        intent_path = getIntent.getStringExtra("global_Path");
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        intent_path = sharedPreferences.getString("first_global_path", null);
+        //intent_path = getIntent.getStringExtra("global_Path");
         Log.w("20241002test", "mapPath intent " + intent_path );
         intent_order = getIntent.getStringExtra("order");
 
@@ -967,6 +974,20 @@ public class MapPath extends AppCompatActivity
                         }
                         else if(userId.equals(Name)) {
                             board_avail = true;
+                        }else{
+                            int order = 0;
+                            if (orderMap != null && orderMap.containsKey(Name)) {
+                                order = orderMap.get(Name);
+                                // order 사용
+                            } else {
+                                // 키가 없거나 orderMap이 초기화되지 않았을 때의 처리
+                                // 예: 기본값 설정
+                                order = -1;  // 또는 다른 기본값
+                            }
+                            if(order!=-1){
+                                showToastMessage(order+"번 도착했습니다.");
+                            }
+
                         }
                     }
                 }
@@ -1181,6 +1202,7 @@ public class MapPath extends AppCompatActivity
                     } else if (element.startsWith("name")) {
                         name = element.split(":")[1].trim();
                     }
+                    orderMap.replace(name,order);
                 }
 
                 // LatLng 객체 생성
@@ -1234,20 +1256,32 @@ public class MapPath extends AppCompatActivity
                 double longitude = 0.0;
 
 
+                int count = 0;
                 for (String part : parts) {
+                    if(part.contains("count")){
+                        count = Integer.parseInt(part.split(":")[1].trim());
+                    }
                     if (part.contains("latitude")) {
                         latitude = Double.parseDouble(part.split(":")[1].trim());
                     }
 
                     if (part.contains("longitude")) {
                         longitude = Double.parseDouble(part.split(":")[1].trim());
-                        latLongList.add(new Double[]{latitude, longitude});
+                        latLongList.add(new Double[]{(double)count,latitude, longitude});
                     }
+
                 }
 
+                latLongList.sort(new Comparator<Double[]>() {
+                    @Override
+                    public int compare(Double[] o1, Double[] o2) {
+                        return Double.compare(o1[0], o2[0]); // count 값 기준 오름차순 정렬
+                    }
+                });
+
                 for (Double[] latLong : latLongList) {
-                    latitude = latLong[0];
-                    longitude = latLong[1];
+                    latitude = latLong[1];
+                    longitude = latLong[2];
 
                     if (!isFirstPoint) {
                         LatLng startLatLng = new LatLng(latitude, longitude);  // 현재 좌표
@@ -1316,6 +1350,8 @@ public class MapPath extends AppCompatActivity
                     } else if (element.startsWith("name")) {
                         name = element.split(":")[1].trim();
                     }
+
+                    orderMap.put(name,order);
                 }
 
                 // LatLng 객체 생성
