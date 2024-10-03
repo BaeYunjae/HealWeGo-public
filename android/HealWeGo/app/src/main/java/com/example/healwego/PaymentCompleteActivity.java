@@ -28,6 +28,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import com.amazonaws.mobile.client.AWSMobileClient;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.InputStream;
@@ -80,6 +81,11 @@ public class PaymentCompleteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // MapPath로 이동하는 Intent 생성
+                try {
+                    mqttClient.disconnect();
+                } catch (MqttException e) {
+                    throw new RuntimeException(e);
+                }
                 Intent intent = new Intent(PaymentCompleteActivity.this, MapPath.class);
                 intent.putExtra("global_Path", pathMessage);
                 intent.putExtra("order",pointMessage);
@@ -98,7 +104,7 @@ public class PaymentCompleteActivity extends AppCompatActivity {
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     private void connectToMqtt() {
         try {
-            mqttClient = new MqttAsyncClient(BROKER_URL, CLIENT_ID, new MemoryPersistence());
+            mqttClient = new MqttAsyncClient(BROKER_URL, AWSMobileClient.getInstance().getUsername(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
             options.setSocketFactory(getSocketFactory());
             mqttClient.connect(options, null, new org.eclipse.paho.client.mqttv3.IMqttActionListener() {
@@ -158,6 +164,7 @@ public class PaymentCompleteActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void handlePathMessage(MqttMessage message) {
 
+        Log.w("20241002test", "paymentComplete path"+message.toString() );
         if (!message.toString().equals("null") && !message.toString().equals("\"new\"")) {
             List<Double[]> latLongList = new ArrayList<>();
             if (Objects.equals(pathMessage, "init")){
@@ -238,6 +245,8 @@ public class PaymentCompleteActivity extends AppCompatActivity {
 
     private void handlePointMessage(MqttMessage pmessage) {
         pointMessage = pmessage.toString();
+
+        Log.w("20241002test", "paymentComplete point"+pointMessage );
         Log.d("MQTT", "Received Point message: " + pointMessage);
 
     }

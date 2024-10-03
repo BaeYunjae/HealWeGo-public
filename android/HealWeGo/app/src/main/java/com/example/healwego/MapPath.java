@@ -133,7 +133,7 @@ public class MapPath extends AppCompatActivity
 
     private static final String BROKER_URL = "ssl://a3boaptn83mu7y-ats.iot.ap-northeast-2.amazonaws.com:8883";
     
-    private static final String CLIENT_ID = "AndroidClient";
+    private static String CLIENT_ID = "AndroidClient";
     private static final String GPS_TOPIC = "gps/001"; // 차량의 현재 위치를 받을 토픽
     private static final String PATH_TOPIC = "path/001"; // 차량의 경로를 받을 토픽
     private static final String POINT_TOPIC = "path/points/ros/001"; // 차량의 방문 순서를 받을 토픽
@@ -145,8 +145,18 @@ public class MapPath extends AppCompatActivity
 
     private TextView currentText; // 차량의 현재 위치를 보여줄 텍스트뷰
     private TextView destText; // 차량의 목적지를 보여줄 텍스트 뷰
+
+    private Button leftButton;
+    private Button rightButton;
+
     private String init_path; // 전 페이지에서 넘어오는 path를 받을 텍스트 뷰
     private String init_order; // 전 페이지에서 넘어오는 order를 받을 텍스트 뷰
+
+    private String intent_path;
+    private String intent_order;
+
+    private String saved_path;
+    private String saved_order;
 
     boolean firstCameraUpdate = false;
 
@@ -160,6 +170,7 @@ public class MapPath extends AppCompatActivity
     private String decodedLocName;
 
     private String carId;
+
 
     // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
     private static class MyHandler extends Handler {
@@ -217,8 +228,23 @@ public class MapPath extends AppCompatActivity
         // SharedPreferences에서 데이터를 복원
         // 나갔다 들어왔을 때도 경로가 유지되도록
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        init_path = preferences.getString("init_path", null);  // init_path 복원
-        init_order = preferences.getString("init_order", null);  // init_order 복원
+        saved_path = preferences.getString("init_path", null);  // init_path 복원
+        saved_order = preferences.getString("init_order", null);  // init_order 복원
+        state = preferences.getInt("state",0);
+        rightButton=findViewById(R.id.rightButton);
+        leftButton=findViewById(R.id.leftButton);
+        if(state==0){
+            leftButton.setText("탑승");
+            rightButton.setText("비상 정지");
+        }
+        if(state==1){
+            leftButton.setText("하차");
+            rightButton.setText("비상 정지");
+        }
+        else if(state==2){
+            leftButton.setText("하차");
+            rightButton.setText("이동 재개");
+        }
     }
 
     @Override
@@ -230,6 +256,7 @@ public class MapPath extends AppCompatActivity
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("init_path", init_path);  // init_path 저장
         editor.putString("init_order", init_order);  // init_order 저장
+        editor.putInt("state",state);
         editor.apply();  // 변경 사항을 저장
     }
 
@@ -237,6 +264,13 @@ public class MapPath extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Intent로 초기 경로와 초기 순서를 가져옴
+        Intent getIntent = getIntent();
+        intent_path = getIntent.getStringExtra("global_Path");
+        Log.w("20241002test", "mapPath intent " + intent_path );
+        intent_order = getIntent.getStringExtra("order");
+
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -311,20 +345,73 @@ public class MapPath extends AppCompatActivity
 
         connectToMqtt();
 
-        // Intent로 초기 경로와 초기 순서를 가져옴
-        Intent getIntent = getIntent();
-        if(init_path!=null) {
-            init_path = getIntent.getStringExtra("global_Path");
-        }
-        if(init_order!=null) {
-            init_order = getIntent.getStringExtra("order");
+
+    }
+
+    // 방 나가기 DELETE API 요청 함수
+    private void sendDeleteRequest() {
+        // API 유형
+        String connMethod = "DELETE";
+        String apiURL = mURL + "room/list";
+        String userName = AWSMobileClient.getInstance().getUsername();
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("Method","DELETE");
+            body.put("User_ID", userName);  // DELETE 요청 시 Method를 바디에 넣을 필요는 없습니다
+            body.put("Option","finish");
+        } catch (JSONException e) {
+            Log.e("ChatActivity", "DELETE JSON 생성 오류");
+            return;
         }
 
+        String bodyJson = body.toString();
+
+        // API 요청 함수
+        ApiRequestHandler.getJSON("https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/room/list", connMethod, new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                String response = (String) msg.obj;
+                Log.w("megresponse", response );
+                try {
+                    // 서버 응답을 파싱
+                    JSONObject responseObject = new JSONObject(response);
+                    int statusCode = responseObject.getInt("statusCode");
+
+                    // DELETE 요청 성공 시 실행할 작업
+                    if (statusCode == 200) {
+                        Log.i("ChatActivity", "DELETE 요청 성공");
+                        new AlertDialog.Builder(MapPath.this)
+                                .setMessage("이용해 주셔서 감사합니다")  // 메시지 설정
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Yes를 눌렀을 때 동작
+                                        state = STATE_IDLE;
+                                        board_avail = false;
+                                        Intent intent = new Intent(MapPath.this, MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                })
+                                .show();  // 다이얼로그 표시
+
+                    } else {
+                        // DELETE 요청 실패 시 처리
+                        Log.e("ChatActivity", "DELETE 요청 실패: " + statusCode);
+                    }
+                } catch (JSONException e) {
+                    Log.e("ChatActivity", "DELETE 응답 처리 오류", e);
+                }
+            }
+        }, bodyJson);
+
+        Log.i("ChatActivity", "DELETE 요청: " + bodyJson);
     }
 
     // Left Button 클릭 시 수행할 작업을 위한 함수
     private void handleLeftButtonClick() {
-        Button btn = findViewById(R.id.leftButton);
+        leftButton = findViewById(R.id.leftButton);
 
         // 탑승 가능 상태일 때
         if (state == STATE_IDLE && board_avail){
@@ -332,7 +419,7 @@ public class MapPath extends AppCompatActivity
                     "\"command\" : \"boarding\"" +
                     "}");
             state = STATE_BOARDING;
-            btn.setText("하차");
+            leftButton.setText("하차");
         }
         // 탑승 불가능 상태
         else if (state == STATE_IDLE){
@@ -341,35 +428,8 @@ public class MapPath extends AppCompatActivity
         else if(state == STATE_BOARDING){
             // 차량 운행이 완전 종료일 때
             if(isFinished==1) {
-                // DELETE 요청 보냄
-                connMethod = "DELETE";
-                mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/"+ "room/list";
+                sendDeleteRequest();
 
-                JSONObject body = new JSONObject();
-                String userName = AWSMobileClient.getInstance().getUsername();
-                try {
-                    // 비워두거나 최소한의 정보만 보냅니다.
-                    body.put("Method", "DELETE");
-                    body.put("User_ID", userName);
-                } catch (JSONException e) {
-                    Log.e("BODYPUTERROR", "ERRRRRRRRORRRRRR");  // 예외 처리
-                }
-
-                String bodyJson = body.toString();
-                ApiRequestHandler.getJSON(mURL, "DELETE", mHandler, bodyJson);
-
-                new AlertDialog.Builder(this)
-                        .setMessage("이용해 주셔서 감사합니다")  // 메시지 설정
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Yes를 눌렀을 때 동작
-                                board_avail = false;
-                                Intent intent = new Intent(MapPath.this, MainActivity.class);
-                                startActivity(intent);
-                            }
-                        })
-                        .show();  // 다이얼로그 표시
             }else{
                 // 아직 차량이 목적지에 도착 안했는데 하차를 누를 때
                 showToastMessage("아직 도착 안했습니다");
@@ -382,7 +442,7 @@ public class MapPath extends AppCompatActivity
 
     // Right Button 클릭 시 수행할 작업을 위한 함수
     private void handleRightButtonClick() {
-        Button btn = findViewById(R.id.rightButton);
+        rightButton = findViewById(R.id.rightButton);
         if (state == STATE_IDLE){
             // 탑승을 아직 안했는데 비상 정지 버튼 누를 때
             showToastMessage("탑승을 아직 안했습니다.");
@@ -397,7 +457,7 @@ public class MapPath extends AppCompatActivity
                         public void onClick(DialogInterface dialog, int which) {
                             // Yes를 눌렀을 때 동작
                             state = STATE_EMERGENCY_STOP;
-                            btn.setText("이동 재개");
+                            rightButton.setText("이동 재개");
                             sendMessage(SIGNAL_APP_TOPIC,"{" +
                                     "\"command\" : \"stop\"" +
                                     "}");
@@ -412,7 +472,7 @@ public class MapPath extends AppCompatActivity
                     .show();  // 다이얼로그 표시
         }else if(state == STATE_EMERGENCY_STOP){
             state = STATE_BOARDING;
-            btn.setText("비상 정지");
+            rightButton.setText("비상 정지");
             sendMessage(SIGNAL_APP_TOPIC,"{" +
                     "\"command\" : \"resume\"" +
                     "}");
@@ -492,13 +552,20 @@ public class MapPath extends AppCompatActivity
             startLocationUpdates(); // 3. 위치 업데이트 시작
 
 
-            // 데이터를 사용하여 필요한 작업 수행
-            if (init_path != null) {
+
+            if(intent_path!=null){
+                init_path=intent_path;
+                handleFirstPathMessage(init_path);
+            }else if(saved_path!=null){
+                init_path=saved_path;
                 handleFirstPathMessage(init_path);
             }
-
-            if (init_order != null) {
+            if(intent_order!=null){
+                init_order=intent_order;
                 handleFirstPointMessage(init_order);
+            }else if(saved_path!=null){
+                init_order=saved_order;
+                handleFirstPointMessage (init_order);
             }
 
             // PATCH API 요청을 위한 코드
@@ -846,7 +913,7 @@ public class MapPath extends AppCompatActivity
     //MQTT
     private void connectToMqtt() {
         try {
-            mqttClient = new MqttAsyncClient(BROKER_URL, CLIENT_ID, new MemoryPersistence());
+            mqttClient = new MqttAsyncClient(BROKER_URL, AWSMobileClient.getInstance().getUsername(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
             options.setSocketFactory(getSocketFactory());
             mqttClient.connect(options, null, new org.eclipse.paho.client.mqttv3.IMqttActionListener() {
@@ -982,10 +1049,12 @@ public class MapPath extends AppCompatActivity
 
     // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
     private void handlePathMessage(MqttMessage message) {
+
+        Log.w("20241002test", "mappath path"+message.toString() );
         String pathMessage = message.toString();
         Log.d(TAG, "Received Path MQTT message: " + pathMessage);
 
-        if(pathMessage.equals("new")){
+        if(pathMessage.equals("\"new\"")){
             init_path="";
         }
         else if(Objects.equals(init_path, "")){
@@ -994,6 +1063,7 @@ public class MapPath extends AppCompatActivity
             init_path = init_path+"|"+pathMessage;
         }
         List<Double[]> latLongList = new ArrayList<>();
+        Log.w("pathmessage", init_path );
         if(init_path.isEmpty()){
             removeAllPolylines();
         }else {
@@ -1056,7 +1126,10 @@ public class MapPath extends AppCompatActivity
     private void handlePointMessage(MqttMessage pmessage) {
         String message = pmessage.toString();
         Log.d("MQTT", "Received Point message: " + message);
+
+        Log.w("20241002test", "mappath point"+message );
         init_order=message;
+
         removeAllMarkers();
         try {
             // 1. 메시지에서 불필요한 대괄호 및 따옴표 제거
@@ -1119,9 +1192,13 @@ public class MapPath extends AppCompatActivity
         String pathMessage = message;
         List<Double[]> latLongList = new ArrayList<>();
         removeAllPolylines();
+        Log.w("20241002test", "mappath handlefirstpath " +message );
+        if(intent_path!=null){
+            pathMessage=intent_path;
+        }
         try {
             int cnt=0;
-            // "||" 기준으로 pathMessage를 분할
+            // "|" 기준으로 pathMessage를 분할
             String[] messageParts = pathMessage.split("\\|");
             for (String partMessage : messageParts) {
 
@@ -1180,6 +1257,7 @@ public class MapPath extends AppCompatActivity
     }
 
     private void handleFirstPointMessage(String pmessage) {
+        Log.w("20241002test", "mappath handlefirstpoint " +pmessage );
         String message = pmessage;
         removeAllMarkers();
         try {
