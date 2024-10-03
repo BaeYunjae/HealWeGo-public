@@ -133,7 +133,7 @@ public class MapPath extends AppCompatActivity
 
     private static final String BROKER_URL = "ssl://a3boaptn83mu7y-ats.iot.ap-northeast-2.amazonaws.com:8883";
     
-    private static final String CLIENT_ID = "AndroidClient";
+    private static String CLIENT_ID = "AndroidClient";
     private static final String GPS_TOPIC = "gps/001"; // 차량의 현재 위치를 받을 토픽
     private static final String PATH_TOPIC = "path/001"; // 차량의 경로를 받을 토픽
     private static final String POINT_TOPIC = "path/points/ros/001"; // 차량의 방문 순서를 받을 토픽
@@ -151,6 +151,12 @@ public class MapPath extends AppCompatActivity
 
     private String init_path; // 전 페이지에서 넘어오는 path를 받을 텍스트 뷰
     private String init_order; // 전 페이지에서 넘어오는 order를 받을 텍스트 뷰
+
+    private String intent_path;
+    private String intent_order;
+
+    private String saved_path;
+    private String saved_order;
 
     boolean firstCameraUpdate = false;
 
@@ -222,8 +228,8 @@ public class MapPath extends AppCompatActivity
         // SharedPreferences에서 데이터를 복원
         // 나갔다 들어왔을 때도 경로가 유지되도록
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        init_path = preferences.getString("init_path", null);  // init_path 복원
-        init_order = preferences.getString("init_order", null);  // init_order 복원
+        saved_path = preferences.getString("init_path", null);  // init_path 복원
+        saved_order = preferences.getString("init_order", null);  // init_order 복원
         state = preferences.getInt("state",0);
         rightButton=findViewById(R.id.rightButton);
         leftButton=findViewById(R.id.leftButton);
@@ -258,6 +264,13 @@ public class MapPath extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Intent로 초기 경로와 초기 순서를 가져옴
+        Intent getIntent = getIntent();
+        intent_path = getIntent.getStringExtra("global_Path");
+        Log.w("20241002test", "mapPath intent " + intent_path );
+        intent_order = getIntent.getStringExtra("order");
+
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -332,14 +345,6 @@ public class MapPath extends AppCompatActivity
 
         connectToMqtt();
 
-        // Intent로 초기 경로와 초기 순서를 가져옴
-        Intent getIntent = getIntent();
-        if(init_path!=null) {
-            init_path = getIntent.getStringExtra("global_Path");
-        }
-        if(init_order!=null) {
-            init_order = getIntent.getStringExtra("order");
-        }
 
     }
 
@@ -547,13 +552,20 @@ public class MapPath extends AppCompatActivity
             startLocationUpdates(); // 3. 위치 업데이트 시작
 
 
-            // 데이터를 사용하여 필요한 작업 수행
-            if (init_path != null) {
+
+            if(intent_path!=null){
+                init_path=intent_path;
+                handleFirstPathMessage(init_path);
+            }else if(saved_path!=null){
+                init_path=saved_path;
                 handleFirstPathMessage(init_path);
             }
-
-            if (init_order != null) {
+            if(intent_order!=null){
+                init_order=intent_order;
                 handleFirstPointMessage(init_order);
+            }else if(saved_path!=null){
+                init_order=saved_order;
+                handleFirstPointMessage (init_order);
             }
 
             // PATCH API 요청을 위한 코드
@@ -901,7 +913,7 @@ public class MapPath extends AppCompatActivity
     //MQTT
     private void connectToMqtt() {
         try {
-            mqttClient = new MqttAsyncClient(BROKER_URL, CLIENT_ID, new MemoryPersistence());
+            mqttClient = new MqttAsyncClient(BROKER_URL, AWSMobileClient.getInstance().getUsername(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
             options.setSocketFactory(getSocketFactory());
             mqttClient.connect(options, null, new org.eclipse.paho.client.mqttv3.IMqttActionListener() {
@@ -1037,6 +1049,8 @@ public class MapPath extends AppCompatActivity
 
     // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
     private void handlePathMessage(MqttMessage message) {
+
+        Log.w("20241002test", "mappath path"+message.toString() );
         String pathMessage = message.toString();
         Log.d(TAG, "Received Path MQTT message: " + pathMessage);
 
@@ -1112,7 +1126,10 @@ public class MapPath extends AppCompatActivity
     private void handlePointMessage(MqttMessage pmessage) {
         String message = pmessage.toString();
         Log.d("MQTT", "Received Point message: " + message);
+
+        Log.w("20241002test", "mappath point"+message );
         init_order=message;
+
         removeAllMarkers();
         try {
             // 1. 메시지에서 불필요한 대괄호 및 따옴표 제거
@@ -1175,9 +1192,13 @@ public class MapPath extends AppCompatActivity
         String pathMessage = message;
         List<Double[]> latLongList = new ArrayList<>();
         removeAllPolylines();
+        Log.w("20241002test", "mappath handlefirstpath " +message );
+        if(intent_path!=null){
+            pathMessage=intent_path;
+        }
         try {
             int cnt=0;
-            // "||" 기준으로 pathMessage를 분할
+            // "|" 기준으로 pathMessage를 분할
             String[] messageParts = pathMessage.split("\\|");
             for (String partMessage : messageParts) {
 
@@ -1236,6 +1257,7 @@ public class MapPath extends AppCompatActivity
     }
 
     private void handleFirstPointMessage(String pmessage) {
+        Log.w("20241002test", "mappath handlefirstpoint " +pmessage );
         String message = pmessage;
         removeAllMarkers();
         try {
