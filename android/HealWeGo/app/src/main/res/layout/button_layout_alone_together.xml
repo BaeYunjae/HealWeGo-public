@@ -34,13 +34,12 @@
         <ImageView
             android:id="@+id/aloneImage"
             android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:layout_weight="1"
-            android:src="@drawable/person_img"
+            android:layout_height="60dp"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:contentDescription="혼자 가기 이미지" />
+            android:layout_weight="1"
+            android:src="@drawable/person_img" />
 
     </LinearLayout>
 
@@ -72,13 +71,12 @@
         <ImageView
             android:id="@+id/togetherImage"
             android:layout_width="0dp"
-            android:layout_height="80dp"
+            android:layout_height="60dp"
             android:layout_weight="1"
             android:src="@drawable/people_img"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:layout_marginRight="2dp"
             android:contentDescription="함께 가기 이미지" />
 
     </LinearLayout>
