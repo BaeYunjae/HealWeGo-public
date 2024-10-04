@@ -248,7 +248,7 @@ public class ChatActivity extends AppCompatActivity {
         if (usersInfo != null){
             try{
                 JSONObject usersJson = new JSONObject(usersInfo);
-                addParticipants(usersJson);
+                isReady = addParticipants(usersJson);
             } catch(JSONException e){
                 Log.e("ChatActivity", "참여자 정보 처리 오류", e);
             }
@@ -270,6 +270,12 @@ public class ChatActivity extends AppCompatActivity {
             updateReadyButton();
         } else{
             Log.e("ChatActivity", "readyButton is null");
+        }
+        if(isReady){
+            readyButton.setText("CANCEL");
+        }
+        else{
+            readyButton.setText("READY");
         }
 
         // 화살표 버튼 설정 (Drawer 닫기)
@@ -337,7 +343,8 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     // addParticipant 메서드
-    private void addParticipants(JSONObject usersJson) throws JSONException {
+    private boolean addParticipants(JSONObject usersJson) throws JSONException {
+        boolean isUserReady = false;
         Iterator<String> keys = usersJson.keys();
         participants.clear();
         while (keys.hasNext()) {
@@ -347,6 +354,9 @@ public class ChatActivity extends AppCompatActivity {
             String userName = userObject.optString("username", "Unknown");
             boolean isReady = userObject.getInt("is_ready") == 1;  // 1이면 READY
             boolean isCurrentUser = key.equals(this.userId);  // key를 사용하여 현재 사용자인지 확인
+            if(isCurrentUser && isReady){
+                isUserReady = true;
+            }
             boolean isHost = key.equals(hostId);  // 방장 확인
 
             String role = isHost ? "(방장)" : "";  // 방장일 경우 "방장" 역할 추가
@@ -367,6 +377,7 @@ public class ChatActivity extends AppCompatActivity {
         Log.i("ChatActivity", "참여 인원: " + participants.size());
 
         participantAdapter.notifyDataSetChanged();
+        return isUserReady;
     }
 
 
@@ -589,11 +600,14 @@ public class ChatActivity extends AppCompatActivity {
             });
         } else {
             // 참여자면 READY -> CANCEL 상태로 토글 (Callback해야 함)
-            readyButton.setText(isReady ? "CANCEL" : "READY");  // 초기 상태에 따라 버튼 설정
-            Log.i("MQTT READY", "취소: " + "되나");
             readyButton.setOnClickListener(v -> {
                 toggleReadyState();
-
+                if(isReady){
+                    readyButton.setText("CANCEL");
+                }
+                else{
+                    readyButton.setText("READY");
+                }
                 // 메시지 보낼 때마다 새로 생성
                 JSONObject jsonObject = new JSONObject();
 
