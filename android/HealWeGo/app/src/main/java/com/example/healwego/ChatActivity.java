@@ -740,7 +740,7 @@ public class ChatActivity extends AppCompatActivity {
             chatAdapter.notifyItemInserted(chatMessages.size());
 
             // RecyclerView를 마지막 메시지로 스크롤
-            chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
+            chatRecyclerView.scrollToPosition(chatMessages.size());
         }
         else if (option.equals("ready")){ // ready
             // 참여자 READY 상태 업데이트
