@@ -87,6 +87,7 @@ public class CardInfoActivity extends AppCompatActivity {
         completeButton.setOnClickListener(v -> {
             Intent intent = new Intent(CardInfoActivity.this, MainActivity.class);
             startActivity(intent); // MainActivity로 전환
+            finish();
         });
     }
 
