@@ -1,5 +1,6 @@
 package com.example.healwego;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -168,6 +169,18 @@ public class StartSelect extends AppCompatActivity
                 } else {
                     Toast.makeText(StartSelect.this, "현재 위치가 설정되지 않았습니다.", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        // 뒤로가기 버튼을 처리하는 부분
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // 뒤로가기 버튼을 눌렀을 때 실행할 코드
+                Intent intent = new Intent(StartSelect.this, PathSelect.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
             }
         });
     }

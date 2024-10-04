@@ -136,17 +136,25 @@ public class ChatActivity extends AppCompatActivity {
         userId = AWSMobileClient.getInstance().getUsername();
         CLIENT_ID = userId;
 
+
         // 뒤로가기 버튼을 처리하는 부분
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                // 뒤로가기 버튼을 눌렀을 때 실행할 코드
-                Intent intent = new Intent(ChatActivity.this, ChatListActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
+                // DrawerLayout이 열려 있는지 확인
+                if (drawerLayout.isDrawerOpen(navigationView)) {
+                    // 내비게이션이 열려 있으면 닫기
+                    drawerLayout.closeDrawer(navigationView);
+                } else {
+                    // 내비게이션이 닫혀 있으면 ChatListActivity로 이동
+                    Intent intent = new Intent(ChatActivity.this, ChatListActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
+
 
         // Intent에서 전달된 방 생성 여부 (isHost) 값을 가져옴
         Intent intent = getIntent();

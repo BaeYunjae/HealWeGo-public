@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -168,6 +170,18 @@ public class AloneSetActivity extends AppCompatActivity {  // 이름 변경
         int result = (int) (dist*10);
         int pay = result*150;
         payText.setText(""+pay+"원");
+
+        // 뒤로가기 버튼을 처리하는 부분
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // 뒤로가기 버튼을 눌렀을 때 실행할 코드
+                Intent intent = new Intent(AloneSetActivity.this, PathSelect.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     public static double haversine(double lat1, double lon1, double lat2, double lon2) {
