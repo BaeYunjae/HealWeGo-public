@@ -1,7 +1,9 @@
 package com.example.healwego;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -86,7 +88,7 @@ public class MemInfoActivity extends AppCompatActivity {
 
                     Intent intent = new Intent(MemInfoActivity.this, CardInfoActivity.class);
                     startActivity(intent); // CardRegisterActivity로 전환
-
+                    finish();
                 }
             }
         };
@@ -112,7 +114,8 @@ public class MemInfoActivity extends AppCompatActivity {
         mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "user/info";
 
         JSONObject body = new JSONObject();
-        String userId = AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        String userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
 
         try{
             body.put("Method", connMethod);
