@@ -14,16 +14,22 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;  // Intent를 사용하기 위해 추가
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;  // View를 사용하기 위해 추가
 import android.widget.Button;  // Button 사용을 위해 추가
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -31,6 +37,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.KeyFactory;
@@ -40,6 +48,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,6 +76,13 @@ public class PaymentCompleteActivity extends AppCompatActivity {
     private ProgressBar progressBar;
 
     MqttAsyncClient mqttClient;
+
+    private double myLat;
+    private double myLon;
+
+    private int myCount=-1;
+    private int totalCount=0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,7 +103,12 @@ public class PaymentCompleteActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 }
                 Intent intent = new Intent(PaymentCompleteActivity.this, MapPath.class);
-                intent.putExtra("global_Path", pathMessage);
+                SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("init_path", pathMessage);
+                editor.apply();
+
+               //intent.putExtra("global_Path", pathMessage);
                 intent.putExtra("order",pointMessage);
                 startActivity(intent);  // MapPath Activity 시작
             }
@@ -98,8 +119,108 @@ public class PaymentCompleteActivity extends AppCompatActivity {
         confirmButton.setVisibility(View.GONE);
         paymentAmout.setVisibility(View.GONE);
         completeTextView.setVisibility(View.GONE);
+
+        sendPatchRequest();
         connectToMqtt();
     }
+
+    private void sendPatchRequest() {
+        // API 유형
+        String connMethod = "PATCH";
+        String apiURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/room/in";
+
+        JSONObject body = new JSONObject();
+        int maxRetryCount = 3; // 최대 재시도 횟수
+        sendPatchRequestWithRetry(apiURL, connMethod, body, maxRetryCount);
+    }
+
+    private void sendPatchRequestWithRetry(String apiURL, String connMethod, JSONObject body, int retryCount) {
+        String myId=AWSMobileClient.getInstance().getUsername();
+        try {
+            body.put("Method", connMethod);
+            body.put("User_ID", AWSMobileClient.getInstance().getUsername());
+        } catch (JSONException e) {
+            Log.e("ChatActivity", "PATCH JSON 생성 오류");
+            return;
+        }
+
+        String bodyJson = body.toString();
+
+        // API 요청 함수
+        ApiRequestHandler.getJSON(apiURL, connMethod, new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                String response = (String) msg.obj;
+
+                try {
+                    JSONObject responseObject = new JSONObject(response);
+
+                    // statusCode가 있는지 확인
+                    if (responseObject.has("statusCode")) {
+                        int statusCode = responseObject.getInt("statusCode");
+
+                        // PATCH 요청 성공 시
+                        if (statusCode == 200) {
+                            Log.i("ChatActivity", "PATCH 요청 성공");
+                            Log.w("20241002test", response);
+
+                            // responseObject에서 "body"를 JSON으로 파싱
+                            String body = responseObject.getString("body");
+                            JSONObject bodyObject = new JSONObject(body);
+
+                            // bodyObject에서 "users" 객체 추출
+                            JSONObject users = bodyObject.getJSONObject("users");
+
+                            // users의 keySet을 이용해 모든 사용자 정보 순회
+                            Iterator<String> keys = users.keys();
+
+                            while (keys.hasNext()) {
+                                String userEmail = keys.next();  // 각 사용자의 이메일 (key)
+                                JSONObject userDetails = users.getJSONObject(userEmail);  // 사용자 세부 정보 (value)
+
+                                // 사용자 세부 정보 출력
+                                String isReady = userDetails.getString("is_ready");
+                                String latitude = userDetails.getString("latitude");
+                                String longitude = userDetails.getString("longitude");
+                                String timestamp = userDetails.getString("timestamp");
+
+                                Log.i("UserDetails", "User: " + userEmail + ", is_ready: " + isReady +
+                                        ", latitude: " + latitude + ", longitude: " + longitude + ", timestamp: " + timestamp);
+
+                                if(myId.equals(userEmail)){
+                                    myLat=Double.parseDouble(latitude);
+                                    myLon=Double.parseDouble(longitude);
+                                }
+                            }
+                        } else {
+                            // PATCH 요청 실패 시 재시도
+                            Log.e("ChatActivity", "PATCH 요청 실패: " + statusCode);
+                            retryPatchRequest(apiURL, connMethod, body, retryCount);
+                        }
+                    } else {
+                        // statusCode가 없을 경우의 처리
+                        Log.e("ChatActivity", "statusCode 없음. 응답 내용: " + response);
+                        retryPatchRequest(apiURL, connMethod, body, retryCount);
+                    }
+
+                } catch (JSONException e) {
+                    Log.e("ChatActivity", "PATCH 응답 처리 오류", e);
+                }
+            }
+        }, bodyJson);
+
+        Log.i("ChatActivity", "PATCH 요청: " + bodyJson);
+    }
+
+    private void retryPatchRequest(String apiURL, String connMethod, JSONObject body, int retryCount) {
+        if (retryCount > 0) {
+            Log.i("ChatActivity", "재시도 남은 횟수: " + retryCount);
+            sendPatchRequestWithRetry(apiURL, connMethod, body, retryCount - 1);
+        } else {
+            Log.e("ChatActivity", "재시도 횟수 초과");
+        }
+    }
+
 
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     private void connectToMqtt() {
@@ -187,10 +308,14 @@ public class PaymentCompleteActivity extends AppCompatActivity {
 
                 // JSON 배열에서 각 객체를 순회하며 데이터 처리
                 for (int i = 0; i < jsonArray.length(); i++) {
+                    totalCount++;
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     double latitude = jsonObject.getDouble("latitude");
                     double longitude = jsonObject.getDouble("longitude");
 
+                    if(latitude==myLat && longitude==myLon){
+                        myCount=jsonObject.getInt("count");
+                    }
                     latLongList.add(new Double[]{latitude, longitude});
 
                     // 거리 계산 로직
@@ -214,9 +339,16 @@ public class PaymentCompleteActivity extends AppCompatActivity {
                 Log.d(TAG, "Number of elements in path message: " + elementCount);
                 Log.d(TAG, "Total distance: " + totalDistance + " km");
 
+                int myPrice=0;
+                if(myCount!=-1){
+                    myPrice = price * ((totalCount-myCount)/totalCount);
+                }
+                Log.w("20241002test","mycount "+myCount );
+                Log.w("20241002test","totalcount "+totalCount );
+
                 // UI 업데이트는 메인 스레드에서 실행
                 double finalTotalDistance = totalDistance;
-                int finalPrice = price;
+                int finalPrice = myPrice;
                 runOnUiThread(() -> paymentAmout.setText(finalPrice + "원"));
                 runOnUiThread(()->progressBar.setVisibility(View.GONE));  // 데이터 처리 완료 후 로딩 화면 숨김
                 runOnUiThread(()->confirmButton.setVisibility(View.VISIBLE));
