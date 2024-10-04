@@ -445,6 +445,12 @@ public class CreateRoomActivity extends AppCompatActivity {
             times.add(time);
         }
 
+        // 0시부터 6시까지 추가
+        for (int hour = 0; hour < 7; hour++) {
+            String time = String.format("%02d:00", hour);
+            times.add(time);
+        }
+
         return times;
     }
 
