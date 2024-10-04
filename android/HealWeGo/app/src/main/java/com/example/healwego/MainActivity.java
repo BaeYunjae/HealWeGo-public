@@ -217,6 +217,13 @@ public class MainActivity extends AppCompatActivity {
 
             // 4. 파싱한 결과를 바탕으로 레이아웃 그림
             int option = bodyJson.getInt("option");
+            String username = bodyJson.optString("username", "");
+
+            if(username.isEmpty()){
+                Intent memInfoIntent = new Intent(MainActivity.this, MemInfoActivity.class);
+                startActivity(memInfoIntent);
+                finish();
+            }
 
             String userName = bodyJson.getString("username") + "님, ";
             nameText.setText(userName);
