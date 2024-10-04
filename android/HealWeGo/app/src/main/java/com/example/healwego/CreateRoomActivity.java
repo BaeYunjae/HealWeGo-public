@@ -22,6 +22,8 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -247,6 +249,19 @@ public class CreateRoomActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(CreateRoomActivity.this, ChatListActivity.class);
                 startActivity(intent);
+            }
+        });
+
+
+        // 뒤로가기 버튼을 처리하는 부분
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // 뒤로가기 버튼을 눌렀을 때 실행할 코드
+                Intent intent = new Intent(CreateRoomActivity.this, ChatListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
             }
         });
     }
