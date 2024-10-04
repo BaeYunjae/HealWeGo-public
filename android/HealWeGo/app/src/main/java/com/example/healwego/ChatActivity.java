@@ -169,6 +169,7 @@ public class ChatActivity extends AppCompatActivity {
         String usersInfo = intent.getStringExtra("usersInfo");
         hostId = intent.getStringExtra("hostId");
         roomId = intent.getStringExtra("roomId");
+        Log.i("USER_ID", "roomId : " + roomId);
         afterCreate = intent.getBooleanExtra("isHost", false);
 
         if (isNewEnter == 2){
@@ -270,6 +271,11 @@ public class ChatActivity extends AppCompatActivity {
         ImageButton exitButton = headerView.findViewById(R.id.exitButton);
         exitButton.setOnClickListener(v -> {
             Intent chatPopUpIntent = new Intent(ChatActivity.this, ChatPopUpActivity.class);
+            chatPopUpIntent.putExtra("roomTitle", roomTitle);
+            chatPopUpIntent.putExtra("usersInfo", usersInfo);
+            chatPopUpIntent.putExtra("hostId", hostId);
+            chatPopUpIntent.putExtra("roomId", roomId);
+            chatPopUpIntent.putExtra("afterCreate", afterCreate);
             startActivity(chatPopUpIntent);
         });
 
