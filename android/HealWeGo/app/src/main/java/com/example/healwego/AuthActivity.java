@@ -32,6 +32,7 @@ public class AuthActivity extends AppCompatActivity {
                         // 이미 로그인했으면 앱 켤 때 메인 페이지로
                         Intent i = new Intent(AuthActivity.this, MainActivity.class);
                         startActivity(i);
+                        finish();
                         break;
                     case SIGNED_OUT:
                         showSignIn();
@@ -57,7 +58,7 @@ public class AuthActivity extends AppCompatActivity {
                     SignInUIOptions.builder()
                             .logo(R.drawable.logo)
                             .backgroundColor(Color.argb(255, 188, 226, 220))
-                            .nextActivity(MemInfoActivity.class)
+                            .nextActivity(MainActivity.class)
                             .build());
         } catch (Exception e) {
             Log.e(TAG, e.toString());
