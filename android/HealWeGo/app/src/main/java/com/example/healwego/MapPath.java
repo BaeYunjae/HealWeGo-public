@@ -5,10 +5,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +21,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -85,6 +89,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
+import javax.security.auth.login.LoginException;
 
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -179,6 +184,14 @@ public class MapPath extends AppCompatActivity
 
     private HashMap<String,Integer> orderMap = new HashMap<>();
 
+    private static final String CHANNEL_ID = "id";
+    private NotificationManager mNotificationManager;
+    private static final int NOTIFICATION_ID = 0;
+    private final NotificationCompat.Builder notifybuilder = new NotificationCompat.Builder(this,CHANNEL_ID)
+            .setContentTitle("HealWeGo")
+            .setContentText("오신걸 환영")
+            .setSmallIcon(R.drawable.logo);
+
     // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
     private static class MyHandler extends Handler {
         private final WeakReference<MapPath> weakReference;
@@ -235,9 +248,12 @@ public class MapPath extends AppCompatActivity
         // SharedPreferences에서 데이터를 복원
         // 나갔다 들어왔을 때도 경로가 유지되도록
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        saved_path = preferences.getString("init_path", null);  // init_path 복원
+        init_path = preferences.getString("init_path", null);  // init_path 복원
         saved_order = preferences.getString("init_order", null);  // init_order 복원
         state = preferences.getInt("state",0);
+
+        Log.w("20241004test","load init path" + init_path );
+        Log.w("20241004test","load init order" + init_order);
         rightButton=findViewById(R.id.rightButton);
         leftButton=findViewById(R.id.leftButton);
         if(state==0){
@@ -261,6 +277,7 @@ public class MapPath extends AppCompatActivity
         // 뒤로가기 버튼이나 그럴 때 경로 저장
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
+        Log.w("20241004test","save init path" + init_path );
         editor.putString("init_path", init_path);  // init_path 저장
         editor.putString("init_order", init_order);  // init_order 저장
         editor.putInt("state",state);
@@ -275,9 +292,9 @@ public class MapPath extends AppCompatActivity
         // Intent로 초기 경로와 초기 순서를 가져옴
         Intent getIntent = getIntent();
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        intent_path = sharedPreferences.getString("first_global_path", null);
+        init_path = sharedPreferences.getString("init_path", null);
         //intent_path = getIntent.getStringExtra("global_Path");
-        Log.w("20241002test", "mapPath intent " + intent_path );
+        Log.w("20241002test", "mapPath intent " + init_path );
         intent_order = getIntent.getStringExtra("order");
 
 
@@ -352,6 +369,19 @@ public class MapPath extends AppCompatActivity
         currentText = findViewById(R.id.currentText);
         destText = findViewById(R.id.destText);
 
+
+        mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+            //Channel 정의 생성자( construct 이용 )
+            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "Test Notification", mNotificationManager.IMPORTANCE_HIGH);
+            notificationChannel.enableLights(true);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setDescription("Notification from Mascot");
+
+            mNotificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        
         connectToMqtt();
 
 
@@ -432,6 +462,10 @@ public class MapPath extends AppCompatActivity
         }
         // 탑승 불가능 상태
         else if (state == STATE_IDLE){
+
+
+            mNotificationManager.notify(NOTIFICATION_ID,notifybuilder.build());
+
             showToastMessage("아직 차가 도착하지 않았습니다");
         }
         else if(state == STATE_BOARDING){
@@ -561,18 +595,12 @@ public class MapPath extends AppCompatActivity
             startLocationUpdates(); // 3. 위치 업데이트 시작
 
 
+            handleFirstPathMessage(init_path);
 
-            if(intent_path!=null){
-                init_path=intent_path;
-                handleFirstPathMessage(init_path);
-            }else if(saved_path!=null){
-                init_path=saved_path;
-                handleFirstPathMessage(init_path);
-            }
             if(intent_order!=null){
                 init_order=intent_order;
                 handleFirstPointMessage(init_order);
-            }else if(saved_path!=null){
+            }else if(saved_order!=null){
                 init_order=saved_order;
                 handleFirstPointMessage (init_order);
             }
@@ -949,7 +977,6 @@ public class MapPath extends AppCompatActivity
 
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    // GPS 토픽
                     Log.d(TAG, topic);
                     Log.d(TAG, message.toString());
                     if (topic.equals(GPS_TOPIC)) {
@@ -969,26 +996,20 @@ public class MapPath extends AppCompatActivity
                         int finish = jsonObject.getInt("finish");
                         String userId = jsonObject.getString("user_id");
                         String Name = AWSMobileClient.getInstance().getUsername();
+                        Log.w("20241004test","my name " + Name );
+                        Log.w("20241004test","receive userId " + userId );
+
                         if(finish==1){
                             isFinished = 1;
                         }
                         else if(userId.equals(Name)) {
                             board_avail = true;
-                        }else{
-                            int order = 0;
-                            if (orderMap != null && orderMap.containsKey(Name)) {
-                                order = orderMap.get(Name);
-                                // order 사용
-                            } else {
-                                // 키가 없거나 orderMap이 초기화되지 않았을 때의 처리
-                                // 예: 기본값 설정
-                                order = -1;  // 또는 다른 기본값
-                            }
-                            if(order!=-1){
-                                showToastMessage(order+"번 도착했습니다.");
-                            }
-
                         }
+
+                        if(!userId.equals(Name)){
+                            Log.i("20241004test",orderMap.get(userId)+"번");
+                        }
+
                     }
                 }
 
@@ -1078,7 +1099,8 @@ public class MapPath extends AppCompatActivity
         Log.w("20241002test", "mappath path"+message.toString() );
         String pathMessage = message.toString();
         Log.d(TAG, "Received Path MQTT message: " + pathMessage);
-
+        beforeLat=-1.0;
+        beforeLong=-1.0;
         if(pathMessage.equals("\"new\"")){
             init_path="";
             beforeLat=-1.0;
@@ -1111,9 +1133,6 @@ public class MapPath extends AppCompatActivity
                         longitude = Double.parseDouble(part.split(":")[1].trim());
                         latLongList.add(new Double[]{latitude, longitude});
                     }
-
-
-
                 }
 
                 runOnUiThread(() -> {
@@ -1143,6 +1162,8 @@ public class MapPath extends AppCompatActivity
                         beforeLat = ui_latitude;
                         beforeLong = ui_longitude;
                     }
+                    beforeLong=-1.0;
+                    beforeLat=-1.0;
                 });
 
 
@@ -1235,13 +1256,13 @@ public class MapPath extends AppCompatActivity
             // "|" 기준으로 pathMessage를 분할
             String[] messageParts = pathMessage.split("\\|");
 
-            boolean isFirstPoint = true;
+
 
             double prev_latitude = 0.0;
             double prev_longitude = 0.0;
 
             for (String partMessage : messageParts) {
-
+                boolean isFirstPoint = true;
                 // 각 partMessage에 대해서 새로운 경로 좌표 리스트를 초기화
                 partMessage = partMessage.replace("new", "");
                 partMessage = partMessage.replace("[", "");
@@ -1339,6 +1360,8 @@ public class MapPath extends AppCompatActivity
 
                 // 각 요소를 처리
                 for (String element : elements) {
+
+                    Log.i("20241004test","element"+ element);
                     element = element.trim(); // 앞뒤 공백 제거
 
                     if (element.startsWith("latitude")) {
@@ -1347,13 +1370,12 @@ public class MapPath extends AppCompatActivity
                         longitude = Double.parseDouble(element.split(":")[1].trim());
                     } else if (element.startsWith("order")) {
                         order = Integer.parseInt(element.split(":")[1].trim());
-                    } else if (element.startsWith("name")) {
+                    } else if (element.startsWith("user_id")) {
                         name = element.split(":")[1].trim();
                     }
 
-                    orderMap.put(name,order);
                 }
-
+                orderMap.put(name,order);
                 // LatLng 객체 생성
                 LatLng latLng = new LatLng(latitude, longitude);
                 int finalOrder = order;
