@@ -1,6 +1,7 @@
 package com.example.healwego;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -95,6 +96,14 @@ public class ChatExitDialogFragment extends DialogFragment {
 
                             if (isAdded() && getActivity() != null) {
                                 Toast.makeText(requireContext(), "방에서 나왔습니다", Toast.LENGTH_SHORT).show();
+                                
+                                // ChatListActivity로 이동하는 Intent 생성
+                                Intent intent = new Intent(requireActivity(), ChatListActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                                // ChatListActivity로 이동
+                                startActivity(intent);
+
                                 requireActivity().finish();  // 현재 액티비티 종료
                             }
                         } else {
