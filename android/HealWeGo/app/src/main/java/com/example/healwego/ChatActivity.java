@@ -539,6 +539,7 @@ public class ChatActivity extends AppCompatActivity {
     private void updateReadyButton(){
         if (afterCreate || this.userId.equals(hostId)) {  // 방장이면 GO 버튼
             readyButton.setText("GO");
+            readyButton.setBackgroundColor(getResources().getColor(R.color.darkteal)); // lightteal 색상
             readyButton.setEnabled(true); // 기본적으로 활성화, DB에서 처리
             readyButton.setOnClickListener(v -> {
                 // 방장이 GO 버튼을 누르면 PaymentCompleteActivity로 이동
@@ -586,7 +587,7 @@ public class ChatActivity extends AppCompatActivity {
                                 Intent payIntent = new Intent(ChatActivity.this, PaymentCompleteActivity.class);
                                 startActivity(payIntent);  // PaymentCompleteActivity로 화면 전환
                             }else{
-                                Toast.makeText(ChatActivity.this, "아직 다 준비 안했", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ChatActivity.this, "참여자 전원이 READY 해야 합니다.", Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
                             Log.e("ChatActivity", "응답 처리 오류", e);
@@ -598,11 +599,12 @@ public class ChatActivity extends AppCompatActivity {
             // 참여자면 READY -> CANCEL 상태로 토글 (Callback해야 함)
             readyButton.setOnClickListener(v -> {
                 toggleReadyState();
-                if(isReady){
+                if (isReady) {
                     readyButton.setText("CANCEL");
-                }
-                else{
+                    readyButton.setBackgroundColor(getResources().getColor(R.color.lightteal)); // teal 색상
+                } else {
                     readyButton.setText("READY");
+                    readyButton.setBackgroundColor(getResources().getColor(R.color.teal)); // teal 색상
                 }
                 // 메시지 보낼 때마다 새로 생성
                 JSONObject jsonObject = new JSONObject();
