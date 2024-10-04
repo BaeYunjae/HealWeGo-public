@@ -1,5 +1,6 @@
 package com.example.healwego;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -204,6 +205,18 @@ public class PathSelect extends AppCompatActivity
                 }else{
                     Toast.makeText(PathSelect.this, "모두 설정하세요", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        // 뒤로가기 버튼을 처리하는 부분
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // 뒤로가기 버튼을 눌렀을 때 실행할 코드
+                Intent intent = new Intent(PathSelect.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
             }
         });
     }
