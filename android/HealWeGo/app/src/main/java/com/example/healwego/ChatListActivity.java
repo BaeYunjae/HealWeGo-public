@@ -1,5 +1,6 @@
 package com.example.healwego;
 
+import android.content.Context;
 import android.content.Intent; // Intent 사용
 import android.content.SharedPreferences; // SharedPreferences 사용
 import android.os.Bundle;
@@ -132,7 +133,9 @@ public class ChatListActivity extends AppCompatActivity {
         String themeFilter = selectedTheme.isEmpty() ? "" : selectedTheme;
 
         JSONObject body = new JSONObject();
-        String userId = AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        String userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
+        Log.i("USER_ID", "ChatList : " + userId);
 
         connMethod = "PATCH";
         mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/" + "room/list";
@@ -272,6 +275,9 @@ public class ChatListActivity extends AppCompatActivity {
     // 응답에서 방 목록 파싱
     private List<Room> parseRoomsFromResponse(JSONArray roomArray, int option) {
         List<Room> rooms = new ArrayList<>();
+
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        String userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
         try {
             for (int i = 0; i < roomArray.length(); i++) {
                 JSONObject roomObject = roomArray.getJSONObject(i);
@@ -294,7 +300,7 @@ public class ChatListActivity extends AppCompatActivity {
                 }
 
                 if (filterRoomByGender(genderValue)) {
-                    Room room = new Room(roomId, roomName, theme, locName, time, numUsers, gender, option);
+                    Room room = new Room(userId, roomId, roomName, theme, locName, time, numUsers, gender, option);
                     rooms.add(room);
                 }
             }

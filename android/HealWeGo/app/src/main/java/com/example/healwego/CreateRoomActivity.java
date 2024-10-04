@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -273,7 +274,8 @@ public class CreateRoomActivity extends AppCompatActivity {
         int maxAge = Integer.parseInt(editMaxAge.getText().toString().trim());
         int genderFilter = getGenderFilter();
 
-        String userId = AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        String userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
 
         // 현재 시간 기준으로 출발 시간을 선택
         String startTime = selectedTime.replace(":", "");  // 시분 형식으로 포맷팅

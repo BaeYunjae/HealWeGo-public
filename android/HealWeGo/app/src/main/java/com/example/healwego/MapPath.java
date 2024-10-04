@@ -12,6 +12,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -392,7 +393,8 @@ public class MapPath extends AppCompatActivity
         // API 유형
         String connMethod = "DELETE";
         String apiURL = mURL + "room/list";
-        String userName = AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        String userName = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
         JSONObject body = new JSONObject();
 
         try {
@@ -611,7 +613,8 @@ public class MapPath extends AppCompatActivity
 
 // 요청 바디에 최소한의 데이터를 설정
             JSONObject body = new JSONObject();
-            String userName = AWSMobileClient.getInstance().getUsername();
+            SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+            String userName = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
             try {
                 // 비워두거나 최소한의 정보만 보냅니다.
                 body.put("Method", "PATCH");
@@ -950,7 +953,10 @@ public class MapPath extends AppCompatActivity
     //MQTT
     private void connectToMqtt() {
         try {
-            mqttClient = new MqttAsyncClient(BROKER_URL, AWSMobileClient.getInstance().getUsername(), new MemoryPersistence());
+            SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+            String userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
+
+            mqttClient = new MqttAsyncClient(BROKER_URL, userId, new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
             options.setSocketFactory(getSocketFactory());
             mqttClient.connect(options, null, new org.eclipse.paho.client.mqttv3.IMqttActionListener() {
@@ -995,7 +1001,8 @@ public class MapPath extends AppCompatActivity
                         // finish와 user_id 값 추출
                         int finish = jsonObject.getInt("finish");
                         String userId = jsonObject.getString("user_id");
-                        String Name = AWSMobileClient.getInstance().getUsername();
+                        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+                        String Name = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
                         Log.w("20241004test","my name " + Name );
                         Log.w("20241004test","receive userId " + userId );
 

@@ -1,6 +1,8 @@
 package com.example.healwego;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -45,7 +47,8 @@ public class ChatPopUpActivity extends AppCompatActivity {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 바 제거
         setContentView(R.layout.activity_chat_popup);
 
-        userId = AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
 
         Intent intent = getIntent();
         roomTitle = intent.getStringExtra("roomTitle");

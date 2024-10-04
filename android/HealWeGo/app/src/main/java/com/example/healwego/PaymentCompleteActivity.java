@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;  // Intent를 사용하기 위해 추가
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -135,10 +136,11 @@ public class PaymentCompleteActivity extends AppCompatActivity {
     }
 
     private void sendPatchRequestWithRetry(String apiURL, String connMethod, JSONObject body, int retryCount) {
-        String myId=AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        String myId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
         try {
             body.put("Method", connMethod);
-            body.put("User_ID", AWSMobileClient.getInstance().getUsername());
+            body.put("User_ID", myId);
         } catch (JSONException e) {
             Log.e("ChatActivity", "PATCH JSON 생성 오류");
             return;
@@ -225,7 +227,10 @@ public class PaymentCompleteActivity extends AppCompatActivity {
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     private void connectToMqtt() {
         try {
-            mqttClient = new MqttAsyncClient(BROKER_URL, AWSMobileClient.getInstance().getUsername(), new MemoryPersistence());
+            SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+            String userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
+
+            mqttClient = new MqttAsyncClient(BROKER_URL, userId, new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
             options.setSocketFactory(getSocketFactory());
             mqttClient.connect(options, null, new org.eclipse.paho.client.mqttv3.IMqttActionListener() {

@@ -1,5 +1,7 @@
 package com.example.healwego;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -78,7 +80,9 @@ public class ExampleActivity extends AppCompatActivity {
 
                     JSONObject body = new JSONObject();
 
-                    String userName = AWSMobileClient.getInstance().getUsername();
+                    SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+                    String userName = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
+
                     try{
                         body.put("Method", "PATCH");
                         body.put("User_ID", userName);

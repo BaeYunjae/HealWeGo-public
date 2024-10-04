@@ -1,6 +1,8 @@
 package com.example.healwego;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -111,7 +113,8 @@ public class CancelPopUp extends AppCompatActivity {
     private void requestCancelReserve(){
         // JSON 요청 생성
         JSONObject body = new JSONObject();
-        String userId = AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        String userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
 
         // API 호출에 필요한 정보
         // API 유형

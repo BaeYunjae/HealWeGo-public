@@ -7,8 +7,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -168,7 +170,8 @@ public class TogetherSelectStart extends AppCompatActivity
 
                     JSONObject body = new JSONObject();
 
-                    String userName = AWSMobileClient.getInstance().getUsername();
+                    SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+                    String userName = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
                     String latitude = ""+currentMarker.getPosition().latitude;
                     String longitude = ""+currentMarker.getPosition().longitude;
 

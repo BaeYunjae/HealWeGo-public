@@ -1,6 +1,8 @@
 package com.example.healwego;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -133,7 +135,8 @@ public class ChatActivity extends AppCompatActivity {
         connectToMqtt();
 
         // 현재 사용자 ID 가져오기
-        userId = AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
         CLIENT_ID = userId;
 
 
@@ -328,7 +331,8 @@ public class ChatActivity extends AppCompatActivity {
     protected void onResume() {
         // 현재 사용자 ID 가져오기
         super.onResume();
-        userId = AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
         CLIENT_ID = userId;
     }
 

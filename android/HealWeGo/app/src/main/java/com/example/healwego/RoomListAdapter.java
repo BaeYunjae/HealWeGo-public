@@ -72,6 +72,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
     @Override
     public void onBindViewHolder(RoomViewHolder holder, int position) {
         Room room = roomList.get(position);
+        String userId = room.getUserId();
 
         holder.textRoomInfo.setText(
                 room.getRoomName()
@@ -109,7 +110,6 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
         // 클릭 이벤트 처리
         holder.itemView.setOnClickListener(v -> {
             // API 요청 준비
-            String userId = AWSMobileClient.getInstance().getUsername();
             JSONObject body = new JSONObject();
             String connMethod = "PATCH";
 

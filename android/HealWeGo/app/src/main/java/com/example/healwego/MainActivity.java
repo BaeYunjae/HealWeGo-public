@@ -7,6 +7,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -132,6 +133,18 @@ public class MainActivity extends AppCompatActivity {
         // 레이아웃 파일을 화면에 보여줌
         setContentView(R.layout.basic_main);
 
+        // AWSMobileClient로부터 사용자 이름을 가져와 SharedPreferences에 저장
+        String userID = AWSMobileClient.getInstance().getUsername();
+        if(userID != null){
+            SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("userID", userID);
+            editor.apply(); // 값을 비동기적으로 저장
+        }
+
+//        String userId = AWSMobileClient.getInstance().getUsername();
+//        Constant.setUserNameKey(userId);
+
         Animation loadAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.progress_image);
         loadView = (RelativeLayout)findViewById(R.id.loadView);
         ImageView loadImage = (ImageView) findViewById(R.id.loadImage);
@@ -162,7 +175,8 @@ public class MainActivity extends AppCompatActivity {
 
         // JSON 요청 생성
         JSONObject body = new JSONObject();
-        String userId = AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        String userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
 
         // API 호출에 필요한 정보
         // API 유형
@@ -302,7 +316,8 @@ public class MainActivity extends AppCompatActivity {
 
         // JSON 요청 생성
         JSONObject body = new JSONObject();
-        String userId = AWSMobileClient.getInstance().getUsername();
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        String userId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
 
         // API 호출에 필요한 정보
         // API 유형

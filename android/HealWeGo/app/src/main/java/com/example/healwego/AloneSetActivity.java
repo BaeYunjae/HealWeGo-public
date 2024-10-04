@@ -3,7 +3,9 @@ package com.example.healwego;
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -110,7 +112,9 @@ public class AloneSetActivity extends AppCompatActivity {  // 이름 변경
 
                 JSONObject body = new JSONObject();
 
-                String userName = AWSMobileClient.getInstance().getUsername();
+                SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+                String userName = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
+
                 try{
                     body.put("Method", "POST");
                     body.put("User_ID", userName);
@@ -118,7 +122,7 @@ public class AloneSetActivity extends AppCompatActivity {  // 이름 변경
                     body.put("latitude",destLatitude);
                     body.put("longitude",destLongitude);
                     body.put("User_lat",startLatitude);
-                    body.put("User_lon",destLongitude);
+                    body.put("User_lon",startLongitude);
                     body.put("Loc_name",destLocationName);
                 }
                 catch (JSONException e) {
