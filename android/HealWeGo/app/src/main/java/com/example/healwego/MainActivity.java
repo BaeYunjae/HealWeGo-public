@@ -284,10 +284,9 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(context, "예약취소 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
                         if(isLoad == 0) return;
 
-                        // cancelPopUp으로 이동
-                        Intent intent = new Intent(MainActivity.this, CancelPopUp.class);
-                        intent.putExtra("data", displayTxt);
-                        startActivity(intent);
+                        ;
+                        CancelDialogFragment dialog = CancelDialogFragment.newInstance(displayTxt);
+                        dialog.show(getSupportFragmentManager(), "CancelDialog");
                     }
                 });
             }
