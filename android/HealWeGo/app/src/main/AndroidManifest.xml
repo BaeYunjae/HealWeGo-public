@@ -70,8 +70,6 @@
         <activity android:name=".StartSelect"/>
         <activity android:name=".CreateRoomActivity" />
         <activity android:name=".ChatActivity" />
-        <activity android:name=".ChatPopUpActivity"
-            android:theme="@style/Theme.AppCompat.Dialog"/>
         <activity android:name=".TogetherSelectStart" />
         <activity android:name=".TogetherSelectDest" />
         <activity android:name=".MemInfoActivity" />

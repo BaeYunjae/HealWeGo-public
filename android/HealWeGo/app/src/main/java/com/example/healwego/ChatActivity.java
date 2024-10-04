@@ -287,13 +287,9 @@ public class ChatActivity extends AppCompatActivity {
         // 나가기 버튼 설정
         ImageButton exitButton = headerView.findViewById(R.id.exitButton);
         exitButton.setOnClickListener(v -> {
-            Intent chatPopUpIntent = new Intent(ChatActivity.this, ChatPopUpActivity.class);
-            chatPopUpIntent.putExtra("roomTitle", roomTitle);
-            chatPopUpIntent.putExtra("usersInfo", usersInfo);
-            chatPopUpIntent.putExtra("hostId", hostId);
-            chatPopUpIntent.putExtra("roomId", roomId);
-            chatPopUpIntent.putExtra("afterCreate", afterCreate);
-            startActivity(chatPopUpIntent);
+            // ChatExitDialogFragment를 호출
+            ChatExitDialogFragment dialogFragment = new ChatExitDialogFragment();
+            dialogFragment.show(getSupportFragmentManager(), "ChatExitDialog");
         });
 
         ImageButton sendbtn = findViewById(R.id.sendButton);
