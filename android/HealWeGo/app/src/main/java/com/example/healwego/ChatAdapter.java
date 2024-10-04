@@ -1,5 +1,6 @@
 package com.example.healwego;
 
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -105,6 +106,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(chatViewHolder.messageLayout);
 
+            Log.i("20241005test","adapter에서 sender : "+senderId);
+            Log.i("20241005test","adapter에서 지금 나 : "+currentUserId);
+            Log.i("20241005test","adapter에서 지금 메시지 : "+message);
+
             // 현재 사용자가 보낸 메시지일 경우
             if (senderId.equals(currentUserId)) {
                 //message container의 gravity를 end로 설정 해서 오른쪽에 배치
@@ -114,33 +119,31 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 chatViewHolder.messageTimeContainer.removeView(chatViewHolder.chatTimeTextView);  // 시간 텍스트 뷰 제거
                 chatViewHolder.messageTimeContainer.addView(chatViewHolder.chatTimeTextView, 0);
 
-                // 사용자가 보낸 메시지: 오른쪽 정렬, 이름 숨김, 시간은 왼쪽에 표시
-                chatViewHolder.chatUsernameTextView.setVisibility(View.GONE);  // 이름 숨기기
+                // 이름 없애버리기
+                chatViewHolder.chatUsernameTextView.setText("");
+
+                chatViewHolder.chatUsernameTextView.setVisibility(View.GONE);
                 chatViewHolder.chatTimeTextView.setVisibility(View.VISIBLE);
 
-                // 메시지를 오른쪽으로 정렬
-                constraintSet.clear(R.id.chatMessageTextView, ConstraintSet.START);
-                constraintSet.connect(R.id.chatMessageTextView, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
                 chatViewHolder.chatMessageTextView.setBackgroundResource(R.drawable.bubble_background_right);  // 오른쪽 정렬용 배경
-                chatViewHolder.chatMessageTextView.setGravity(Gravity.END);
+
 
             } else {
                 // 상대방이 보낸 메시지: 왼쪽 정렬, 이름 표시, 시간은 오른쪽에 표시
-                chatViewHolder.chatUsernameTextView.setText(userName);  // 상대방 이름 표시
+
+                //이름 표시
+                chatViewHolder.chatUsernameTextView.setText(userName);
                 chatViewHolder.chatUsernameTextView.setVisibility(View.VISIBLE);
                 chatViewHolder.chatTimeTextView.setVisibility(View.VISIBLE);
 
-                // 메시지를 왼쪽으로 정렬
-                constraintSet.clear(R.id.chatMessageTextView, ConstraintSet.END);
-                constraintSet.connect(R.id.chatMessageTextView, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
-                chatViewHolder.chatMessageTextView.setBackgroundResource(R.drawable.bubble_background_left);  // 왼쪽 정렬용 배경
-                chatViewHolder.chatMessageTextView.setGravity(Gravity.START);
+                //컨테이너를 start로 해서 왼쪽정렬
+                chatViewHolder.messageTimeContainer.setGravity(Gravity.START);
 
-                // 시간은 메시지 오른쪽에 표시
-                constraintSet.clear(R.id.chatTimeTextView, ConstraintSet.START);
-                constraintSet.connect(R.id.chatTimeTextView, ConstraintSet.START, R.id.chatMessageTextView, ConstraintSet.END, 0);  // 메시지와 시간 사이의 간격 8dp 설정
-                constraintSet.connect(R.id.chatTimeTextView, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);  // 부모 뷰의 끝에 배치
-                chatViewHolder.chatTimeTextView.setGravity(Gravity.END);
+                //chat view를 지웠다가 다시 추가해 시간의 왼쪽에 오도록
+                chatViewHolder.messageTimeContainer.removeView(chatViewHolder.chatMessageTextView);  // 시간 텍스트 뷰 제거
+                chatViewHolder.messageTimeContainer.addView(chatViewHolder.chatMessageTextView, 0);
+
+                chatViewHolder.chatMessageTextView.setBackgroundResource(R.drawable.bubble_background_left);  // 왼쪽 정렬용 배경
             }
 
             constraintSet.applyTo(chatViewHolder.messageLayout);  // 변경사항 적용
@@ -152,6 +155,3 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return chatMessages.size() + 1; // 환영 메시지를 위한 하나의 추가 항목
     }
 }
-
-
-
