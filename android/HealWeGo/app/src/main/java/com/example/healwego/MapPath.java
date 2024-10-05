@@ -1104,9 +1104,8 @@ public class MapPath extends AppCompatActivity
     // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
     private void handlePathMessage(MqttMessage message) {
 
-        Log.w("20241002test", "mappath path"+message.toString() );
+        Log.w("20241005pathtest", "mappath path"+message.toString() );
         String pathMessage = message.toString();
-        Log.d(TAG, "Received Path MQTT message: " + pathMessage);
         beforeLat=-1.0;
         beforeLong=-1.0;
         if(pathMessage.equals("\"new\"")){
@@ -1133,6 +1132,7 @@ public class MapPath extends AppCompatActivity
                 });
 
                 LatLng prevLatLng = beforeLatlang;
+                LatLng lastLatLng=beforeLatlang;
                 double prevAngle = 0.0;
                 for (int i = 1; i < myLatLongList.size(); i++) {
                     Double[] current = myLatLongList.get(i);
@@ -1140,7 +1140,7 @@ public class MapPath extends AppCompatActivity
 
                     LatLng startLatLng = new LatLng(previous[1], previous[2]);
                     LatLng endLatLng = new LatLng(current[1], current[2]);
-                    Log.i("toolong",Double.toString(current[0]));
+                    lastLatLng = endLatLng;
                     // 현재 구간의 각도 계산
                     double angle = calculateAngleBetweenPoints(startLatLng, endLatLng);
 
@@ -1159,7 +1159,7 @@ public class MapPath extends AppCompatActivity
                     prevAngle = angle; // 이전 각도를 현재 각도로 갱신
                 }
 
-
+                drawLineBetweenPoints(mMap, prevLatLng, lastLatLng, Color.RED, 5);
                 // 각 partMessage에 대한 latLongList를 다 처리했으므로 초기화
                 myLatLongList.clear();
             });
@@ -1330,12 +1330,14 @@ public class MapPath extends AppCompatActivity
 
             LatLng prevLatLng = beforeLatlang;
             double prevAngle = 0.0;
+            LatLng lastLatLng = beforeLatlang;
             for (int i = 1; i < latLongList.size(); i++) {
                 Double[] current = latLongList.get(i);
                 Double[] previous = latLongList.get(i - 1);
 
                 LatLng startLatLng = new LatLng(previous[1], previous[2]);
                 LatLng endLatLng = new LatLng(current[1], current[2]);
+                lastLatLng = endLatLng;
                 Log.i("toolong",Double.toString(current[0]));
                 // 현재 구간의 각도 계산
                 double angle = calculateAngleBetweenPoints(startLatLng, endLatLng);
@@ -1356,6 +1358,7 @@ public class MapPath extends AppCompatActivity
             }
 
 
+            drawLineBetweenPoints(mMap, prevLatLng, lastLatLng, Color.RED, 5);
             // 각 partMessage에 대한 latLongList를 다 처리했으므로 초기화
             latLongList.clear();
 
