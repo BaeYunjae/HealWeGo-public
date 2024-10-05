@@ -1,8 +1,5 @@
 package com.example.healwego;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
@@ -10,15 +7,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
@@ -32,19 +26,15 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.Insets;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import android.graphics.drawable.GradientDrawable;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.lang.ref.WeakReference;
 
@@ -393,11 +383,9 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(context, "이미지 클릭!!", Toast.LENGTH_SHORT).show();
                         if(isLoad == 0) return;
 
-                        // RecommendPopUpActivity로 이동
-                        Intent intent = new Intent(context, RecommendPopUpActivity.class);
-                        intent.putExtra("locName", locName);
-                        intent.putExtra("description", description);
-                        startActivityForResult(intent, 1);
+                        // 다이얼로그로 RecommendPopUpActivity 대체
+                        RecommendDialogFragment dialogFragment = RecommendDialogFragment.newInstance(locName, description);
+                        dialogFragment.show(getSupportFragmentManager(), "RecommendDialog");
                     }
                 });
             }
