@@ -12,6 +12,7 @@
         android:textStyle="bold"
         android:textSize="23sp"
         android:textColor="@color/black"
+        android:fontFamily="@font/locus_sangsang"
         android:textAlignment="center"
         android:layout_marginTop="10dp"/>
         
@@ -22,6 +23,7 @@
         android:text=""
         android:textSize="15dp"
         android:textColor="@color/white"
+        android:fontFamily="@font/locus_sangsang"
         android:backgroundTint="@color/teal"
         android:background="@drawable/background_radius"
         android:layout_margin="10dp"
@@ -33,6 +35,7 @@
         android:text="예약을 취소하시겠습니까?\n취소 후에는 다시 예약이 불가능합니다."
         android:textSize="20sp"
         android:textColor="@color/black"
+        android:fontFamily="@font/locus_sangsang"
         android:layout_marginLeft="20dp"/>
 
     <LinearLayout
@@ -50,6 +53,7 @@
             android:textSize="20sp"
             android:background="@drawable/no_button"
             android:textColor="@color/white"
+            android:fontFamily="@font/locus_sangsang"
             android:gravity="center"
             android:layout_marginRight="30dp"/>
 
@@ -59,6 +63,7 @@
             android:layout_height="wrap_content"
             android:text="예"
             android:background="@drawable/yes_button"
+            android:fontFamily="@font/locus_sangsang"
             android:textSize="20sp"
             android:textColor="@color/white"
             android:gravity="center"/>
