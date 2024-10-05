@@ -31,7 +31,6 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="20dp"
-            android:fontFamily="@font/locus_sangsang"
             android:hint="생성할 방의 이름을 적어주세요"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -163,7 +162,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="최소 나이"
-                    android:fontFamily="@font/locus_sangsang"
                     android:inputType="number" />
 
                 <TextView
@@ -179,8 +177,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="최대 나이"
-                    android:inputType="number"
-                    android:fontFamily="@font/locus_sangsang"/>
+                    android:inputType="number"/>
 
                 <TextView
                     android:layout_width="wrap_content"
