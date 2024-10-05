@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.text.SpannableString;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -324,6 +323,7 @@ public class CreateRoomActivity extends AppCompatActivity {
         return formattedTime;
     }
 
+    // 방 생성 정보 확인 다이얼로그
     private void showConfirmationDialog() {
         // 방 제목 가져오기
         String roomTitle = editRoomTitle.getText().toString().trim();
