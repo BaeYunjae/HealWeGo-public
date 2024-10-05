@@ -1,0 +1,83 @@
+<!-- res/layout/filter_dialog.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/line">
+
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="필터 선택"
+        android:textSize="23sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="16dp" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupFilters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/radioAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="성별무관"
+            android:textSize="20sp"
+            app:buttonTint="@color/darkteal"/>
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/radioMale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="남성만"
+            android:textSize="20sp"
+            app:buttonTint="@color/darkteal"/>
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/radioFemale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="여성만"
+            android:textSize="20sp"
+            app:buttonTint="@color/darkteal"/>
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/noBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="취소"
+            android:textSize="20sp"
+            android:background="@drawable/no_button"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:layout_marginRight="30dp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/yesBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="적용"
+            android:background="@drawable/yes_button"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -8,13 +8,16 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -195,23 +198,68 @@ public class ChatListActivity extends AppCompatActivity {
         String savedFilter = sharedPreferences.getString(SELECTED_FILTER_KEY, "성별무관");
         int checkedItem = getCheckedItem(savedFilter);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("필터 선택")
-                .setSingleChoiceItems(filters, checkedItem, (dialog, which) -> {
-                    String selectedFilter = filters[which];
-                    Toast.makeText(ChatListActivity.this, selectedFilter + " 필터가 선택되었습니다.", Toast.LENGTH_SHORT).show();
+        // 다이얼로그 레이아웃 설정
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.filter_dialog, null);
 
-                    // 선택한 필터를 저장하고 업데이트
-                    selectedGender = selectedFilter; // selectedGender 업데이트
-                    saveSelectedFilter(selectedFilter);
+        // 라디오 그룹 가져오기
+        RadioGroup radioGroup = dialogView.findViewById(R.id.radioGroupFilters);
 
-                    requestRoomList();  // 필터 적용 후 목록 갱신
-                })
-                .setPositiveButton("확인", (dialog, which) -> {})
-                .setNegativeButton("취소", null);
+        // 이전에 저장된 필터로 라디오 버튼 상태 설정
+        switch (checkedItem) {
+            case 0:
+                radioGroup.check(R.id.radioAll);
+                break;
+            case 1:
+                radioGroup.check(R.id.radioMale);
+                break;
+            case 2:
+                radioGroup.check(R.id.radioFemale);
+                break;
+        }
 
-        builder.show();
+        // 버튼들 설정
+        AppCompatButton yesBtn = dialogView.findViewById(R.id.yesBtn);
+        AppCompatButton noBtn = dialogView.findViewById(R.id.noBtn);
+
+        // AlertDialog.Builder를 사용해 커스텀 레이아웃 적용
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.RoundedCornerDialog)
+                .setView(dialogView)  // 커스텀 레이아웃 설정
+                .create();
+
+        // 적용 버튼 클릭 시 동작 설정
+        yesBtn.setOnClickListener(v -> {
+            int selectedId = radioGroup.getCheckedRadioButtonId();
+            String selectedFilter;
+
+            // 선택된 필터에 따라 저장할 값을 설정
+            if (selectedId == R.id.radioMale) {
+                selectedFilter = filters[1]; // 남성만
+            } else if (selectedId == R.id.radioFemale) {
+                selectedFilter = filters[2]; // 여성만
+            } else {
+                selectedFilter = filters[0]; // 성별무관
+            }
+
+            // 선택한 필터를 저장하고 업데이트
+            selectedGender = selectedFilter;
+            saveSelectedFilter(selectedFilter);
+
+            Toast.makeText(ChatListActivity.this, selectedFilter + " 필터가 선택되었습니다.", Toast.LENGTH_SHORT).show();
+
+            requestRoomList();  // 필터 적용 후 목록 갱신
+
+            dialog.dismiss();  // 다이얼로그 닫기
+        });
+
+        // 취소 버튼 클릭 시 다이얼로그 닫기
+        noBtn.setOnClickListener(v -> dialog.dismiss());
+
+        // 다이얼로그 표시
+        dialog.show();
     }
+
+
 
 
     // 선택된 필터 저장 메소드
