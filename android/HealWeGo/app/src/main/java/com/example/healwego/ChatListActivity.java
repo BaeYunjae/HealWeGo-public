@@ -22,8 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.amazonaws.mobile.client.AWSMobileClient;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -200,7 +198,7 @@ public class ChatListActivity extends AppCompatActivity {
 
         // 다이얼로그 레이아웃 설정
         LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.filter_dialog, null);
+        View dialogView = inflater.inflate(R.layout.dialog_filter, null);
 
         // 라디오 그룹 가져오기
         RadioGroup radioGroup = dialogView.findViewById(R.id.radioGroupFilters);
