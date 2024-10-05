@@ -75,8 +75,6 @@
         <activity android:name=".MemInfoActivity" />
         <activity android:name=".CardInfoActivity" />
         <activity android:name=".ExplainPlaceActivity" />
-        <!-- 팝업 Activity -->
-        <activity android:name=".RecommendPopUpActivity" android:theme="@android:style/Theme.Dialog" />
     </application>
 
 </manifest>
