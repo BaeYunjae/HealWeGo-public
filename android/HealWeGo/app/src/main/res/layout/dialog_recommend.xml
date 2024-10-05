@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="#eeeeee"
     android:orientation="vertical"
-    android:layout_width="300dp"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/recommend_info"
+    android:padding="3dp">
+
     <!-- 타이틀바 -->
     <LinearLayout
         android:orientation="horizontal"
@@ -11,15 +13,14 @@
         android:layout_height="wrap_content">
         <TextView
             android:id="@+id/title"
-            android:textSize="20sp"
+            android:textSize="22sp"
             android:textColor="@color/white"
             android:gravity="center"
-            android:background="@color/teal"
+            android:background="@drawable/rounded_top"
             android:layout_width="match_parent"
             android:layout_height="53dp" />
     </LinearLayout>
 
-    <!-- //end 타이틀바 -->
     <!-- Notice -->
     <LinearLayout
         android:padding="24dp"
@@ -28,36 +29,25 @@
         android:layout_height="300dp">
         <TextView
             android:id="@+id/txtText"
-            android:textSize="15sp"
-            android:textColor="#000"
-            android:alpha="0.87"
+            android:textSize="18sp"
+            android:textColor="@color/black"
             android:gravity="center"
             android:layout_marginBottom="3dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <!-- Notice -->
-    <View
-        android:background="#66bdbdbd"
-        android:layout_width="match_parent"
-        android:layout_height="1dp" />
     <!-- 닫기 버튼 -->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:gravity="center"
+    <TextView
+        android:id="@+id/btnClose"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:text="확인"
-            android:textSize="15sp"
-            android:textColor="@color/teal"
-            android:padding="16dp"
-            android:gravity="center"
-            android:background="#00000000"
-            android:layout_width="match_parent"
-            android:layout_height="53dp"
-            android:onClick="mOnClose"/>
-    </LinearLayout>
-    <!--// 닫기 버튼 -->
+        android:layout_height="wrap_content"
+        android:text="확인"
+        android:textSize="18sp"
+        android:textColor="@color/teal"
+        android:background="@drawable/rounded_bottom"
+        android:padding="10dp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:onClick="mOnClose"/>
 </LinearLayout>

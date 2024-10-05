@@ -1,0 +1,4 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#eeeeee"/> <!-- 배경색 설정 -->
+    <corners android:bottomLeftRadius="16dp" android:bottomRightRadius="16dp"/> <!-- 상단에만 둥근 모서리 적용 -->
+</shape>
