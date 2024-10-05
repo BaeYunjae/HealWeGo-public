@@ -11,8 +11,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -28,6 +30,7 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.content.ContextCompat;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -321,7 +324,6 @@ public class CreateRoomActivity extends AppCompatActivity {
         return formattedTime;
     }
 
-    // 방 생성 정보 확인 다이얼로그
     private void showConfirmationDialog() {
         // 방 제목 가져오기
         String roomTitle = editRoomTitle.getText().toString().trim();
@@ -340,30 +342,61 @@ public class CreateRoomActivity extends AppCompatActivity {
         int minAge = Integer.parseInt(minAgeStr); // 최소 나이
         int maxAge = Integer.parseInt(maxAgeStr); // 최대 나이
 
-        // 방 정보 구성
-        String roomInfo = "방 제목: " + roomTitle +
-                "\n출발 시간: " + selectedTime +
-                "\n성별 필터: " + genderFilter +
-                "\n나이 필터: " + minAge + "세 ~ " + maxAge + "세" +
-                "\n테마: " + selectedTheme;  // 선택된 테마 추가
+        // 다이얼로그 레이아웃 설정
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_create_room_info, null);
 
-        // 다이얼로그 생성
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("방 생성 정보 확인")
-                .setMessage(roomInfo)
-                .setPositiveButton("확인", (dialog, which) -> {
-                    // 서버에 POST 요청 보냄 
-                    sendCreateRoomRequest();
-                    // 방 생성 후 ChatActivity로 이동하며 방장 여부(isHost)를 전달
-                    Intent intent = new Intent(CreateRoomActivity.this, ChatActivity.class);
-                    intent.putExtra("roomTitle", roomTitle);
-                    intent.putExtra("isHost", true);  // 방장은 항상 true로 전달
-                    startActivity(intent);
-                })
-                .setNegativeButton("취소", null)
-                .show();
+        // 다이얼로그 내 UI 요소에 정보 설정
+        TextView tvRoomTitle = dialogView.findViewById(R.id.tvRoomTitle);
+        TextView tvDepartureTime = dialogView.findViewById(R.id.tvDepartureTime);
+        TextView tvLocation = dialogView.findViewById(R.id.tvLocation);
+        TextView tvGenderFilter = dialogView.findViewById(R.id.tvGenderFilter);
+        TextView tvAgeFilter = dialogView.findViewById(R.id.tvAgeFilter);
+        TextView tvTheme = dialogView.findViewById(R.id.tvTheme);
 
+
+        // 방 정보 설정
+        tvRoomTitle.setText("방 제목: " + roomTitle);
+        tvDepartureTime.setText("출발 시간: " + selectedTime);
+        tvLocation.setText("목적지: " + locationName);
+        tvGenderFilter.setText("성별 필터: " + genderFilter);
+        tvAgeFilter.setText("나이 필터: " + minAge + "세 ~ " + maxAge + "세");
+        tvTheme.setText("테마: " + selectedTheme);
+
+        // 다이얼로그 생성 (버튼 없이)
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.RoundedCornerDialog)
+                .setView(dialogView)
+                .create();
+
+        // "확인" 버튼 클릭 이벤트 설정
+        AppCompatButton yesBtn = dialogView.findViewById(R.id.yesBtn);
+        yesBtn.setOnClickListener(v -> {
+            // 서버에 POST 요청 보냄
+            sendCreateRoomRequest();
+
+            // 방 생성 후 ChatActivity로 이동하며 방장 여부(isHost)를 전달
+            Intent intent = new Intent(CreateRoomActivity.this, ChatActivity.class);
+            intent.putExtra("roomTitle", roomTitle);
+            intent.putExtra("isHost", true);  // 방장은 항상 true로 전달
+            startActivity(intent);
+
+            // 다이얼로그 닫기
+            dialog.dismiss();
+        });
+
+        // "취소" 버튼 클릭 이벤트 설정
+        AppCompatButton noBtn = dialogView.findViewById(R.id.noBtn);
+        noBtn.setOnClickListener(v -> {
+            // 다이얼로그 닫기
+            dialog.dismiss();
+        });
+
+        // 다이얼로그 표시
+        dialog.show();
     }
+
+
+
 
     // 성별 필터 값을 반환하는 메소드
     private int getGenderFilter() {
@@ -383,6 +416,11 @@ public class CreateRoomActivity extends AppCompatActivity {
         String roomTitle = editRoomTitle.getText().toString().trim();
         if (roomTitle.isEmpty()) {
             Toast.makeText(this, "방 제목을 입력하세요.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (locationName == null){
+            Toast.makeText(this, "목적지를 설정하세요.", Toast.LENGTH_SHORT).show();
             return false;
         }
 
