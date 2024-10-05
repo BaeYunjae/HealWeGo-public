@@ -144,7 +144,18 @@ public class TogetherSelectDest extends AppCompatActivity
                 return false;
             }
         });
-
+        Button myLocationButton = findViewById(R.id.my_location_button);
+        myLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCurrentLocatiion != null) {
+                    LatLng currentLatLng = new LatLng(mCurrentLocatiion.getLatitude(), mCurrentLocatiion.getLongitude());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
+                } else {
+                    Toast.makeText(TogetherSelectDest.this, "현재 위치를 사용할 수 없습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         assert information != null;
         Button btn = findViewById(R.id.button);
         btn.setOnClickListener(new View.OnClickListener(){
@@ -255,6 +266,7 @@ public class TogetherSelectDest extends AppCompatActivity
                         PERMISSIONS_REQUEST_CODE);
             }
         }
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         // 카메라가 이동을 멈출 때 마커를 중앙으로 이동시키는 리스너 추가
         mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
