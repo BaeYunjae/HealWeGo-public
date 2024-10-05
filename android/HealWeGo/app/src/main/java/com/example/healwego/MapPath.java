@@ -188,10 +188,7 @@ public class MapPath extends AppCompatActivity
     private static final String CHANNEL_ID = "id";
     private NotificationManager mNotificationManager;
     private static final int NOTIFICATION_ID = 0;
-    private final NotificationCompat.Builder notifybuilder = new NotificationCompat.Builder(this,CHANNEL_ID)
-            .setContentTitle("HealWeGo")
-            .setContentText("오신걸 환영")
-            .setSmallIcon(R.drawable.logo);
+
 
     // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
     private static class MyHandler extends Handler {
@@ -382,7 +379,7 @@ public class MapPath extends AppCompatActivity
             mNotificationManager.createNotificationChannel(notificationChannel);
         }
 
-        
+
         connectToMqtt();
 
 
@@ -465,8 +462,6 @@ public class MapPath extends AppCompatActivity
         // 탑승 불가능 상태
         else if (state == STATE_IDLE){
 
-
-            mNotificationManager.notify(NOTIFICATION_ID,notifybuilder.build());
 
             showToastMessage("아직 차가 도착하지 않았습니다");
         }
@@ -1014,6 +1009,11 @@ public class MapPath extends AppCompatActivity
                         }
 
                         if(!userId.equals(Name)){
+                            NotificationCompat.Builder notifybuilder = new NotificationCompat.Builder(MapPath.this,CHANNEL_ID)
+                                    .setContentTitle("HealWeGo")
+                                    .setContentText(orderMap.get(userId)+"번 도착함")
+                                    .setSmallIcon(R.drawable.logo);
+                            mNotificationManager.notify(NOTIFICATION_ID,notifybuilder.build());
                             Log.i("20241004test",orderMap.get(userId)+"번");
                         }
 
@@ -1100,6 +1100,7 @@ public class MapPath extends AppCompatActivity
 
 
 
+    List<Double[]> myLatLongList = new ArrayList<>();
     // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
     private void handlePathMessage(MqttMessage message) {
 
@@ -1115,10 +1116,54 @@ public class MapPath extends AppCompatActivity
         }
         else if(Objects.equals(init_path, "")){
             init_path=pathMessage;
-        }else{
+        }
+        else{
             init_path = init_path+"|"+pathMessage;
         }
-        List<Double[]> latLongList = new ArrayList<>();
+
+        if(pathMessage.equals("\"end\"")){
+
+            LatLng beforeLatlang= null;
+            runOnUiThread(() -> {
+                myLatLongList.sort(new Comparator<Double[]>() {
+                    @Override
+                    public int compare(Double[] o1, Double[] o2) {
+                        return Double.compare(o1[0], o2[0]); // count 값 기준 오름차순 정렬
+                    }
+                });
+
+                LatLng prevLatLng = beforeLatlang;
+                double prevAngle = 0.0;
+                for (int i = 1; i < myLatLongList.size(); i++) {
+                    Double[] current = myLatLongList.get(i);
+                    Double[] previous = myLatLongList.get(i - 1);
+
+                    LatLng startLatLng = new LatLng(previous[1], previous[2]);
+                    LatLng endLatLng = new LatLng(current[1], current[2]);
+                    Log.i("toolong",Double.toString(current[0]));
+                    // 현재 구간의 각도 계산
+                    double angle = calculateAngleBetweenPoints(startLatLng, endLatLng);
+
+                    if (prevLatLng != null) {
+                        // 이전 구간과 현재 구간의 각도를 비교
+                        double angleDiff = Math.abs(angle - prevAngle);
+
+                        if (angleDiff > 1) { // 임계각도 이상 차이가 나면 선을 그림
+                            drawLineBetweenPoints(mMap, prevLatLng, endLatLng, Color.RED, 5);
+                            prevLatLng = endLatLng; // 다음 비교를 위해 현재 끝 좌표를 저장
+                        }
+                    } else {
+                        prevLatLng = startLatLng; // 첫 번째 비교에서는 무조건 이전 좌표로 저장
+                    }
+
+                    prevAngle = angle; // 이전 각도를 현재 각도로 갱신
+                }
+
+
+                // 각 partMessage에 대한 latLongList를 다 처리했으므로 초기화
+                myLatLongList.clear();
+            });
+        }
         Log.w("pathmessage", init_path );
         if(init_path.isEmpty()){
             removeAllPolylines();
@@ -1132,46 +1177,21 @@ public class MapPath extends AppCompatActivity
 
                 double latitude = 0.0;
                 double longitude = 0.0;
+                int count = 0;
                 for (String part : parts) {
+                    if(part.contains("count")){
+                        count = Integer.parseInt(part.split(":")[1].trim());
+                    }
                     if (part.contains("latitude")) {
                         latitude = Double.parseDouble(part.split(":")[1].trim());
                     }
                     if (part.contains("longitude")) {
                         longitude = Double.parseDouble(part.split(":")[1].trim());
-                        latLongList.add(new Double[]{latitude, longitude});
+                        myLatLongList.add(new Double[]{(double)count,latitude, longitude});
                     }
                 }
 
-                runOnUiThread(() -> {
 
-                    boolean isFirstPoint = beforeLat == -1.0;
-                    double ui_latitude = 0.0;
-                    double ui_longitude = 0.0;
-                    double prev_ui_latitude = beforeLat;
-                    double prev_ui_longitude = beforeLong;
-                    for (Double[] latLong : latLongList) {
-
-                        ui_latitude = latLong[0];
-                        ui_longitude = latLong[1];
-
-                        if (!isFirstPoint) {
-                            LatLng startLatLng = new LatLng(ui_latitude, ui_longitude);
-                            LatLng endLatLng = new LatLng(prev_ui_latitude, prev_ui_longitude);
-
-                            drawLineBetweenPoints(mMap, startLatLng, endLatLng, Color.RED, 20);
-                        } else {
-                            Log.w("20241002test", "firstpoint" );
-                            isFirstPoint = false; // 첫 번째 지점 처리 완료
-                        }
-
-                        prev_ui_latitude = ui_latitude;
-                        prev_ui_longitude = ui_longitude;
-                        beforeLat = ui_latitude;
-                        beforeLong = ui_longitude;
-                    }
-                    beforeLong=-1.0;
-                    beforeLat=-1.0;
-                });
 
 
             } catch (NumberFormatException e) {
@@ -1267,11 +1287,12 @@ public class MapPath extends AppCompatActivity
 
             double prev_latitude = 0.0;
             double prev_longitude = 0.0;
-
+            LatLng beforeLatlang= null;
             for (String partMessage : messageParts) {
                 boolean isFirstPoint = true;
                 // 각 partMessage에 대해서 새로운 경로 좌표 리스트를 초기화
                 partMessage = partMessage.replace("new", "");
+                partMessage = partMessage.replace("end", "");
                 partMessage = partMessage.replace("[", "");
                 partMessage = partMessage.replace("{", "").replace("}", ""); // {} 제거
                 partMessage = partMessage.replace("\"", ""); // "" 제거
@@ -1299,40 +1320,54 @@ public class MapPath extends AppCompatActivity
                     }
 
                 }
-
-                latLongList.sort(new Comparator<Double[]>() {
-                    @Override
-                    public int compare(Double[] o1, Double[] o2) {
-                        return Double.compare(o1[0], o2[0]); // count 값 기준 오름차순 정렬
-                    }
-                });
-
-                for (Double[] latLong : latLongList) {
-                    latitude = latLong[1];
-                    longitude = latLong[2];
-
-                    if (!isFirstPoint) {
-                        LatLng startLatLng = new LatLng(latitude, longitude);  // 현재 좌표
-                        LatLng endLatLng = new LatLng(prev_latitude, prev_longitude);  // 이전 좌표
-                        drawLineBetweenPoints(mMap, startLatLng, endLatLng, Color.RED, 5);
-                    } else {
-                        Log.w("20241002test", "first" );
-                        isFirstPoint = false; // 첫 번째 지점 처리 완료
-                    }
-
-                    // 현재 지점을 다음 계산을 위한 이전 지점으로 저장
-                    prev_latitude = latitude;
-                    prev_longitude = longitude;
-                }
-                // 각 partMessage에 대한 latLongList를 다 처리했으므로 초기화
-                latLongList.clear();
-
             }
+            latLongList.sort(new Comparator<Double[]>() {
+                @Override
+                public int compare(Double[] o1, Double[] o2) {
+                    return Double.compare(o1[0], o2[0]); // count 값 기준 오름차순 정렬
+                }
+            });
+
+            LatLng prevLatLng = beforeLatlang;
+            double prevAngle = 0.0;
+            for (int i = 1; i < latLongList.size(); i++) {
+                Double[] current = latLongList.get(i);
+                Double[] previous = latLongList.get(i - 1);
+
+                LatLng startLatLng = new LatLng(previous[1], previous[2]);
+                LatLng endLatLng = new LatLng(current[1], current[2]);
+                Log.i("toolong",Double.toString(current[0]));
+                // 현재 구간의 각도 계산
+                double angle = calculateAngleBetweenPoints(startLatLng, endLatLng);
+
+                if (prevLatLng != null) {
+                    // 이전 구간과 현재 구간의 각도를 비교
+                    double angleDiff = Math.abs(angle - prevAngle);
+
+                    if (angleDiff > 1) { // 임계각도 이상 차이가 나면 선을 그림
+                        drawLineBetweenPoints(mMap, prevLatLng, endLatLng, Color.RED, 5);
+                        prevLatLng = endLatLng; // 다음 비교를 위해 현재 끝 좌표를 저장
+                    }
+                } else {
+                    prevLatLng = startLatLng; // 첫 번째 비교에서는 무조건 이전 좌표로 저장
+                }
+
+                prevAngle = angle; // 이전 각도를 현재 각도로 갱신
+            }
+
+
+            // 각 partMessage에 대한 latLongList를 다 처리했으므로 초기화
+            latLongList.clear();
 
         } catch (NumberFormatException e) {
             Log.e(TAG, "Error parsing path message: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+    private double calculateAngleBetweenPoints(LatLng start, LatLng end) {
+        double deltaY = end.latitude - start.latitude;
+        double deltaX = end.longitude - start.longitude;
+        return Math.toDegrees(Math.atan2(deltaY, deltaX));
     }
 
     private void handleFirstPointMessage(String pmessage) {
