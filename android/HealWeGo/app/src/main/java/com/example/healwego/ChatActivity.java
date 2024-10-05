@@ -258,7 +258,7 @@ public class ChatActivity extends AppCompatActivity {
 
         // 정산 금액 설정
         totalAmountTextView = headerView.findViewById(R.id.totalAmountTextView);
-        totalAmountTextView.setText("예상 결제 요금: 16,000원");
+        totalAmountTextView.setText("예상 결제 요금 로딩중");
 
         // 메뉴 버튼 클릭 시 Drawer 열기
         findViewById(R.id.menuButton).setOnClickListener(v -> {
@@ -466,7 +466,7 @@ public class ChatActivity extends AppCompatActivity {
                 if(userEmail.equals(userId)){
                     double dist = haversine(Double.parseDouble(latitude),Double.parseDouble(longitude),Double.parseDouble(destLat),Double.parseDouble(destLon));
                     int value = (int)(dist*10);
-                    totalAmountTextView.setText("예상 결제 요금 "+(value*10)+"원");
+                    totalAmountTextView.setText("예상 결제 요금 : "+(value*10)+"원");
                 }
             }
 
