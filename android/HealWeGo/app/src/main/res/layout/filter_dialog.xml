@@ -13,6 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="필터 선택"
+        android:fontFamily="@font/locus_sangsang"
         android:textSize="23sp"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
@@ -30,6 +31,7 @@
             android:layout_height="wrap_content"
             android:text="성별무관"
             android:textSize="20sp"
+            android:fontFamily="@font/locus_sangsang"
             app:buttonTint="@color/darkteal"/>
 
         <androidx.appcompat.widget.AppCompatRadioButton
@@ -38,6 +40,7 @@
             android:layout_height="wrap_content"
             android:text="남성만"
             android:textSize="20sp"
+            android:fontFamily="@font/locus_sangsang"
             app:buttonTint="@color/darkteal"/>
 
         <androidx.appcompat.widget.AppCompatRadioButton
@@ -46,6 +49,7 @@
             android:layout_height="wrap_content"
             android:text="여성만"
             android:textSize="20sp"
+            android:fontFamily="@font/locus_sangsang"
             app:buttonTint="@color/darkteal"/>
 
     </RadioGroup>
@@ -63,6 +67,7 @@
             android:layout_height="wrap_content"
             android:text="취소"
             android:textSize="20sp"
+            android:fontFamily="@font/locus_sangsang"
             android:background="@drawable/no_button"
             android:textColor="@color/white"
             android:gravity="center"
@@ -73,6 +78,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="적용"
+            android:fontFamily="@font/locus_sangsang"
             android:background="@drawable/yes_button"
             android:textSize="20sp"
             android:textColor="@color/white"

@@ -39,7 +39,6 @@
                 android:text="함께 가기"
                 android:textColor="@color/black"
                 android:textSize="40sp"
-                android:textStyle="bold"
                 android:layout_marginStart="30dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

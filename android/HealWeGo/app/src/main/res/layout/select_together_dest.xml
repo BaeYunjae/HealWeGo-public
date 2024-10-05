@@ -24,6 +24,7 @@
         android:backgroundTint="@color/lightteal"
         android:layout_marginEnd="15dp"
         android:text="목적지로 설정"
+        android:fontFamily="@font/locus_sangsang"
         android:textColor="@color/black"
         android:textSize="30sp"
         />

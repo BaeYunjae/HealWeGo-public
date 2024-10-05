@@ -59,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginTop="5dp"
-                    android:text="오늘은 어떻게 갈까요?"
+                    android:text="오늘은 어떻게 갈래요?"
                     android:fontFamily="@font/locus_sangsang"
                     android:textColor="@color/black"
                     android:textSize="22sp"/>

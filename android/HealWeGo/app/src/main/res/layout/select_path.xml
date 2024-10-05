@@ -30,8 +30,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Please Select start"
+                android:text="출발지를 설정하세요"
                 android:textSize="20sp"
+                android:fontFamily="@font/locus_sangsang"
                 android:gravity="center_vertical"
                 android:padding="8dp"
                 android:maxLines="1"
@@ -44,6 +45,7 @@
                 android:backgroundTint="@color/lightteal"
                 android:layout_height="wrap_content"
                 android:text="출발지 설정"
+                android:fontFamily="@font/locus_sangsang"
                 android:textSize="16sp"
                 android:textColor="@color/black"
                 android:layout_gravity="center_vertical"
@@ -66,7 +68,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Please Select dest"
+                android:text="목적지를 설정하세요"
+                android:fontFamily="@font/locus_sangsang"
 
                 android:textSize="20sp"
                 android:gravity="center_vertical"
@@ -79,7 +82,8 @@
                 android:id="@+id/dest_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="도착지 설정"
+                android:text="목적지 설정"
+                android:fontFamily="@font/locus_sangsang"
                 android:textSize="16sp"
                 android:layout_gravity="center_vertical"
                 android:backgroundTint="@color/lightteal"
@@ -111,6 +115,7 @@
         android:textColor="@color/black"
         android:text="경로 설정"
         android:textSize="30sp"
+        android:fontFamily="@font/locus_sangsang"
         />
 
 
