@@ -2,6 +2,7 @@ package com.example.healwego;
 
 import static android.content.ContentValues.TAG;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -37,6 +38,7 @@ import org.w3c.dom.Text;
 
 import java.lang.ref.WeakReference;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
@@ -295,6 +297,7 @@ public class CreateRoomActivity extends AppCompatActivity {
             body.put("max_age", maxAge);
             body.put("User_ID", userId);
             body.put("theme", selectedTheme);
+            body.put("Rooms_ID", getFormattedTime()+userId);
         } catch (JSONException e) {
             Log.e(TAG, "JSON 생성 오류", e);
             return;
@@ -308,6 +311,14 @@ public class CreateRoomActivity extends AppCompatActivity {
 
         Toast.makeText(this, "방이 생성되었습니다!", Toast.LENGTH_LONG).show();
 
+    }
+
+    public String getFormattedTime() {
+        Calendar calendar = Calendar.getInstance();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+        String formattedTime = dateFormat.format(calendar.getTime());
+        Log.i("FormattedTime", "포맷된 시간: " + formattedTime);
+        return formattedTime;
     }
 
     // 방 생성 정보 확인 다이얼로그

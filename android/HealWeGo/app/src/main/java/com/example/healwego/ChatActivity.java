@@ -1,5 +1,6 @@
 package com.example.healwego;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,8 +26,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.navigation.NavigationView;
-
-import com.amazonaws.mobile.client.AWSMobileClient;
 
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -95,6 +94,9 @@ public class ChatActivity extends AppCompatActivity {
     private String hostId;  // 방장 ID
     private String userId;  // 현재 사용자 ID
     private String myUserName; // 현재 사용자 userName
+
+    private static final int MAX_RETRY_COUNT = 10; // 최대 재시도 횟수
+    private int retryCount = 0; // 현재 재시도 횟수
 
     // API 요청을 위한 URL
     private String mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/";
@@ -231,7 +233,7 @@ public class ChatActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-    
+
         // DrawerLayout 및 NavigationView 설정
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.nav_view);
@@ -420,14 +422,53 @@ public class ChatActivity extends AppCompatActivity {
         Log.i("ChatActivity", "PATCH 요청: " + bodyJson);
     }
 
+    @SuppressLint("SetTextI18n")
     private void handleParticipantsResponse(String response){
         try{
+            if (response == null || response.isEmpty()) {
+                Log.e("Chat", "Received null or empty response");
+                return;
+            }
+
             JSONObject responseObject = new JSONObject(response);
 
             String body = responseObject.optString("body", null);
 
             JSONObject bodyJson = new JSONObject(body);
             Log.i("Chat", bodyJson.toString());
+
+
+            // users 밖에 있는 longitude와 latitude 값을 destLat, destLon에 저장
+            String destLat = bodyJson.getString("latitude");
+            String destLon = bodyJson.getString("longitude");
+
+            // bodyObject에서 "users" 객체 추출
+            JSONObject users = bodyJson.getJSONObject("users");
+
+            // users의 keySet을 이용해 모든 사용자 정보 순회
+            Iterator<String> keys = users.keys();
+
+            while (keys.hasNext()) {
+                String userEmail = keys.next();  // 각 사용자의 이메일 (key)
+                JSONObject userDetails = users.getJSONObject(userEmail);  // 사용자 세부 정보 (value)
+
+                // 사용자 세부 정보 출력
+                String isReady = userDetails.getString("is_ready");
+                String username = userDetails.getString("username");
+                String latitude = userDetails.getString("latitude");
+                String longitude = userDetails.getString("longitude");
+                String timestamp = userDetails.getString("timestamp");
+
+                Log.i("UserDetails", "User: " + userEmail + ", username: " + username +
+                        ", is_ready: " + isReady + ", latitude: " + latitude +
+                        ", longitude: " + longitude + ", timestamp: " + timestamp);
+
+                if(userEmail.equals(userId)){
+                    double dist = haversine(Double.parseDouble(latitude),Double.parseDouble(longitude),Double.parseDouble(destLat),Double.parseDouble(destLon));
+                    int value = (int)(dist*10);
+                    totalAmountTextView.setText("예상 결제 요금 "+(value*10)+"원");
+                }
+            }
 
             // hostId및 ready버튼 업데이트
             hostId = bodyJson.getString("master_ID");
@@ -449,11 +490,22 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    // 방 나가기 DELETE API 요청 함수
-    private void sendDeleteRequest(){
+    public static double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final double R = 6371; // 지구의 반지름 (단위: km)
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // 결과 거리 (단위: km)
+    }
+
+    // 처음 들어왔을 때 API 요청 함수
+    private void sendPatchRequest(){
         // API 유형
-        String connMethod = "DELETE";
-        String apiURL = mURL + "room/list";
+        String connMethod = "PATCH";
+        String apiURL = mURL + "room/in";
 
         JSONObject body = new JSONObject();
 
@@ -461,14 +513,14 @@ public class ChatActivity extends AppCompatActivity {
             body.put("Method", connMethod);
             body.put("User_ID", this.userId);
         } catch(JSONException e){
-            Log.e("ChatActivity", "DELETE JSON 생성 오류");
+            Log.e("ChatActivity", "PATCH JSON 생성 오류");
             return;
         }
 
         String bodyJson = body.toString();
 
         // API 요청 함수
-        // DELETE처리를 위한 핸들러 생성
+        // PATCH 위한 핸들러 생성
         ApiRequestHandler.getJSON(apiURL, connMethod, new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
@@ -480,61 +532,34 @@ public class ChatActivity extends AppCompatActivity {
 
                     // DELETE 요청 성공 시 실행할 작업
                     if (statusCode == 200) {
-                        Log.i("ChatActivity", "DELETE 요청 성공");
-
-                        // DELETE 성공 후 MQTT 메시지 전송
-                        JSONObject jsonObject = new JSONObject();
-                        try {
-                            jsonObject.put("User_ID", userId);
-                            jsonObject.put("option", "enter");
-                            jsonObject.put("message", userId);
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        sendMqttMessage(CHAT_TOPIC + roomId, jsonObject.toString());
-
-                        // 방 리스트로 화면 전환
-                        Intent chatListIntent = new Intent(ChatActivity.this, ChatListActivity.class);
-                        startActivity(chatListIntent);
-                        finish();
+                        Log.i("ChatActivity", "PATCH 요청 성공");
+                        handleParticipantsResponse(response);
                     } else {
-                        // DELETE 요청 실패 시 처리
-                        Log.e("ChatActivity", "DELETE 요청 실패: " + statusCode);
-                        Toast.makeText(ChatActivity.this, "방 나가기에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                        Log.e("ChatActivity", "PATCH 요청 실패: " + statusCode);
+                        retryRequest();
                     }
                 } catch (JSONException e) {
-                    Log.e("ChatActivity", "DELETE 응답 처리 오류", e);
+                    Log.e("ChatActivity", "PATCH 응답 처리 오류", e);
+                    retryRequest();
                 }
             }
+
         }, bodyJson);
 
-        Log.i("ChatActivity", "DELETE 요청: " + bodyJson);
+        Log.i("ChatActivity", "PATCH 요청: " + bodyJson);
     }
 
-    // 참여자 목록 가져오기
-    private void getParticipantsList(){
-        JSONObject body = new JSONObject();
-        String connMethod = "PATCH";
-
-        try {
-            body.put("Method", connMethod);
-            body.put("User_ID", this.userId);
-        } catch (JSONException e) {
-            Log.e("RoomListAdapter", "JSON 생성 오류", e);
-            return;
+    // 재시도 로직
+    private void retryRequest() {
+        if (retryCount < MAX_RETRY_COUNT) {
+            retryCount++;
+            Log.i("ChatActivity", "PATCH 요청 재시도 중... " + retryCount + "/" + MAX_RETRY_COUNT);
+            sendPatchRequest(); // 재시도
+        } else {
+            Log.e("ChatActivity", "PATCH 요청 재시도 한도 초과");
+            // 재시도 실패 시 추가 처리 로직 (예: 사용자에게 알림, UI 업데이트 등)
         }
-
-        String bodyJson = body.toString();
-        String apiUrl = mURL + "room/in";
-
-        // API 요청 시작 (비동기 처리)
-        ApiRequestHandler.getJSON(apiUrl, connMethod, mHandler, bodyJson);
-        Log.i("RoomListAdapter", "요청: " + bodyJson);
-        System.out.println("445");
     }
-
-
     // READY 버튼 및 상태 갱신
     private void updateReadyButton(){
         if (afterCreate || this.userId.equals(hostId)) {  // 방장이면 GO 버튼
@@ -578,7 +603,7 @@ public class ChatActivity extends AppCompatActivity {
                                 try {
                                     jsonObject.put("User_ID", userId);
                                     jsonObject.put("option", "go");
-                                    jsonObject.put("message", "");   
+                                    jsonObject.put("message", "");
                                 } catch (JSONException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -758,7 +783,7 @@ public class ChatActivity extends AppCompatActivity {
             Log.i("MQTT 방장", "들어옴?");
             if(!message.equals(userId)) {
                 Log.i("MQTT 방장", "ㅇㅇ들어옴");
-                getParticipantsList();  // API 요청
+                sendPatchRequest();  // API 요청
             }
         } else if (option.equals("go")) {
             Intent payIntent = new Intent(ChatActivity.this, PaymentCompleteActivity.class);
