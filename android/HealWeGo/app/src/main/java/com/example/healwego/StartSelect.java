@@ -313,8 +313,6 @@ public class StartSelect extends AppCompatActivity
             }
         });
 
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
