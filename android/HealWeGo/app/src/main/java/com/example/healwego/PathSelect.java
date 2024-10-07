@@ -256,14 +256,17 @@ public class PathSelect extends AppCompatActivity
             Intent getIntent = getIntent();
             String destLocationName = getIntent.getStringExtra("dest_locationName");
             String startLocationName = getIntent.getStringExtra("start_locationName");
+
+            Log.i("20241007test","dest"+destLocationName);
             // 두 위치가 있는 경
 
             if (destLocationName != null && startLocationName != null) {
-                // destLocationName만 있는 경우
-                if( (!destLocationName.equals("Please Select dest") && !startLocationName.equals("Please Select start"))){
+                // destLocationName만 있는 경우/.
+                if( (!destLocationName.equals("출발지를 설정하세요") && !startLocationName.equals("목적지를 설정하세요"))){
                     LatLng destLatLng = getLatLngFromLocationName(destLocationName);
                     LatLng startLatLng = getLatLngFromLocationName(startLocationName);
 
+                    Log.w("20241007test","이거맞음?" );
                     if (destLatLng != null && startLatLng   != null) {
                         // 두 위치 모두 표시할 수 있도록 카메라 위치를 조정
                         LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -274,25 +277,33 @@ public class PathSelect extends AppCompatActivity
                         addMarker(destLatLng, destLocationName,false);
                         addMarker(startLatLng, startLocationName,true);
                         // 카메라 이동 및 줌 조정
-                        int padding = 100; // 경계에 패딩 추가
+                        int padding = 150; // 경계에 패딩 추가
                         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
                         mMap.moveCamera(cu);
-                    }
-                }
-                else if (!destLocationName.equals("Please Select dest")) {
-                    LatLng destLatLng = getLatLngFromLocationName(destLocationName);
-                    if (destLatLng != null) {
+                    }else if (destLatLng!=null){
+                        Log.i("20241007test","목적지설정");
+                        // 두 위치 모두 표시할 수 있도록 카메라 위치를 조정
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                        builder.include(destLatLng);
+                        LatLngBounds bounds = builder.build();
+                        // 마커 추가
                         addMarker(destLatLng, destLocationName,false);
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destLatLng, 15));
-                    }
-                }
-                // startLocationName만 있는 경우
-                else {
-                    LatLng startLatLng = getLatLngFromLocationName(startLocationName);
-
-                    if (startLatLng != null) {
+                        // 카메라 이동 및 줌 조정
+                        //int padding = 150; // 경계에 패딩 추가
+                        //CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                        //mMap.moveCamera(cu);
+                    }else if(startLatLng!=null){
+                        Log.i("20241007test","출발지설정");
+                        // 두 위치 모두 표시할 수 있도록 카메라 위치를 조정
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                        builder.include(startLatLng);
+                        LatLngBounds bounds = builder.build();
+                        // 마커 추가
                         addMarker(startLatLng, startLocationName,true);
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 15));
+                        // 카메라 이동 및 줌 조정
+                        //int padding = 200; // 경계에 패딩 추가
+                        //CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                        //mMap.moveCamera(cu);
                     }
                 }
             }
@@ -384,9 +395,14 @@ public class PathSelect extends AppCompatActivity
         }
         LatLngBounds bounds = builder.build();
         // 화면 크기에 맞게 카메라 업데이트 (패딩을 추가하여 경계를 벗어나지 않게 설정)
-        int padding = 100; // 패딩은 원하는 대로 설정 (px 단위)
+        int padding = 200; // 패딩은 원하는 대로 설정 (px 단위)
+        Log.i("20241007test","여기오는거지? "+markerPositions.size());
+
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.moveCamera(cameraUpdate);
+
+
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10)); // 줌 레벨을 10으로 설정
     }
 
     private void startLocationUpdates() {
