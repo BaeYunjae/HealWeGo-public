@@ -321,7 +321,6 @@ public class TogetherSelectStart extends AppCompatActivity
             }
         });
 
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
