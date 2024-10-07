@@ -258,7 +258,7 @@ public class ChatActivity extends AppCompatActivity {
 
         // 정산 금액 설정
         totalAmountTextView = headerView.findViewById(R.id.totalAmountTextView);
-        totalAmountTextView.setText("예상 결제 요금 로딩중");
+        totalAmountTextView.setText("예상 결제 요금 로딩중...");
 
         // 메뉴 버튼 클릭 시 Drawer 열기
         findViewById(R.id.menuButton).setOnClickListener(v -> {
