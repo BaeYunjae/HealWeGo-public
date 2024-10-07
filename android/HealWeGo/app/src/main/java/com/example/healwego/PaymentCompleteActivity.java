@@ -125,6 +125,21 @@ public class PaymentCompleteActivity extends AppCompatActivity {
         connectToMqtt();
     }
 
+    @Override
+    public void onBackPressed() {
+        // MainActivity로 이동
+        Intent intent = new Intent(PaymentCompleteActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+        // super.onBackPressed() 호출을 통해 기본 동작 호출 (MainActivity로 이동 후에는 의미가 없지만 경고를 없앰)
+        super.onBackPressed();
+
+        // 현재 액티비티 종료
+        finish();
+    }
+
+
     private void sendPatchRequest() {
         // API 유형
         String connMethod = "PATCH";
@@ -286,7 +301,6 @@ public class PaymentCompleteActivity extends AppCompatActivity {
     }
 
     // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
-    // Path 메시지 처리 (여기서 path 메시지를 처리하고 로그 출력)
     @SuppressLint("SetTextI18n")
     private void handlePathMessage(MqttMessage message) {
 
@@ -435,4 +449,5 @@ public class PaymentCompleteActivity extends AppCompatActivity {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA"); // 또는 "EC" (키 타입에 따라 다름)
         return keyFactory.generatePrivate(keySpec);
     }
+
 }
