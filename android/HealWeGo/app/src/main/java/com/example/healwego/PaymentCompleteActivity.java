@@ -30,16 +30,10 @@ import android.view.View;  // View를 사용하기 위해 추가
 import android.widget.Button;  // Button 사용을 위해 추가
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 
-import com.amazonaws.mobile.client.AWSMobileClient;
-import com.google.android.gms.maps.model.LatLng;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.KeyFactory;
@@ -48,9 +42,11 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -332,7 +328,7 @@ public class PaymentCompleteActivity extends AppCompatActivity {
                     double latitude = jsonObject.getDouble("latitude");
                     double longitude = jsonObject.getDouble("longitude");
 
-                    if(haversine(myLat,myLon,latitude,longitude)<0.01){
+                    if(haversine(myLat,myLon,latitude,longitude)<0.1){
                         myCount=jsonObject.getInt("count");
                     }
                     latLongList.add(new Double[]{latitude, longitude});
@@ -355,18 +351,28 @@ public class PaymentCompleteActivity extends AppCompatActivity {
                 int elementCount = jsonArray.length();
                 price = price + (elementCount * 5);
 
-                Log.d(TAG, "Number of elements in path message: " + elementCount);
-                Log.d(TAG, "Total distance: " + totalDistance + " km");
+                Log.d("20241007test", "Number of elements in path message: " + elementCount);
+                Log.d("20241007test", "Total distance: " + totalDistance + " km");
 
-                int myPrice=0;
+                int myPrice=3000;
+                double myDist=0.0;
                 if(myCount!=-1){
-                    myPrice = price * ((totalCount-myCount)/totalCount);
+                    myDist = totalDistance * ((double) (totalCount - myCount) /totalCount);
                 }
-                Log.w("20241002test","mycount "+myCount );
-                Log.w("20241002test","totalcount "+totalCount );
+                if(myDist>1.0){
+                    int offset = (int) (myDist*10)/5;
+                    myPrice += 100*offset;
+                }
+                Log.w("20241007test","mycount "+myCount );
+                Log.w("20241007test","totalcount "+totalCount );
+                Log.w("20241007test","myPrice "+myPrice );
 
                 int finalPrice = myPrice;
-                runOnUiThread(() -> paymentAmout.setText(finalPrice + "원"));
+
+                NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+                String formattedPrice = numberFormat.format(finalPrice);
+
+                runOnUiThread(() -> paymentAmout.setText(formattedPrice + "원"));
                 runOnUiThread(()->progressBar.setVisibility(View.GONE));  // 데이터 처리 완료 후 로딩 화면 숨김
                 runOnUiThread(()->confirmButton.setVisibility(View.VISIBLE));
                 runOnUiThread(()->paymentAmout.setVisibility(View.VISIBLE));

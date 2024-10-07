@@ -809,6 +809,12 @@ public class MapPath extends AppCompatActivity
             case 5:
                 drawableId = R.drawable.five; // 기본 마커 이미지
                 break;
+            case 6:
+                drawableId = R.drawable.me;
+                break;
+            case 7:
+                drawableId = R.drawable.dest;
+                break;
             default:
                 drawableId = 0;
         }
@@ -1454,6 +1460,13 @@ public class MapPath extends AppCompatActivity
                 Log.i("20241007test",Integer.toString(orderMap.get(name)));
                 // LatLng 객체 생성
                 LatLng latLng = new LatLng(latitude, longitude);
+
+                if(name.equals(AWSMobileClient.getInstance().getUsername())){
+                    order=6;
+                }
+                if(numberOfPoints==order){
+                    order=7;
+                }
                 int finalOrder = order;
                 runOnUiThread(() -> {
                     addMarkerWithNumber(latLng,finalOrder);// 마커 추가

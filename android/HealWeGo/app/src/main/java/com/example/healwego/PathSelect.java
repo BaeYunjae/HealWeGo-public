@@ -402,7 +402,7 @@ public class PathSelect extends AppCompatActivity
         mMap.moveCamera(cameraUpdate);
 
 
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(10)); // 줌 레벨을 10으로 설정
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15)); // 줌 레벨을 10으로 설정
     }
 
     private void startLocationUpdates() {

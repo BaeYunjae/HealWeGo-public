@@ -28,8 +28,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class AloneSetActivity extends AppCompatActivity {  // 이름 변경
 
@@ -171,9 +173,15 @@ public class AloneSetActivity extends AppCompatActivity {  // 이름 변경
         // 하버사인을 통해 두 좌표간 거리 구하고 거리에 비례한 가격 계산
         double dist = haversine(startLat,startLong,destLat,destLong);
         TextView payText = findViewById(R.id.paymentAmount);
-        int result = (int) (dist*10);
-        int pay = result*150;
-        payText.setText(""+pay+"원");
+        double result =  (dist*10);
+        int pay = 3000;
+        if(result>1.0) {
+            int offset = (int) (result / 0.5);
+            pay += offset * 100;
+        }
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+        String formattedPrice = numberFormat.format(pay);
+        payText.setText(""+formattedPrice+"원");
 
         // 뒤로가기 버튼을 처리하는 부분
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
