@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="방 생성 정보 확인"
-        android:fontFamily="@font/locus_sangsang"
+        android:fontFamily="@font/scdream6"
         android:textSize="23sp"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:text="방 제목"
         android:textSize="18sp"
-        android:fontFamily="@font/locus_sangsang"
+        android:fontFamily="@font/scdream4"
         android:paddingBottom="10dp" />
 
     <!-- 출발 시간 -->
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:text="출발 시간"
         android:textSize="18sp"
-        android:fontFamily="@font/locus_sangsang"
+        android:fontFamily="@font/scdream4"
         android:paddingBottom="10dp" />
 
     <!-- 목적지 -->
@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:text="목적지"
         android:textSize="18sp"
-        android:fontFamily="@font/locus_sangsang"
+        android:fontFamily="@font/scdream4"
         android:paddingBottom="10dp" />
 
     <!-- 성별 필터 -->
@@ -55,7 +55,7 @@
         android:layout_height="wrap_content"
         android:text="성별 필터"
         android:textSize="18sp"
-        android:fontFamily="@font/locus_sangsang"
+        android:fontFamily="@font/scdream4"
         android:paddingBottom="10dp" />
 
     <!-- 나이 필터 -->
@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         android:text="나이 필터"
         android:textSize="18sp"
-        android:fontFamily="@font/locus_sangsang"
+        android:fontFamily="@font/scdream4"
         android:paddingBottom="10dp" />
 
     <!-- 테마 -->
@@ -75,7 +75,7 @@
         android:layout_height="wrap_content"
         android:text="테마"
         android:textSize="18sp"
-        android:fontFamily="@font/locus_sangsang"
+        android:fontFamily="@font/scdream4"
         android:paddingBottom="10dp" />
 
     <LinearLayout
@@ -91,7 +91,7 @@
             android:layout_height="wrap_content"
             android:text="취소"
             android:textSize="20sp"
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream5"
             android:background="@drawable/no_button"
             android:textColor="@color/white"
             android:gravity="center"
@@ -102,7 +102,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="확인"
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream5"
             android:background="@drawable/yes_button"
             android:textSize="20sp"
             android:textColor="@color/white"
