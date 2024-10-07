@@ -25,7 +25,7 @@
         android:backgroundTint="@color/lightteal"
         android:layout_marginEnd="15dp"
         android:text="목적지로 설정"
-        android:fontFamily="@font/locus_sangsang"
+        android:fontFamily="@font/scdream5"
         android:textColor="@color/black"
         android:textSize="30sp"
         />
@@ -43,16 +43,15 @@
         android:iconifiedByDefault="false"
         />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/my_location_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:background="@drawable/curpos"
-        android:layout_below="@id/search_view"
-        android:layout_alignEnd="@id/search_view"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
-        />
+        android:layout_above="@+id/button"
+        android:layout_alignEnd="@+id/button"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/curpos" />
 
 
 </RelativeLayout >
