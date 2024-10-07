@@ -359,6 +359,7 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
                 String locName = jsonObject.getString("Loc_name");
+                String subtitle = jsonObject.getString("subtitle");
                 String description = jsonObject.getString("description");
                 String encodedImage = jsonObject.getString("encoded_image");
 
@@ -384,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
                         if(isLoad == 0) return;
 
                         // 다이얼로그로 RecommendPopUpActivity 대체
-                        RecommendDialogFragment dialogFragment = RecommendDialogFragment.newInstance(locName, description);
+                        RecommendDialogFragment dialogFragment = RecommendDialogFragment.newInstance(decodedString, locName, subtitle, description);
                         dialogFragment.show(getSupportFragmentManager(), "RecommendDialog");
                     }
                 });
