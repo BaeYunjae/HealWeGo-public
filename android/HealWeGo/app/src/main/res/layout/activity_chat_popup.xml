@@ -12,7 +12,8 @@
         android:text="채팅방에서 나가시겠습니까?"
         android:textColor="@color/black"
         android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:fontFamily="@font/scdream6"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -21,7 +22,8 @@
         android:textSize="20sp"
         android:textColor="@color/black"
         android:layout_marginTop="30dp"
-        android:layout_marginLeft="20dp"/>
+        android:layout_marginLeft="20dp"
+        android:fontFamily="@font/scdream4"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,7 +43,8 @@
             android:background="@drawable/no_button"
             android:textColor="@color/white"
             android:gravity="center"
-            android:layout_marginRight="30dp"/>
+            android:layout_marginRight="30dp"
+            android:fontFamily="@font/scdream5"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/yesBtn"
@@ -51,7 +54,8 @@
             android:background="@drawable/yes_button"
             android:textSize="20sp"
             android:textColor="@color/white"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:fontFamily="@font/scdream5"/>
 
     </LinearLayout>
 

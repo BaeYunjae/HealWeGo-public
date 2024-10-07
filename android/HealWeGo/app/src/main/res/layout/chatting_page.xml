@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:text="채팅 제목"
                 android:textSize="18sp"
-                android:fontFamily="@font/locus_sangsang"
+                android:fontFamily="@font/scdream6"
                 android:textColor="@android:color/black"
                 android:layout_gravity="center"/>
 
@@ -49,7 +49,7 @@
             android:id="@+id/chatRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream3"
             app:layout_constraintTop_toBottomOf="@id/chatToolbar"
             app:layout_constraintBottom_toTopOf="@id/messageInputLayout"
             app:layout_constraintStart_toStartOf="parent"

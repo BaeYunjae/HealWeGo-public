@@ -36,7 +36,8 @@
             android:layout_marginBottom="3dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:lineSpacingExtra="8dp"/>
+            android:lineSpacingExtra="8dp"
+            android:padding="5dp"/>
     </ScrollView>
 
     <!-- 닫기 버튼 -->

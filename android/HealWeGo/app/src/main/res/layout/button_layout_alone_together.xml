@@ -23,13 +23,13 @@
             android:id="@+id/aloneText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="2"
             android:text="혼자 가기"
             android:textColor="@android:color/white"
             android:textSize="25sp"
-            android:gravity="center"
-            android:fontFamily="@font/locus_sangsang"
-            android:textAlignment="center" />
+            android:gravity="left"
+            android:layout_marginLeft="30dp"
+            android:fontFamily="@font/scdream6" />
 
         <ImageView
             android:id="@+id/aloneImage"
@@ -60,13 +60,13 @@
             android:id="@+id/togetherText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="2"
             android:text="함께 가기"
             android:textColor="@android:color/white"
             android:textSize="25sp"
-            android:gravity="center"
-            android:fontFamily="@font/locus_sangsang"
-            android:textAlignment="center" />
+            android:gravity="left"
+            android:layout_marginLeft="30dp"
+            android:fontFamily="@font/scdream6" />
 
         <ImageView
             android:id="@+id/togetherImage"

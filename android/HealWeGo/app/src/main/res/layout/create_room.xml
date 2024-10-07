@@ -18,7 +18,7 @@
             android:text="어떤 방을 만들어 볼까요?"
             android:textColor="@color/darkteal"
             android:textSize="20sp"
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -47,7 +47,7 @@
             android:text="출발 시간 선택"
             android:textColor="@android:color/black"
             android:textSize="20sp"
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream6"
             app:layout_constraintBottom_toTopOf="@id/timeSpinner"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/editRoomTitle" />
@@ -72,7 +72,7 @@
             android:background="@drawable/tag_button"
             android:text="목적지 찾기"
             android:textSize="20sp"
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream5"
             android:maxLines="1"
             android:layout_marginTop="20dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -89,7 +89,7 @@
             android:textColor="@color/darkteal"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/buttonFindDestination" />
@@ -123,7 +123,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="성별무관"
-                    android:fontFamily="@font/locus_sangsang"
+                    android:fontFamily="@font/scdream4"
                     android:checked="true"
                     android:buttonTint="@color/darkteal"
                     android:layout_marginRight="20dp"/>
@@ -133,7 +133,7 @@
                     android:layout_height="wrap_content"
                     android:buttonTint="@color/darkteal"
                     android:text="남성만"
-                    android:fontFamily="@font/locus_sangsang"
+                    android:fontFamily="@font/scdream4"
                     android:layout_marginRight="20dp"/>
                 <android.widget.RadioButton
                     android:id="@+id/radioFemale"
@@ -141,7 +141,7 @@
                     android:layout_height="wrap_content"
                     android:buttonTint="@color/darkteal"
                     android:text="여성만"
-                    android:fontFamily="@font/locus_sangsang"
+                    android:fontFamily="@font/scdream4"
                     android:layout_marginRight="20dp"/>
             </android.widget.RadioGroup>
 
@@ -169,7 +169,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="세 ~"
-                    android:fontFamily="@font/locus_sangsang"/>
+                    android:fontFamily="@font/scdream5"/>
 
                 <EditText
                     android:id="@+id/editMaxAge"
@@ -184,7 +184,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="세"
-                    android:fontFamily="@font/locus_sangsang"/>
+                    android:fontFamily="@font/scdream5"/>
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -199,7 +199,7 @@
             android:textColor="@color/darkteal"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/filter"/>
@@ -224,7 +224,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/lightteal"
                 android:text="힐링"
-                android:fontFamily="@font/locus_sangsang"
+                android:fontFamily="@font/scdream5"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toStartOf="@+id/buttonThemeExtreme"
@@ -237,7 +237,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/lightteal"
                 android:text="익스트림"
-                android:fontFamily="@font/locus_sangsang"
+                android:fontFamily="@font/scdream5"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -249,7 +249,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/lightteal"
                 android:text="먹부림"
-                android:fontFamily="@font/locus_sangsang"
+                android:fontFamily="@font/scdream5"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:layout_constraintTop_toBottomOf="@id/buttonThemeHealing"
@@ -262,7 +262,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/lightteal"
                 android:text="만남"
-                android:fontFamily="@font/locus_sangsang"
+                android:fontFamily="@font/scdream5"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -295,7 +295,7 @@
                 android:text="생성 취소"
                 android:textSize="18dp"
                 android:textColor="@color/white"
-                android:fontFamily="@font/locus_sangsang" />
+                android:fontFamily="@font/scdream5" />
 
             <android.widget.Button
                 android:id="@+id/buttonCreateRoom"
@@ -309,7 +309,7 @@
                 android:textColor="@color/white"
                 android:text="방 생성"
                 android:textSize="18dp"
-                android:fontFamily="@font/locus_sangsang"/>
+                android:fontFamily="@font/scdream5"/>
 
         </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

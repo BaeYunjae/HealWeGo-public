@@ -16,7 +16,7 @@
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:fontFamily="@font/locus_sangsang"
+        android:fontFamily="@font/scdream6"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="남성"
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream4"
             android:padding="16dp"
             android:textSize="16sp" />
 
@@ -62,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="여성"
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream4"
             android:padding="16dp"
             android:textSize="16sp"
             android:layout_marginStart="16dp"/>
@@ -92,7 +92,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="다음"
-        android:fontFamily="@font/locus_sangsang"
+        android:fontFamily="@font/scdream5"
         android:textColor="@color/white"
         android:backgroundTint="@color/teal"
         android:textSize="18sp"

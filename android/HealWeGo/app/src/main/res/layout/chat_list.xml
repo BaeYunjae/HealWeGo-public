@@ -35,7 +35,7 @@
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/locus_sangsang"
+                android:fontFamily="@font/scdream6"
                 android:text="함께 가기"
                 android:textColor="@color/black"
                 android:textSize="40sp"
@@ -76,7 +76,7 @@
                 android:layout_width="80dp"
                 android:layout_height="40dp"
                 android:background="@drawable/selector_theme_button"
-                android:fontFamily="@font/locus_sangsang"
+                android:fontFamily="@font/scdream5"
                 android:text="#힐링"
                 android:textColor="@drawable/selector_text_color"
                 android:textSize="18sp"
@@ -88,10 +88,10 @@
             <!-- 두 번째 버튼 -->
             <android.widget.Button
                 android:id="@+id/extreme"
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="40dp"
                 android:background="@drawable/selector_theme_button"
-                android:fontFamily="@font/locus_sangsang"
+                android:fontFamily="@font/scdream5"
                 android:text="#익스트림"
                 android:textColor="@drawable/selector_text_color"
                 android:textSize="18sp"
@@ -107,7 +107,7 @@
                 android:layout_width="80dp"
                 android:layout_height="40dp"
                 android:background="@drawable/selector_theme_button"
-                android:fontFamily="@font/locus_sangsang"
+                android:fontFamily="@font/scdream5"
                 android:text="#만남"
                 android:textColor="@drawable/selector_text_color"
                 android:textSize="18sp"
@@ -123,7 +123,7 @@
                 android:layout_width="90dp"
                 android:layout_height="40dp"
                 android:background="@drawable/selector_theme_button"
-                android:fontFamily="@font/locus_sangsang"
+                android:fontFamily="@font/scdream5"
                 android:text="#먹부림"
                 android:textColor="@drawable/selector_text_color"
                 android:textSize="18sp"
@@ -144,6 +144,7 @@
             android:text="방이 없어요! 직접 만들어보실래요?"
             android:textSize="18sp"
             android:textColor="@android:color/black"
+            android:fontFamily="@font/scdream5"
             android:visibility="gone"
             android:layout_marginTop="20dp" />
 
@@ -151,12 +152,14 @@
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
             android:layout_gravity="center"
-            app:layout_constraintTop_toBottomOf="@id/themeButton"
+            android:layout_margin="10dp"
+            app:layout_constraintBottom_toTopOf="@id/wantCreateButton"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/wantCreateButton">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/themeButton">
 
             <!-- RecyclerView로 방 목록을 동적으로 표시 -->
             <androidx.recyclerview.widget.RecyclerView
@@ -180,25 +183,22 @@
 
         <android.widget.Button
             android:id="@+id/wantCreateButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
+            android:background="@drawable/add"
+            android:elevation="10dp"
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
-            android:background="@drawable/tag_button"
-            android:backgroundTint="@color/darkcyan"
-            android:fontFamily="@font/locus_sangsang"
-            android:text="방 만들기"
             android:textColor="@color/white"
-            android:textSize="20dp"
-            android:elevation="10dp"
             android:translationZ="10dp"
+            android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>
+            app:layout_constraintRight_toRightOf="parent" />
 
     </RelativeLayout>
 

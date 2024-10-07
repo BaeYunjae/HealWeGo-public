@@ -49,9 +49,9 @@
                     android:layout_marginLeft="30dp"
                     android:layout_marginTop="20dp"
                     android:text="홍길동님, "
-                    android:fontFamily="@font/locus_sangsang"
+                    android:fontFamily="@font/scdream5"
                     android:textColor="@color/black"
-                    android:textSize="22sp"/>
+                    android:textSize="20sp"/>
 
                 <TextView
                     android:id="@+id/textView1"
@@ -60,9 +60,9 @@
                     android:layout_marginLeft="30dp"
                     android:layout_marginTop="5dp"
                     android:text="오늘은 어떻게 갈래요?"
-                    android:fontFamily="@font/locus_sangsang"
+                    android:fontFamily="@font/scdream5"
                     android:textColor="@color/black"
-                    android:textSize="22sp"/>
+                    android:textSize="20sp"/>
 
             </LinearLayout>
 
@@ -83,21 +83,21 @@
                     android:layout_gravity="center"
                     android:textAlignment="center"
                     android:text="Now Loading..."
-                    android:fontFamily="@font/locus_sangsang"
-                    android:textSize="20sp" />
+                    android:fontFamily="@font/scdream4"
+                    android:textSize="18sp" />
             </LinearLayout>
 
         </LinearLayout>
 
         <TextView
             android:id="@+id/textView2"
-            android:layout_width="160dp"
-            android:layout_height="35dp"
-            android:text="여기는 어때요?"
-            android:fontFamily="@font/locus_sangsang"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="추천 장소 Top 5 ✨"
+            android:fontFamily="@font/scdream5"
             android:textColor="@color/black"
             android:textSize="22sp"
-            android:layout_marginLeft="40dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"
             app:layout_constraintTop_toBottomOf="@id/mainButtonView"
@@ -337,7 +337,7 @@
             android:layout_centerInParent="true"
             android:paddingTop="200dp"
             android:text="Now Loading..."
-            android:fontFamily="@font/locus_sangsang"
+            android:fontFamily="@font/scdream5"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="34sp" />
