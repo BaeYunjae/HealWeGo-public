@@ -212,6 +212,12 @@ public class MapPath extends AppCompatActivity
                     JSONObject responseObject = new JSONObject(jsonString);
                     JSONObject bodyObject = new JSONObject(responseObject.getString("body"));
 
+                    Log.d("20241007test","요청 으어" + bodyObject);
+                    Log.d("20241007test","요청 으어" + bodyObject);
+                    Log.d("20241007test","요청 으어" + bodyObject);
+                    Log.d("20241007test","요청 으어" + bodyObject);
+                    Log.d("20241007test","요청 으어" + bodyObject);
+                    Log.d("20241007test","요청 으어" + bodyObject);
                     // Loc_name을 추출하고 유니코드를 한글로 디코딩
                     String locNameUnicode = bodyObject.getString("Loc_name");
                     String decodedLocName = URLDecoder.decode(locNameUnicode, "UTF-8");
@@ -1006,15 +1012,35 @@ public class MapPath extends AppCompatActivity
                         }
                         else if(userId.equals(Name)) {
                             board_avail = true;
+                            NotificationCompat.Builder notifybuilder = new NotificationCompat.Builder(MapPath.this, CHANNEL_ID)
+                                    .setContentTitle("HealWeGo")
+                                    .setContentText("도착했습니다. 탑승해주세요")
+                                    .setSmallIcon(R.drawable.logo);
+                            mNotificationManager.notify(NOTIFICATION_ID, notifybuilder.build());
+                            Log.i("20241004test", orderMap.get(userId) + "번");
                         }
 
-                        if(!userId.equals(Name)){
-                            NotificationCompat.Builder notifybuilder = new NotificationCompat.Builder(MapPath.this,CHANNEL_ID)
-                                    .setContentTitle("HealWeGo")
-                                    .setContentText(orderMap.get(userId)+"번 도착함")
-                                    .setSmallIcon(R.drawable.logo);
-                            mNotificationManager.notify(NOTIFICATION_ID,notifybuilder.build());
-                            Log.i("20241004test",orderMap.get(userId)+"번");
+                        if(!userId.equals(Name)) {
+                            int userIndex = 0;
+                            if (orderMap.get(userId) != null) {
+                                userIndex = orderMap.get(userId);
+                            }
+                            if (userIndex != 0) {
+                                NotificationCompat.Builder notifybuilder = new NotificationCompat.Builder(MapPath.this, CHANNEL_ID)
+                                        .setContentTitle("HealWeGo")
+                                        .setContentText(userIndex + "번 사용자에게 도착했습니다.")
+                                        .setSmallIcon(R.drawable.logo);
+                                mNotificationManager.notify(NOTIFICATION_ID, notifybuilder.build());
+                                Log.i("20241004test", orderMap.get(userId) + "번");
+                            }else{
+                                NotificationCompat.Builder notifybuilder = new NotificationCompat.Builder(MapPath.this, CHANNEL_ID)
+                                        .setContentTitle("HealWeGo")
+                                        .setContentText("목적지 도착함")
+                                        .setSmallIcon(R.drawable.logo);
+                                mNotificationManager.notify(NOTIFICATION_ID, notifybuilder.build());
+                                Log.i("20241004test", orderMap.get(userId) + "번");
+
+                            }
                         }
 
                     }
@@ -1375,6 +1401,9 @@ public class MapPath extends AppCompatActivity
 
     private void handleFirstPointMessage(String pmessage) {
         Log.w("20241002test", "mappath handlefirstpoint " +pmessage );
+        Log.w("20241002test", "mappath handlefirstpoint " +pmessage );
+        Log.w("20241002test", "mappath handlefirstpoint " +pmessage );
+        Log.w("20241002test", "mappath handlefirstpoint " +pmessage );
         String message = pmessage;
         removeAllMarkers();
         try {
@@ -1421,6 +1450,8 @@ public class MapPath extends AppCompatActivity
 
                 }
                 orderMap.put(name,order);
+                Log.i("20241007test",name);
+                Log.i("20241007test",Integer.toString(orderMap.get(name)));
                 // LatLng 객체 생성
                 LatLng latLng = new LatLng(latitude, longitude);
                 int finalOrder = order;
