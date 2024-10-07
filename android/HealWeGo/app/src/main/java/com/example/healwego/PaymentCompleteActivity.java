@@ -318,7 +318,7 @@ public class PaymentCompleteActivity extends AppCompatActivity {
                     double latitude = jsonObject.getDouble("latitude");
                     double longitude = jsonObject.getDouble("longitude");
 
-                    if(latitude==myLat && longitude==myLon){
+                    if(haversine(myLat,myLon,latitude,longitude)<0.01){
                         myCount=jsonObject.getInt("count");
                     }
                     latLongList.add(new Double[]{latitude, longitude});
@@ -351,8 +351,6 @@ public class PaymentCompleteActivity extends AppCompatActivity {
                 Log.w("20241002test","mycount "+myCount );
                 Log.w("20241002test","totalcount "+totalCount );
 
-                // UI 업데이트는 메인 스레드에서 실행
-                double finalTotalDistance = totalDistance;
                 int finalPrice = myPrice;
                 runOnUiThread(() -> paymentAmout.setText(finalPrice + "원"));
                 runOnUiThread(()->progressBar.setVisibility(View.GONE));  // 데이터 처리 완료 후 로딩 화면 숨김
