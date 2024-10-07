@@ -2,38 +2,54 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/recommend_info"
-    android:padding="3dp">
+    android:layout_height="700dp"
+    android:background="@drawable/recommend_info">
 
     <!-- 타이틀바 -->
-    <LinearLayout
-        android:orientation="horizontal"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/title"
-            android:textSize="22sp"
-            android:textColor="@color/white"
-            android:fontFamily="@font/locus_sangsang"
-            android:gravity="center"
-            android:background="@drawable/rounded_top"
+        android:layout_height="300dp"
+        android:background="@drawable/recommend_image"
+        android:clipToOutline="true">
+
+        <ImageView
+            android:id="@+id/locImage"
             android:layout_width="match_parent"
-            android:layout_height="53dp" />
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"/>
+
+    </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:lineSpacingExtra="8dp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/scdream6"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <!-- Notice -->
     <ScrollView
-        android:padding="18dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="300dp">
+        android:layout_height="250dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
         <TextView
             android:id="@+id/txtText"
             android:textSize="18sp"
             android:textColor="@color/black"
-            android:fontFamily="@font/locus_sangsang"
-            android:layout_marginBottom="3dp"
+            android:fontFamily="@font/scdream3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lineSpacingExtra="8dp"
