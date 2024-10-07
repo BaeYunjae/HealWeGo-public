@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -465,8 +467,15 @@ public class ChatActivity extends AppCompatActivity {
 
                 if(userEmail.equals(userId)){
                     double dist = haversine(Double.parseDouble(latitude),Double.parseDouble(longitude),Double.parseDouble(destLat),Double.parseDouble(destLon));
-                    int value = (int)(dist*10);
-                    totalAmountTextView.setText("예상 결제 요금 : "+(value*10)+"원");
+                    int value = 3000;
+                    if(dist>1.0){
+                        int offset = (int)(dist*10)/5;
+                        value += offset*100;
+                    }
+                    NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+                    String formattedPrice = numberFormat.format(value);
+
+                    totalAmountTextView.setText("예상 결제 요금 : "+formattedPrice+"원");
                 }
             }
 
