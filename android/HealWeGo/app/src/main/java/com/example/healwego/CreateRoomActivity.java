@@ -356,12 +356,12 @@ public class CreateRoomActivity extends AppCompatActivity {
 
 
         // 방 정보 설정
-        tvRoomTitle.setText("방 제목: " + roomTitle);
-        tvDepartureTime.setText("출발 시간: " + selectedTime);
-        tvLocation.setText("목적지: " + locationName);
-        tvGenderFilter.setText("성별 필터: " + genderFilter);
-        tvAgeFilter.setText("나이 필터: " + minAge + "세 ~ " + maxAge + "세");
-        tvTheme.setText("테마: " + selectedTheme);
+        tvRoomTitle.setText(roomTitle);
+        tvDepartureTime.setText(selectedTime);
+        tvLocation.setText(locationName);
+        tvGenderFilter.setText(genderFilter);
+        tvAgeFilter.setText(minAge + "세 ~ " + maxAge + "세");
+        tvTheme.setText(selectedTheme);
 
         // 다이얼로그 생성 (버튼 없이)
         AlertDialog dialog = new AlertDialog.Builder(this, R.style.RoundedCornerDialog)

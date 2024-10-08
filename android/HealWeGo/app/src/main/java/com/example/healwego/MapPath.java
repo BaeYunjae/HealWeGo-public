@@ -811,11 +811,11 @@ public class MapPath extends AppCompatActivity
         if (currentMarkerWithImage != null) {
             String current = getCurrentAddress(currentMarkerWithImage.getPosition());
             current = current.replace("대한민국","");
-            currentText.setText("현재 위치 : "+ current +"                  ");
+            currentText.setText(current +"                  ");
         }
         if (decodedLocName != null) {
             decodedLocName = decodedLocName.replace("대한민국","");
-            destText.setText("목적지 : " + decodedLocName+"                  ");
+            destText.setText(decodedLocName+"                  ");
         }
     }
 
