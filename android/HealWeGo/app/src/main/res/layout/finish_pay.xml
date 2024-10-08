@@ -68,7 +68,7 @@
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:text="확인"
-        android:textSize="20dp"
+        android:textSize="18dp"
         android:fontFamily="@font/scdream5"
         android:backgroundTint="@color/teal"
         android:textColor="@android:color/white"

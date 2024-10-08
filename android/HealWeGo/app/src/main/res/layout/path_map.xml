@@ -81,7 +81,7 @@
                 android:id="@+id/destText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="목적지 위치 로딩 중.."
+                android:text="목적지 로딩 중.."
                 android:fontFamily="@font/scdream4"
                 android:layout_marginLeft="20dp"
                 android:textSize="22sp"
@@ -107,27 +107,28 @@
                 android:id="@+id/leftButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0.5"
                 android:backgroundTint="@color/darkteal"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:fontFamily="@font/scdream5"
                 android:text="탑승"
-                android:layout_marginHorizontal="10dp"/>
+                android:layout_marginHorizontal="5dp"/>
 
             <!-- 두 번째 버튼 -->
             <Button
                 android:id="@+id/rightButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0.5"
                 android:backgroundTint="@color/darkred"
                 android:textColor="@color/white"
                 android:fontFamily="@font/scdream5"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:text="비상 정지" />
+                android:text="비상 정지"
+                android:layout_marginHorizontal="5dp"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>
