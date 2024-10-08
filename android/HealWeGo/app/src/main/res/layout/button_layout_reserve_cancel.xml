@@ -3,8 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_margin="10dp"
-    android:gravity="center_vertical">
+    android:layout_marginTop="5dp"
+    android:layout_marginLeft="15dp"
+    android:layout_marginRight="13dp">
 
     <!-- 예약된 일정 버튼 -->
     <LinearLayout
@@ -30,11 +31,11 @@
             android:fontFamily="@font/scdream5"
             android:layout_gravity="center"
             android:layout_marginRight="10dp"
-            android:textSize="18sp"/>
+            android:textSize="20sp"/>
 
         <!-- 출발 시각과 목적지 텍스트를 수평으로 배치 -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="5dp"
@@ -47,7 +48,7 @@
                 android:text="출발 시각 :"
                 android:textColor="@android:color/white"
                 android:fontFamily="@font/scdream5"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"/>
 
             <!-- 동적으로 바뀔 출발 시각 데이터 -->
@@ -55,16 +56,16 @@
                 android:id="@+id/textDepartureTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Now loading..."
+                android:text="Now Loading..."
                 android:textColor="@android:color/white"
                 android:fontFamily="@font/scdream5"
                 android:layout_marginStart="5dp"
-                android:textSize="16sp"/>
+                android:textSize="18sp"/>
         </LinearLayout>
 
         <!-- 목적지 텍스트 수평 배치 -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="3dp"
@@ -78,18 +79,18 @@
                 android:textColor="@android:color/white"
                 android:fontFamily="@font/scdream5"
                 android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:textSize="18sp"/>
 
             <!-- 동적으로 바뀔 목적지 데이터 -->
             <TextView
                 android:id="@+id/textDestination"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Now loading..."
+                android:text="Now Loading..."
                 android:textColor="@android:color/white"
                 android:fontFamily="@font/scdream5"
                 android:layout_marginStart="5dp"
-                android:textSize="16sp"/>
+                android:textSize="18sp"/>
         </LinearLayout>
 
     </LinearLayout>
@@ -101,9 +102,10 @@
         android:layout_height="wrap_content"
         android:text="예약 취소"
         android:textColor="@android:color/white"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:paddingTop="10dp"
         android:paddingBottom="15dp"
+        android:layout_marginBottom="5dp"
         android:fontFamily="@font/scdream6"
         android:background="@drawable/cancel_button"
         android:gravity="center" />
