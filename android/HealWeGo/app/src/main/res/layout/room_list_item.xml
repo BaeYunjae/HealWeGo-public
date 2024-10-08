@@ -52,12 +52,12 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/scdream4"
-                    android:text="장소명"
-                    android:textColor="@color/darkteal"
-                    android:textSize="20sp"
                     android:gravity="center_vertical"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp"/>
+                    android:paddingRight="10dp"
+                    android:text="장소명"
+                    android:textColor="@color/darkteal"
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -73,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="테마"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textColor="@color/darkteal"
                     android:fontFamily="@font/scdream5"
                     android:background="@drawable/room_list_tag"
@@ -88,7 +88,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="성별"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textColor="@color/darkteal"
                     android:fontFamily="@font/scdream5"
                     android:background="@drawable/room_list_tag"
@@ -104,7 +104,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="시간"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textColor="@color/darkteal"
                     android:fontFamily="@font/scdream5"
                     android:background="@drawable/room_list_tag"
