@@ -11,7 +11,7 @@
         android:layout_marginTop="20dp"
         android:text="채팅방에서 나가시겠습니까?"
         android:textColor="@color/black"
-        android:textSize="22sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:fontFamily="@font/scdream6"/>
 
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="모든 대화 내역이 삭제됩니다."
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textColor="@color/black"
         android:layout_marginTop="30dp"
         android:layout_marginLeft="20dp"
@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="아니오"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:background="@drawable/no_button"
             android:textColor="@color/white"
             android:gravity="center"
@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:text="예"
             android:background="@drawable/yes_button"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textColor="@color/white"
             android:gravity="center"
             android:fontFamily="@font/scdream5"/>
