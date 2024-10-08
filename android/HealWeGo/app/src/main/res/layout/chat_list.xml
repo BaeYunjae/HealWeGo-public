@@ -65,6 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
+            android:layout_marginBottom="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textView1">
@@ -162,6 +163,7 @@
                 android:id="@+id/recyclerViewRooms"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_marginLeft="5dp"
                 tools:listitem="@layout/room_list_item" />
 
         </ScrollView>
