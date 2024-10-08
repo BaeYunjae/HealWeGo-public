@@ -4,6 +4,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -28,6 +29,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -422,25 +424,38 @@ public class MapPath extends AppCompatActivity
                     JSONObject responseObject = new JSONObject(response);
                     int statusCode = responseObject.getInt("statusCode");
 
-                    // DELETE 요청 성공 시 실행할 작업
                     if (statusCode == 200) {
                         Log.i("ChatActivity", "DELETE 요청 성공");
-                        new AlertDialog.Builder(MapPath.this)
-                                .setMessage("이용해 주셔서 감사합니다")  // 메시지 설정
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // Yes를 눌렀을 때 동작
-                                        state = STATE_IDLE;
-                                        board_avail = false;
-                                        Intent intent = new Intent(MapPath.this, MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                })
-                                .show();  // 다이얼로그 표시
 
-                    } else {
+                        // Inflate the custom layout
+                        LayoutInflater inflater = getLayoutInflater();
+                        View dialogView = inflater.inflate(R.layout.dialog_end, null);
+
+                        // Create the AlertDialog and set the custom view
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MapPath.this, R.style.RoundedCornerDialog);
+                        builder.setView(dialogView);
+
+                        // Create the AlertDialog instance
+                        AlertDialog dialog = builder.create();
+
+                        // Find the initBtn in the dialog layout and set the click listener
+                        Button initBtn = dialogView.findViewById(R.id.initBtn);
+                        initBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // Handle the button click
+                                state = STATE_IDLE;
+                                board_avail = false;
+                                Intent intent = new Intent(MapPath.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+
+                        // Show the dialog
+                        dialog.show();
+
+                } else {
                         // DELETE 요청 실패 시 처리
                         Log.e("ChatActivity", "DELETE 요청 실패: " + statusCode);
                     }
@@ -468,7 +483,6 @@ public class MapPath extends AppCompatActivity
         // 탑승 불가능 상태
         else if (state == STATE_IDLE){
 
-
             showToastMessage("아직 차가 도착하지 않았습니다");
         }
         else if(state == STATE_BOARDING){
@@ -492,31 +506,46 @@ public class MapPath extends AppCompatActivity
         if (state == STATE_IDLE){
             // 탑승을 아직 안했는데 비상 정지 버튼 누를 때
             showToastMessage("탑승을 아직 안했습니다.");
-        }
-        else if(state == STATE_BOARDING){
+        }else if (state == STATE_BOARDING) {
             // 비상정지 버튼 누를 때
-            new AlertDialog.Builder(this)
-                    .setTitle("주의")  // 타이틀 설정
-                    .setMessage("차량을 정지하시겠습니까?")  // 메시지 설정
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Yes를 눌렀을 때 동작
-                            state = STATE_EMERGENCY_STOP;
-                            rightButton.setText("이동 재개");
-                            sendMessage(SIGNAL_APP_TOPIC,"{" +
-                                    "\"command\" : \"stop\"" +
-                                    "}");
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss(); // 다이얼로그 닫기
-                        }
-                    })
-                    .show();  // 다이얼로그 표시
-        }else if(state == STATE_EMERGENCY_STOP){
+            LayoutInflater inflater = getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.dialog_stop, null);
+
+            // AlertDialog 생성
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.RoundedCornerDialog);
+            builder.setView(dialogView); // 커스텀 레이아웃 설정
+
+            AlertDialog dialog = builder.create();
+
+            // 커스텀 다이얼로그에서 Yes와 No 버튼을 찾아서 클릭 리스너 설정
+            AppCompatButton yesButton = dialogView.findViewById(R.id.yesBtn);
+            AppCompatButton noButton = dialogView.findViewById(R.id.noBtn);
+
+            yesButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Yes 버튼을 눌렀을 때 동작
+                    state = STATE_EMERGENCY_STOP;
+                    rightButton.setText("이동 재개");
+                    sendMessage(SIGNAL_APP_TOPIC, "{" +
+                            "\"command\" : \"stop\"" +
+                            "}");
+                    dialog.dismiss();  // 다이얼로그 닫기
+                }
+            });
+
+            noButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // No 버튼을 눌렀을 때 동작
+                    dialog.dismiss(); // 다이얼로그 닫기
+                }
+            });
+
+            // 다이얼로그 표시
+            dialog.show();
+
+    }else if(state == STATE_EMERGENCY_STOP){
             state = STATE_BOARDING;
             rightButton.setText("비상 정지");
             sendMessage(SIGNAL_APP_TOPIC,"{" +
@@ -822,7 +851,7 @@ public class MapPath extends AppCompatActivity
         if(drawableId!=0){
             // 리소스에서 비트맵 이미지를 불러오고 크기를 조정
             Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), drawableId);
-            Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 150, 150, false);  // 원하는 크기로 조절 (200x200 예시)
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 200, 220, false);  // 원하는 크기로 조절 (200x200 예시)
 
             // 리사이즈한 비트맵을 마커에 적용
             BitmapDescriptor customMarker = BitmapDescriptorFactory.fromBitmap(resizedBitmap);

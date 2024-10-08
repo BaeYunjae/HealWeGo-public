@@ -52,7 +52,7 @@
         android:orientation="vertical"
         android:layout_gravity="bottom"
         android:background="@drawable/white_rectangle"
-        android:paddingTop="10dp"
+        android:paddingTop="15dp"
         android:layout_marginBottom="10dp"
         android:layout_marginHorizontal="10dp">
 
@@ -100,6 +100,9 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="5dp"
             >
 
             <!-- 첫 번째 버튼 -->
