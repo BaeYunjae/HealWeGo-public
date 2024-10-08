@@ -27,7 +27,7 @@
         android:text="목적지로 설정"
         android:fontFamily="@font/scdream5"
         android:textColor="@color/black"
-        android:textSize="30sp"
+        android:textSize="28sp"
         />
 
 

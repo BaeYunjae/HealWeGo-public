@@ -26,7 +26,7 @@
         android:backgroundTint="@color/lightteal"
         android:text="출발지로 설정"
         android:textColor="@color/black"
-        android:textSize="30sp"
+        android:textSize="28sp"
         android:fontFamily="@font/scdream5"
         />
 

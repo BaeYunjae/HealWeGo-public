@@ -16,9 +16,10 @@
         android:fontFamily="@font/scdream5"
         android:textSize="18sp"
         android:paddingTop="10dp"
-        android:paddingBottom="30dp"
+        android:paddingBottom="20dp"
         android:background="@drawable/button_background"
-        android:gravity="center" />
+        android:gravity="center"
+        android:layout_marginBottom="10dp"/>
 
     <!-- 예약 취소 버튼 -->
     <androidx.appcompat.widget.AppCompatButton
@@ -28,9 +29,9 @@
         android:text="예약 취소"
         android:textColor="@android:color/white"
         android:textSize="18sp"
-        android:fontFamily="@font/scdream6"
         android:paddingTop="10dp"
-        android:paddingBottom="30dp"
+        android:paddingBottom="20dp"
+        android:fontFamily="@font/scdream6"
         android:background="@drawable/cancel_button"
         android:gravity="center" />
 

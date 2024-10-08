@@ -782,7 +782,7 @@ public class MapPath extends AppCompatActivity
         if (currentMarkerWithImage != null) {
             String current = getCurrentAddress(currentMarkerWithImage.getPosition());
             current = current.replace("대한민국","");
-            currentText.setText("현재위치 : "+ current +"                  ");
+            currentText.setText("현재 위치 : "+ current +"                  ");
         }
         if (decodedLocName != null) {
             decodedLocName = decodedLocName.replace("대한민국","");
