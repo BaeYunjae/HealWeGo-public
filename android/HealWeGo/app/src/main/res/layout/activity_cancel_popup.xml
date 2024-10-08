@@ -27,7 +27,7 @@
         android:backgroundTint="@color/teal"
         android:background="@drawable/background_radius"
         android:layout_margin="10dp"
-        android:padding="10dp"/>
+        android:padding="15dp"/>
 
     <TextView
         android:layout_width="match_parent"
