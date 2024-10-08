@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".CreateRoomActivity">
+    tools:context=".CreateRoomActivity"
+    android:background="@drawable/gradient">
 
 
         <!-- 방 정보 입력 -->
@@ -13,11 +14,11 @@
             android:id="@+id/textTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="50dp"
             android:layout_marginLeft="20dp"
-            android:text="어떤 방을 만들어 볼까요?"
-            android:textColor="@color/darkteal"
-            android:textSize="20sp"
+            android:text="방을 만들어 볼까요?"
+            android:textColor="@color/black"
+            android:textSize="25sp"
             android:fontFamily="@font/scdream6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,32 +38,38 @@
             app:layout_constraintTop_toBottomOf="@id/textTitle" />
 
         <!-- 출발 시간 설정 -->
-
-        <TextView
-            android:id="@+id/startTimeLabel"
+        <LinearLayout
+            android:id="@+id/time_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="20dp"
-            android:text="출발 시간 선택"
-            android:textColor="@android:color/black"
-            android:textSize="20sp"
-            android:fontFamily="@font/scdream6"
-            app:layout_constraintBottom_toTopOf="@id/timeSpinner"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editRoomTitle" />
-
-        <!-- 출발시간 선택을 위한 Spinner -->
-        <Spinner
-            android:id="@+id/timeSpinner"
-            android:layout_width="240dp"
-            android:layout_height="50dp"
-            android:background="@drawable/spinner_background"
-            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/startTimeLabel"
-            app:layout_constraintTop_toBottomOf="@id/startTimeLabel" />
+            app:layout_constraintTop_toBottomOf="@+id/editRoomTitle"
+            app:layout_constraintBottom_toTopOf="@+id/buttonFindDestination">
+
+            <TextView
+                android:id="@+id/startTimeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/scdream6"
+                android:text="출발 시간"
+                android:textColor="@color/darkteal"
+                android:textSize="18sp"
+                android:layout_marginRight="10dp"/>
+
+            <!-- 출발시간 선택을 위한 Spinner -->
+            <Spinner
+                android:id="@+id/timeSpinner"
+                android:layout_width="240dp"
+                android:layout_height="50dp"
+                android:background="@drawable/spinner_background"
+                android:layout_marginLeft="10dp"/>
+
+        </LinearLayout>
+
+
 
         <!-- 목적지 찾기 버튼 -->
         <android.widget.Button
@@ -74,17 +81,17 @@
             android:textSize="20sp"
             android:fontFamily="@font/scdream5"
             android:maxLines="1"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/timeSpinner" />
+            app:layout_constraintTop_toBottomOf="@+id/time_layout" />
 
         <!-- 필터 설정 제목 -->
         <TextView
             android:id="@+id/textFilterTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="30dp"
             android:text="필터 설정"
             android:textColor="@color/darkteal"
             android:textSize="18sp"
@@ -100,7 +107,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/filter_border"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:padding="16dp"
@@ -195,7 +202,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="테마 설정"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="30dp"
             android:textColor="@color/darkteal"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -210,7 +217,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/filter_border"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:padding="16dp"
@@ -223,58 +230,73 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
+                android:layout_marginBottom="5dp"
                 android:gravity="center">
 
-            <Button
-                android:id="@+id/buttonThemeHealing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/lightteal"
-                android:text="힐링"
-                android:fontFamily="@font/locus_sangsang"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toStartOf="@+id/buttonThemeExtreme"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                <Button
+                    android:id="@+id/buttonThemeHealing"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/lightteal"
+                    android:text="힐링"
+                    android:fontFamily="@font/scdream5"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:layout_marginRight="10dp"
+                    app:layout_constraintEnd_toStartOf="@+id/buttonThemeExtreme"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
-                android:id="@+id/buttonThemeExtreme"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/lightteal"
-                android:text="익스트림"
-                android:fontFamily="@font/locus_sangsang"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/buttonThemeHealing"
-                app:layout_constraintTop_toTopOf="parent" />
-            <Button
-                android:id="@+id/buttonThemeFood"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/lightteal"
-                android:text="먹부림"
-                android:fontFamily="@font/locus_sangsang"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:layout_constraintTop_toBottomOf="@id/buttonThemeHealing"
-                app:layout_constraintEnd_toStartOf="@id/buttonThemeMeeting"
-                app:layout_constraintStart_toStartOf="parent" />
+                <Button
+                    android:id="@+id/buttonThemeExtreme"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/lightteal"
+                    android:text="익스트림"
+                    android:fontFamily="@font/scdream5"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/buttonThemeHealing"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
-                android:id="@+id/buttonThemeMeeting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/lightteal"
-                android:text="만남"
-                android:fontFamily="@font/locus_sangsang"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/buttonThemeHealing"
-                app:layout_constraintStart_toEndOf="@id/buttonThemeFood" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginTop="5dp"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/buttonThemeFood"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/lightteal"
+                    android:text="먹부림"
+                    android:fontFamily="@font/scdream5"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:layout_marginRight="10dp"
+                    app:layout_constraintTop_toBottomOf="@id/buttonThemeHealing"
+                    app:layout_constraintEnd_toStartOf="@id/buttonThemeMeeting"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonThemeMeeting"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/lightteal"
+                    android:text="만남"
+                    android:fontFamily="@font/scdream5"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/buttonThemeHealing"
+                    app:layout_constraintStart_toEndOf="@id/buttonThemeFood" />
 
             </LinearLayout>
 
