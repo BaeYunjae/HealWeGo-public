@@ -71,7 +71,6 @@ public class ChatListActivity extends AppCompatActivity {
             ChatListActivity chatListActivity = weakReference.get();
             if (chatListActivity != null && !chatListActivity.isFinishing()) {
                 String jsonString = (String) msg.obj;
-                Toast.makeText(chatListActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
                 Log.i("ChatListActivity", "응답: " + jsonString);
                 chatListActivity.handleRoomResponse(jsonString);
             }
@@ -243,8 +242,6 @@ public class ChatListActivity extends AppCompatActivity {
             selectedGender = selectedFilter;
             saveSelectedFilter(selectedFilter);
 
-            Toast.makeText(ChatListActivity.this, selectedFilter + " 필터가 선택되었습니다.", Toast.LENGTH_SHORT).show();
-
             requestRoomList();  // 필터 적용 후 목록 갱신
 
             dialog.dismiss();  // 다이얼로그 닫기
@@ -314,7 +311,6 @@ public class ChatListActivity extends AppCompatActivity {
             }
         } catch(JSONException e){
             Log.e("ChatListActivity", "응답 처리 중 오류 발생", e);
-            Toast.makeText(this, "Chat 응답 처리 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -13,12 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.amazonaws.mobile.client.AWSMobileClient;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -165,7 +162,6 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
             // 2. "body" 필드를 문자열로 가져오고 JSONObject로 변환
             String body = responseObject.optString("body", null);
             if (body == null) {
-                Toast.makeText(context, "잘못된 응답입니다.", Toast.LENGTH_SHORT).show();
                 return;
             }
             JSONObject bodyJson = new JSONObject(body);
@@ -202,7 +198,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.RoomVi
 
         } catch (JSONException e) {
             // JSON 파싱 오류 처리
-            Toast.makeText(context, "Room 응답 처리 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+            Log.i("RoomList", "JSON 파싱 오류 : " + e);
         }
     }
 }

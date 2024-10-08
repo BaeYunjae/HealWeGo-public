@@ -4,10 +4,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.amazonaws.mobile.client.AWSMobileClient;
-
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -24,8 +20,8 @@ public class ApiRequestHandler {
                 URL url = new URL(mUrl);
                 Log.i("URL: ", mUrl);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.setReadTimeout(3000);
-                httpURLConnection.setConnectTimeout(3000);
+                httpURLConnection.setReadTimeout(10000);
+                httpURLConnection.setConnectTimeout(10000);
                 httpURLConnection.setDoInput(true);
                 httpURLConnection.setRequestMethod(connMethod);
                 httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");  // UTF-8 설정

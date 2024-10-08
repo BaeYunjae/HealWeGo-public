@@ -1,6 +1,5 @@
 package com.example.healwego;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,13 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.amazonaws.mobile.client.AWSMobileClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,7 +52,6 @@ public class MemInfoActivity extends AppCompatActivity {
             if (memInfoActivity != null && !memInfoActivity.isFinishing()) {
                 // 액티비티가 여전히 존재하는 경우에만 작업 수행
                 String jsonString = (String) msg.obj;
-                Toast.makeText(memInfoActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
                 Log.i("MemInfoActivity", "응답: " + jsonString);
             }
         }

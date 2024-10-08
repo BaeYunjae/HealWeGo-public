@@ -27,7 +27,6 @@ import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.amazonaws.mobile.client.AWSMobileClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -104,7 +103,6 @@ public class TogetherSelectStart extends AppCompatActivity
             if (togetherSelectStart != null && !togetherSelectStart.isFinishing()) {
                 // 액티비티가 여전히 존재하는 경우에만 작업 수행
                 String jsonString = (String) msg.obj;
-                Toast.makeText(togetherSelectStart.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
                 Log.i("TogetherSelectStart", "응답: " + jsonString);
             }
         }

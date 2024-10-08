@@ -119,7 +119,6 @@ public class ChatActivity extends AppCompatActivity {
             if (chatActivity != null && !chatActivity.isFinishing()) {
                 // 액티비티가 여전히 존재하는 경우에만 작업 수행
                 String jsonString = (String) msg.obj;
-                Toast.makeText(chatActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
                 Log.i("ChatActivity", "응답: " + jsonString);
                 chatActivity.handleParticipantsResponse(jsonString);
             }

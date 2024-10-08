@@ -1,6 +1,5 @@
 package com.example.healwego;
 
-import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -17,12 +16,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.amazonaws.mobile.client.AWSMobileClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,7 +46,6 @@ public class AloneSetActivity extends AppCompatActivity {  // 이름 변경
             if (aloneSetActivity != null && !aloneSetActivity.isFinishing()) {
                 // 액티비티가 여전히 존재하는 경우에만 작업 수행
                 String jsonString = (String) msg.obj;
-                Toast.makeText(aloneSetActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
                 Log.i("ExampleActivity", "응답: " + jsonString);
             }
         }
@@ -93,7 +88,6 @@ public class AloneSetActivity extends AppCompatActivity {  // 이름 변경
             @Override
             public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
                 selectedTime = availableTimes.get(position);
-                Toast.makeText(AloneSetActivity.this, "선택된 시간: " + selectedTime, Toast.LENGTH_SHORT).show();
             }
 
             @Override

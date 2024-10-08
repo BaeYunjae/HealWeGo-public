@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import android.util.Pair;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import org.w3c.dom.Text;
-
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int VIEW_TYPE_WELCOME = 0; // 환영 메시지

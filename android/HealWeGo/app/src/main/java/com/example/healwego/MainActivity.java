@@ -22,7 +22,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -76,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
             if (mainActivity != null && !mainActivity.isFinishing()) {
                 // 액티비티가 여전히 존재하는 경우에만 작업 수행
                 String jsonString = (String) msg.obj;
-                Toast.makeText(mainActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
                 Log.i("mainActivity", "응답: " + jsonString);
 
                 // 응답을 처리하는 메서드 호출
@@ -101,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
             if (mainActivity != null && !mainActivity.isFinishing()) {
                 // 액티비티가 여전히 존재하는 경우에만 작업 수행
                 String jsonString = (String) msg.obj;
-                Toast.makeText(mainActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
                 Log.i("mainActivity", "응답: " + jsonString);
 
                 // 응답을 처리하는 메서드 호출
@@ -233,7 +230,6 @@ public class MainActivity extends AppCompatActivity {
                 buttonAlone.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(context, "혼자가기 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
                         if(isLoad == 0) return;
 
                         // PathSelect로 이동
@@ -245,7 +241,6 @@ public class MainActivity extends AppCompatActivity {
                 buttonTogether.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(context, "함께가기 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
                         if(isLoad == 0) return;
 
                         // TogetherSelectStart로 이동
@@ -296,7 +291,6 @@ public class MainActivity extends AppCompatActivity {
                 buttonReserve.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(context, "예약현황 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
                         if(isLoad == 0) return;
 
                         // TogetherSelectStart로 이동
@@ -308,7 +302,6 @@ public class MainActivity extends AppCompatActivity {
                 buttonCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v){
-                        Toast.makeText(context, "예약취소 버튼이 눌렸어요.", Toast.LENGTH_SHORT).show();
                         if(isLoad == 0) return;
 
                         ;
@@ -396,8 +389,6 @@ public class MainActivity extends AppCompatActivity {
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Toast 메시지 표시
-                        Toast.makeText(context, "이미지 클릭!!", Toast.LENGTH_SHORT).show();
                         if(isLoad == 0) return;
 
                         // 다이얼로그로 RecommendPopUpActivity 대체

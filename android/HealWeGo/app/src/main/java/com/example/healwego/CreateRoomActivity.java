@@ -3,7 +3,6 @@ package com.example.healwego;
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,11 +31,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.content.ContextCompat;
 
-import com.amazonaws.mobile.client.AWSMobileClient;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.lang.ref.WeakReference;
 
@@ -44,7 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
-import java.util.UUID;
 
 public class CreateRoomActivity extends AppCompatActivity {
 
@@ -78,7 +73,6 @@ public class CreateRoomActivity extends AppCompatActivity {
             if (createRoomActivity != null && !createRoomActivity.isFinishing()) {
                 // 액티비티가 여전히 존재하는 경우에만 작업 수행
                 String jsonString = (String) msg.obj;
-                Toast.makeText(createRoomActivity.getApplicationContext(), jsonString, Toast.LENGTH_LONG).show();
                 Log.i("CreateRoomActivity", "응답: " + jsonString);
             }
         }
