@@ -208,6 +208,19 @@ public class PathSelect extends AppCompatActivity
             }
         });
 
+        Button myLocationButton = findViewById(R.id.my_location_button);
+        myLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCurrentLocatiion != null) {
+                    LatLng currentLatLng = new LatLng(mCurrentLocatiion.getLatitude(), mCurrentLocatiion.getLongitude());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
+                } else {
+                    Toast.makeText(PathSelect.this, "현재 위치를 사용할 수 없습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         // 뒤로가기 버튼을 처리하는 부분
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
