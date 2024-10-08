@@ -21,14 +21,14 @@
         android:text="모든 대화 내역이 삭제됩니다."
         android:textSize="18sp"
         android:textColor="@color/black"
-        android:layout_marginTop="30dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="25dp"
         android:fontFamily="@font/scdream4"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:layout_marginBottom="20dp"
         android:layout_marginRight="20dp"
         android:orientation="horizontal"
@@ -43,7 +43,7 @@
             android:background="@drawable/no_button"
             android:textColor="@color/white"
             android:gravity="center"
-            android:layout_marginRight="30dp"
+            android:layout_marginRight="20dp"
             android:fontFamily="@font/scdream5"/>
 
         <androidx.appcompat.widget.AppCompatButton
