@@ -342,6 +342,9 @@ public class PathSelect extends AppCompatActivity
 
             }
         });
+
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
+
         mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
             public void onCameraMoveStarted(int reason) {
@@ -352,7 +355,6 @@ public class PathSelect extends AppCompatActivity
             }
         });
 
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
