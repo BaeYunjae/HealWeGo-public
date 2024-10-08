@@ -263,16 +263,32 @@ public class MainActivity extends AppCompatActivity {
                 View buttonLayout = inflater.inflate(R.layout.button_layout_reserve_cancel, parentLayout, false);
 
                 // 인플레이트한 레이아웃에서 버튼 객체를 찾음
-                Button buttonReserve = buttonLayout.findViewById(R.id.buttonReserve);
                 Button buttonCancel = buttonLayout.findViewById(R.id.buttonCancel);
 
                 // 예약된 일정 정보 세팅
+                // XML에서 정의한 요소들 참조
+                // 수정된 부분: 올바른 뷰 참조 방식 (buttonLayout에서 찾음)
+                LinearLayout buttonReserve = (LinearLayout) buttonLayout.findViewById(R.id.buttonReserve);
+                TextView textRoom = (TextView) buttonLayout.findViewById(R.id.textRoom);
+                TextView textDepartureTime = (TextView) buttonLayout.findViewById(R.id.textDepartureTime);
+                TextView textDestination = (TextView) buttonLayout.findViewById(R.id.textDestination);
+
+                // JSON 데이터 가져오기
                 String roomName = bodyJson.getString("roomname");
                 String locName = bodyJson.getString("Loc_name");
                 String start = bodyJson.getString("start");
-                start = start.substring(0, 2) + ":" + start.substring(2);
-                String displayTxt = roomName + "\n목적지 : " + locName + "\n출발 시각 : " + start;
-                buttonReserve.setText(displayTxt);
+                start = start.substring(0, 2) + ":" + start.substring(2);  // "start" 값을 HH:mm 형식으로 변환
+
+                // displayTxt를 그대로 유지하여 하나의 문자열로 구성
+                String displayTxt = roomName + "\n출발 시각 : " + start + "\n목적지 : " + locName;
+
+                // 각 TextView에 개별적으로 값 설정
+                textRoom.setText(roomName); // 방 이름 설정
+                textDepartureTime.setText(start); // 출발 시각 설정
+                textDestination.setText(locName); // 목적지 설정
+
+                // displayTxt를 로그로 출력하거나 필요한 곳에서 사용
+                Log.d("ReservationInfo", displayTxt);
 
                 // 버튼들을 parentLayout에 추가
                 parentLayout.addView(buttonLayout);

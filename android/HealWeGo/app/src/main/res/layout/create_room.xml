@@ -81,7 +81,7 @@
             android:textSize="20sp"
             android:fontFamily="@font/scdream5"
             android:maxLines="1"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/time_layout" />
@@ -202,7 +202,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="테마 설정"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="20dp"
             android:textColor="@color/darkteal"
             android:textSize="18sp"
             android:textStyle="bold"
