@@ -766,7 +766,7 @@ public class MapPath extends AppCompatActivity
         }
 
         // 리소스에서 비트맵 이미지를 불러오고 크기를 조정
-        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
+        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo_remove);
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 200, 200, false);  // 원하는 크기로 조절 (100x100 예시)
 
         // 리사이즈한 비트맵을 마커에 적용
