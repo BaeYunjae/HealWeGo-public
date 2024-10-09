@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout loadView;
     private int isLoad = 0;
 
+    private notificationPermission permission;
+
     // MyHandler를 static으로 선언하여 메모리 누수를 방지하고, WeakReference로 액티비티 참조
     private static class ReserveHandler extends Handler {
         private final WeakReference<MainActivity> weakReference;
@@ -128,9 +130,6 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("userID", userID);
             editor.apply(); // 값을 비동기적으로 저장
         }
-
-//        String userId = AWSMobileClient.getInstance().getUsername();
-//        Constant.setUserNameKey(userId);
 
         Animation loadAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.progress_image);
         loadView = (RelativeLayout)findViewById(R.id.loadView);
@@ -413,10 +412,21 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         isLoad = 1;
+
+        permissionCheck();
     }
 
     public static int ConvertDPtoPX(Context context, int dp) {
         float density = context.getResources().getDisplayMetrics().density;
         return Math.round((float) dp * density);
+    }
+
+    // 알림 권한 설정 관련
+    private void permissionCheck(){
+        permission = new notificationPermission(this, this);
+        if (!permission.checkPermission()){
+            //권한 요청
+            permission.requestPermission();
+        }
     }
 }
