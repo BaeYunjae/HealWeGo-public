@@ -142,7 +142,7 @@ public class PaymentCompleteActivity extends AppCompatActivity {
         String apiURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/room/in";
 
         JSONObject body = new JSONObject();
-        int maxRetryCount = 3; // 최대 재시도 횟수
+        int maxRetryCount = 10; // 최대 재시도 횟수
         sendPatchRequestWithRetry(apiURL, connMethod, body, maxRetryCount);
     }
 
