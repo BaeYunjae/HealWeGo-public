@@ -33,6 +33,14 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 ## 주요 기능
 ---
 ## 차량
+
+### 경로설정
+
+- 받아온 GPS 값을 시뮬레이터 상의 UTM 값으로 변환합니다.
+- Dijkstra 알고리즘을 이용해 출발지, 경유지, 도착지를 통과하는 최단 순서를 측정합니다.
+- 응급상황인 경우 차량 위치 기준으로 가장 가까운 갓길로 경로를 변경합니다.
+
+
 ### ACC(Adaptive Cruise Control)
 
 
@@ -97,29 +105,35 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 ### 장소 추천 기능
 -  방문자 수 기준으로 가장 높은 5곳의 장소를 추천합니다.
 
-  <p align="center">
-      <img src="./images/recommend.gif" align="center" width="30%">
-  </p> 
+    <p align="center">
+        <img src="./images/recommend.gif" align="center" width="30%">
+    </p> 
 
 <br>
 
 ### 경로 설정
 - 혼자가기 경로 설정
-<br>
-(gif)
+
+  <p align="center">
+      <img src="./images/alone_path.gif" align="center" width="30%">
+  </p> 
+
 
 - 함께가기 출발지 설정
-<br>
-(gif)
+
+  <p align="center">
+      <img src="./images/together_path.gif" align="center" width="30%">
+  </p> 
+
 
 <br>
 
 ### 채팅 목록 필터 
 - 원하는 여행 테마, 성별 필터에 따라 채팅방을 조회할 수 있습니다. 
 
-  <p align="center">
-      <img src="./images/filter.gif" align="center" width="30%">
-  </p> 
+    <p align="center">
+        <img src="./images/filter.gif" align="center" width="30%">
+    </p> 
 
 <br>
 
@@ -146,8 +160,10 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 - 채팅방 참여자는 READY 버튼을 눌러 동행 여부를 확정합니다. 
 - 방장은 참여자가 모두 READY를 한 경우 GO 버튼을 눌러 일정을 확정합니다. 
 
-<br>
-(gif)
+  <p align="center">
+      <img src="./images/ready.PNG" align="center" width="30%">
+      <img src="./images/go.PNG" align="center" width="30%">
+  </p> 
 
 <br>
 
@@ -156,7 +172,10 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 - 함께가기의 경우 모든 참여자가 동시에 자동 결제 진행됩니다. 
 
 <br>
-(혼자가기gif)(요금결제gif)
+
+  <p align="center">
+      <img src="./images/pay.jpg" align="center" width="30%">
+  </p>
 
 <br>
 
@@ -166,17 +185,17 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 - ROS와 Android는 AWS IoT Core 를 통해 MQTT통신으로 값을 전송합니다. 
 
 <br>
-(앱 gif)(시뮬레이터 gif)
-
-<br>
 
 ### 경로 표시
 - ROS에서 계산한 최적의 경로를 Android 앱에서 표시합니다.
 - ROS에서 Dijkstra 알고리즘으로 최적의 경로를 계산합니다.
 - ROS에서 계산한 경로 노드 정보를 Android에서 받은 후 최적화 작업을 거쳐 지도에 표시합니다. 
 
-<br>
-(gif)
+  <p align="center">
+      <img src="./images/path.gif" width="30%">
+      <img src="./images/morai.gif" width="60%">
+  </p> 
+
 
 <br>
 
@@ -200,8 +219,9 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 - 차량 내에서 응급 상황이나 비상 상황이 발생하면 비상 정지를 할 수 있습니다.
 - 비상 정지 후 차량이 갓길에 정차하고, 해당 버튼을 누른 사람이 이동 재개 버튼을 누르면 다시 주행을 시작합니다.
 
-<br>
-(gif)
+  <p align="center">
+      <img src="./images/emergency_stop.gif" align="center" width="30%">
+  </p>
 
 <br>
 <br>
