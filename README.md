@@ -170,9 +170,6 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 ### 요금 결제
 - 혼자가기의 경우 출발 시간을 선택하고, 예상 결제 요금 확인할 수 있습니다. 
 - 함께가기의 경우 모든 참여자가 동시에 자동 결제 진행됩니다. 
-
-<br>
-
   <p align="center">
       <img src="./images/pay.jpg" align="center" width="30%">
   </p>
