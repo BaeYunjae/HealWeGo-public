@@ -31,64 +31,62 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 <br>
 
 ## 주요 기능
-### 차량
-#### ACC(Adaptive Cruise Control)
+---
+## 차량
+### ACC(Adaptive Cruise Control)
 
-<p align="center">
-  <img src="./images/ACC.gif" align="center" width="80%">
-</p> 
 
 - V2X 기술을 이용하여 주변 차량의 속도를 측정합니다.
 - 주변 차량 속도와 현재 EGO 차량의 속도로 상대속도를 구합니다. 
 - 이를 타겟 속도로 세팅하여 충돌 안전 거리를 유지합니다.
 
+
+<p align="center">
+  <img src="./images/ACC.gif" align="center" width="80%">
+</p> 
 <br>
 
-#### 신호등 감지
+### 신호등 감지
+
+- EGO 차량 주변 일정 거리 안에 신호등이 들어오면 이를 ROS 통신으로 Signal Value를 수신합니다.
+- 경로상의 방향을 비교하여 같을 시에 정상 주행 아닐 시에는 정지선 전에 차량이 정지합니다.
 
 <p align="center">
   <img src="./images/light.gif" align="center" width="80%">
 </p> 
 
-- EGO 차량 주변 일정 거리 안에 신호등이 들어오면 이를 ROS 통신으로 Signal Value를 수신합니다.
-- 경로상의 방향을 비교하여 같을 시에 정상 주행 아닐 시에는 정지선 전에 차량이 정지합니다.
 
 <br>
 
-#### 장애물 회피
+### 장애물 회피
+
+- EGO 차량 전방에 장애물이 있을 시에 차선 이동을 통해 장애물을 회피합니다.
+- 이때, 주변 차량이 있는지 확인하여서 안전거리를 확보한 뒤에 차량이 회피 주행합니다.
 
 <p align="center">
   <img src="./images/obstacle.gif" align="center" width="80%">
 </p> 
 
-- EGO 차량 전방에 장애물이 있을 시에 차선 이동을 통해 장애물을 회피합니다.
-- 이때, 주변 차량이 있는지 확인하여서 안전거리를 확보한 뒤에 차량이 회피 주행합니다.
-
 <br>
 
-#### 3D 시각화
+### 3D 시각화
+
+- MORAI 시뮬레이터에서 차량 센서값, 맵데이터를 통해 3D 시각화 Tool(rviz)로 실시간으로 동작 확인이 가능합니다.  
 
 <p align="center">
   <img src="./images/rviz.PNG" align="center" width="80%">
 </p> 
 
-- MORAI 시뮬레이터에서 차량 센서값, 맵데이터를 통해 3D 시각화 Tool(rviz)로 실시간으로 동작 확인이 가능합니다.  
 
 <br>
 <br>
 
-### 애플리케이션
-#### 회원가입 및 로그인 기능
+## 애플리케이션
+### 회원가입 및 로그인 기능
 - 로그인 후 성별, 나이, 카드 결제 정보를 등록합니다. 
-
-<br>
-
 - AWS Amplify
   - 애플리케이션에 사용자 인증 및 권한 부여를 위해 AWS Cognito와 통합
   - 사전 빌드된 인증 모듈을 이용해 사용자 인증 및 권한 부여를 구현
-
-<br>
-
 - AWS Cognito
   - 사용자를 인증하고 권한을 부여
   - AWS의 보안 인프라를 활용하여 사용자 데이터 및 인증 정보를 안전하게 보호
@@ -96,16 +94,16 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 
 <br>
 
-#### 장소 추천 기능
+### 장소 추천 기능
 -  방문자 수 기준으로 가장 높은 5곳의 장소를 추천합니다.
 
-    <p align="center">
-        <img src="./images/recommend.gif" align="center" width="30%">
-    </p> 
+  <p align="center">
+      <img src="./images/recommend.gif" align="center" width="30%">
+  </p> 
 
 <br>
 
-#### 경로 설정
+### 경로 설정
 - 혼자가기 경로 설정
 <br>
 (gif)
@@ -116,33 +114,35 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 
 <br>
 
-#### 채팅 목록 필터 
+### 채팅 목록 필터 
 - 원하는 여행 테마, 성별 필터에 따라 채팅방을 조회할 수 있습니다. 
 
-    <p align="center">
-        <img src="./images/filter.gif" align="center" width="30%">
-    </p> 
+  <p align="center">
+      <img src="./images/filter.gif" align="center" width="30%">
+  </p> 
 
 <br>
 
-#### 채팅방 생성
+### 채팅방 생성
 - 방 제목, 출발 시간, 목적지 설정, 성별 및 나이 필터, 테마를 설정합니다.
 
-<br>
-(gif)
+  <p align="center">
+    <img src="./images/create1.gif" width="30%">
+    <img src="./images/create2.gif" width="30%">
+  </p>
 
 <br>
 
-#### 다대다 채팅
+### 다대다 채팅
 - 채팅방에 참여한 사람들은 양방향 채팅을 할 수 있습니다.
 
-    <p align="center">
-        <img src="./images/chatting.gif" align="center" width="30%">
-    </p> 
+  <p align="center">
+      <img src="./images/chatting.gif" align="center" width="30%">
+  </p> 
 
 <br>
 
-#### 참여자 READY 및 방장 GO 버튼
+### 참여자 READY 및 방장 GO 버튼
 - 채팅방 참여자는 READY 버튼을 눌러 동행 여부를 확정합니다. 
 - 방장은 참여자가 모두 READY를 한 경우 GO 버튼을 눌러 일정을 확정합니다. 
 
@@ -151,7 +151,7 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 
 <br>
 
-#### 요금 결제
+### 요금 결제
 - 혼자가기의 경우 출발 시간을 선택하고, 예상 결제 요금 확인할 수 있습니다. 
 - 함께가기의 경우 모든 참여자가 동시에 자동 결제 진행됩니다. 
 
@@ -160,7 +160,7 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 
 <br>
 
-#### 실시간 차량 위치 확인
+### 실시간 차량 위치 확인
 - MORAI와 Android 간 통신으로 차량의 실시간 위치를 확인할 수 있습니다. 
 - MORAI 시뮬레이터 내에 GPS센서 값을 rosbridge websocket을 통해 ROS에 전송합니다. 
 - ROS와 Android는 AWS IoT Core 를 통해 MQTT통신으로 값을 전송합니다. 
@@ -170,7 +170,7 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 
 <br>
 
-#### 경로 표시
+### 경로 표시
 - ROS에서 계산한 최적의 경로를 Android 앱에서 표시합니다.
 - ROS에서 Dijkstra 알고리즘으로 최적의 경로를 계산합니다.
 - ROS에서 계산한 경로 노드 정보를 Android에서 받은 후 최적화 작업을 거쳐 지도에 표시합니다. 
@@ -180,23 +180,23 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 
 <br>
 
-#### 예약 확인 및 취소
+### 예약 확인 및 취소
 - 일정을 잊지 않도록 예약 확인할 수 있습니다.
 - 예약된 일정을 누르면 차량 위치를 확인할 수 있는 지도로 이동할 수 있습니다. 
 
-    <p align="center">
-        <img src="./images/reserve.gif" align="center" width="30%">
-    </p>
+  <p align="center">
+      <img src="./images/reserve.gif" align="center" width="30%">
+  </p>
 
 - 부득이하게 일정을 취소해야 하는 경우 예약을 취소할 수 있습니다. 
 
-    <p align="center">
-        <img src="./images/cancel.gif" align="center" width="30%">
-    </p>
+  <p align="center">
+      <img src="./images/cancel.gif" align="center" width="30%">
+  </p>
 
 <br>
 
-#### 비상 정지
+### 비상 정지
 - 차량 내에서 응급 상황이나 비상 상황이 발생하면 비상 정지를 할 수 있습니다.
 - 비상 정지 후 차량이 갓길에 정차하고, 해당 버튼을 누른 사람이 이동 재개 버튼을 누르면 다시 주행을 시작합니다.
 
@@ -206,7 +206,7 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 <br>
 <br>
 
-### 서버
+## 서버
 
 - 서버리스 아키텍처
   - AWS API Gateway
