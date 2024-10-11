@@ -137,10 +137,14 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 #### 예약 확인 및 취소
 - 일정을 잊지 않도록 예약 확인할 수 있습니다.
 - 예약된 일정을 누르면 차량 위치를 확인할 수 있는 지도로 이동할 수 있습니다. 
-    ![reserve.gif](./images/reserve.gif)
+    <p align="center">
+        <img src="./images/reserve.gif" align="center" width="40%">
+    </p>
 
 - 부득이하게 일정을 취소해야 하는 경우 예약을 취소할 수 있습니다. 
-    ![cancel.gif](./images/cancel.gif)
+    <p align="center">
+        <img src="./images/cancel.gif" align="center" width="40%">
+    </p>
 
 <br>
 
@@ -224,6 +228,24 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 3. 브로커에서 MQTT.py로 *signal/app/{car_id}* 토픽을 통해 *resume* 메세지로 운행 재개 신호를 수신한다.
 4. 만약 현재 긴급 정지 상태가 아니라면, MQTT.py에서 dijkstra.py와 ACC.py로 */stopped* 토픽을 통해 False 메세지를 송신하여 운행 재개 신호를 송신한다.
 
+
+<br>
+<br>
+
+## ERD
+<p align="center">
+  <img src="./images/erd.png">
+</p>
+
+
+<br>
+<br>
+
+## 화면 설계 (Figma)
+<p align="center">
+  <img src="./images/app_design.png">
+</p>
+
 <br>
 <br>
 
@@ -240,6 +262,7 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
     - Dijkstra
 
 ### 애플리케이션
+- Figma
 - Android
 - Java 
 
@@ -253,23 +276,6 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 - Git
 - Jira
 - Notion
-
-<br>
-<br>
-
-## ERD
-<p align="center">
-  <img src="./images/erd.png">
-</p>
-
-
-<br>
-<br>
-
-## 화면 설계 
-<p align="center">
-  <img src="./images/app_design.png">
-</p>
 
 <br>
 <br>
