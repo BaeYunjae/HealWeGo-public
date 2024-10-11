@@ -72,8 +72,11 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 <br>
 
 #### 장소 추천 기능
--  방문자 수 기준으로 가장 높은 5곳의 장소를 추천합니다. 
-    ![recommend.gif](./images/recommend.gif)
+-  방문자 수 기준으로 가장 높은 5곳의 장소를 추천합니다.
+
+    <p align="center">
+        <img src="./images/recommend.gif" align="center" width="30%">
+    </p> 
 
 <br>
 
@@ -88,7 +91,10 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 
 #### 채팅 목록 필터 
 - 원하는 여행 테마, 성별 필터에 따라 채팅방을 조회할 수 있습니다. 
-    ![filter.gif](./images/filter.gif)
+
+    <p align="center">
+        <img src="./images/filter.gif" align="center" width="30%">
+    </p> 
 
 <br>
 
@@ -99,8 +105,11 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 <br>
 
 #### 다대다 채팅
-- 채팅방에 참여한 사람들은 양방향 채팅을 할 수 있습니다. 
-    ![chatting.gif](./images/chatting.gif)
+- 채팅방에 참여한 사람들은 양방향 채팅을 할 수 있습니다.
+
+    <p align="center">
+        <img src="./images/chatting.gif" align="center" width="30%">
+    </p> 
 
 <br>
 
@@ -137,13 +146,15 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 #### 예약 확인 및 취소
 - 일정을 잊지 않도록 예약 확인할 수 있습니다.
 - 예약된 일정을 누르면 차량 위치를 확인할 수 있는 지도로 이동할 수 있습니다. 
+
     <p align="center">
-        <img src="./images/reserve.gif" align="center" width="40%">
+        <img src="./images/reserve.gif" align="center" width="30%">
     </p>
 
 - 부득이하게 일정을 취소해야 하는 경우 예약을 취소할 수 있습니다. 
+
     <p align="center">
-        <img src="./images/cancel.gif" align="center" width="40%">
+        <img src="./images/cancel.gif" align="center" width="30%">
     </p>
 
 <br>
