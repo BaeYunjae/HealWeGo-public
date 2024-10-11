@@ -83,6 +83,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -635,26 +636,7 @@ public class MapPath extends AppCompatActivity
                 handleFirstPointMessage (init_order);
             }
 
-            // PATCH API 요청을 위한 코드
-            connMethod = "PATCH";
-            mURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/"+ "room/in";
-
-// 요청 바디에 최소한의 데이터를 설정
-            JSONObject body = new JSONObject();
-            SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
-            String userName = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
-            try {
-                // 비워두거나 최소한의 정보만 보냅니다.
-                body.put("Method", "PATCH");
-                body.put("User_ID", userName);
-            } catch (JSONException e) {
-                Log.e("BODYPUTERROR", "ERRRRRRRRORRRRRR");  // 예외 처리
-            }
-
-            String bodyJson = body.toString();
-
-// PATCH 요청 후 응답 데이터를 저장하는 로직
-            ApiRequestHandler.getJSON(mURL, "PATCH", mHandler, bodyJson);
+            sendPatchRequest();
 
         }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
 
@@ -868,6 +850,93 @@ public class MapPath extends AppCompatActivity
         }
 
     }
+
+    private void sendPatchRequest() {
+        // API 유형
+        String connMethod = "PATCH";
+        String apiURL = "https://18rc8r0oi0.execute-api.ap-northeast-2.amazonaws.com/healwego-stage/room/in";
+
+        JSONObject body = new JSONObject();
+        int maxRetryCount = 10; // 최대 재시도 횟수
+        sendPatchRequestWithRetry(apiURL, connMethod, body, maxRetryCount);
+    }
+
+    private void sendPatchRequestWithRetry(String apiURL, String connMethod, JSONObject body, int retryCount) {
+        SharedPreferences sharedPref = getSharedPreferences("UserIDPrefs", Context.MODE_PRIVATE);
+        String myId = sharedPref.getString("userID", ""); // 값이 없으면 "defaultUsername" 사용
+        try {
+            body.put("Method", connMethod);
+            body.put("User_ID", myId);
+        } catch (JSONException e) {
+            Log.e("ChatActivity", "PATCH JSON 생성 오류");
+            return;
+        }
+
+        String bodyJson = body.toString();
+
+        // API 요청 함수
+        ApiRequestHandler.getJSON(apiURL, connMethod, new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                String response = (String) msg.obj;
+
+                try {
+                    JSONObject responseObject = new JSONObject(response);
+
+                    // statusCode가 있는지 확인
+                    if (responseObject.has("statusCode")) {
+                        int statusCode = responseObject.getInt("statusCode");
+
+                        // PATCH 요청 성공 시
+                        if (statusCode == 200) {
+                            try {
+                                // JSON 파싱
+                                JSONObject bodyObject = new JSONObject(responseObject.getString("body"));
+
+                                // Loc_name을 추출하고 유니코드를 한글로 디코딩
+                                String locNameUnicode = bodyObject.getString("Loc_name");
+                                String nowdecodedLocName = URLDecoder.decode(locNameUnicode, "UTF-8");
+                                decodedLocName = nowdecodedLocName; // 디코딩된 Loc_name 저장
+
+                                // 디코딩된 값 로그 출력
+                                Log.i("MapPath", "디코딩 된 Loc_name: " + decodedLocName);
+                                Log.i("MapPath", "디코딩 된 Loc_name: " + decodedLocName);
+                                Log.i("MapPath", "디코딩 된 Loc_name: " + decodedLocName);
+                                Log.i("MapPath", "디코딩 된 Loc_name: " + decodedLocName);
+
+                            } catch (JSONException | UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                                Log.e("MapPath", "JSON 파싱 또는 디코딩 중 오류 발생: " + e.getMessage());
+                            }
+                        } else {
+                            // PATCH 요청 실패 시 재시도
+                            Log.e("ChatActivity", "PATCH 요청 실패: " + statusCode);
+                            retryPatchRequest(apiURL, connMethod, body, retryCount);
+                        }
+                    } else {
+                        // statusCode가 없을 경우의 처리
+                        Log.e("ChatActivity", "statusCode 없음. 응답 내용: " + response);
+                        retryPatchRequest(apiURL, connMethod, body, retryCount);
+                    }
+
+                } catch (JSONException e) {
+                    Log.e("ChatActivity", "PATCH 응답 처리 오류", e);
+                }
+            }
+        }, bodyJson);
+
+        Log.i("ChatActivity", "PATCH 요청: " + bodyJson);
+    }
+
+    private void retryPatchRequest(String apiURL, String connMethod, JSONObject body, int retryCount) {
+        if (retryCount > 0) {
+            Log.i("ChatActivity", "재시도 남은 횟수: " + retryCount);
+            sendPatchRequestWithRetry(apiURL, connMethod, body, retryCount - 1);
+        } else {
+            Log.e("ChatActivity", "재시도 횟수 초과");
+        }
+    }
+
 
     private void removeAllMarkers() {
         runOnUiThread(() -> {
