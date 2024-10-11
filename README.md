@@ -122,7 +122,7 @@ HealWeGo는 자율주행 시뮬레이터 MORAI를 활용한 힐링 테마의 자
 - 함께가기 출발지 설정
 
   <p align="center">
-      <img src="./images/together_path.gif" align="center" width="30%">
+      <img src="./images/together_path.PNG" align="center" width="30%">
   </p> 
 
 
