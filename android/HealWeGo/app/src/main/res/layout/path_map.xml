@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/map_path"
+    tools:context=".MapPath" >
+
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/map"
+        tools:context=".MapsActivity"
+        android:name="com.google.android.gms.maps.SupportMapFragment" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/teal_rectangle">
+
+        <!-- 차량 위치 확인 텍스트 -->
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="차량 위치 확인"
+            android:fontFamily="@font/scdream6"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:gravity="center"
+            android:padding="10dp"
+            android:layout_centerInParent="true" />
+
+        <!-- 홈 버튼 -->
+        <ImageButton
+            android:id="@+id/backToHomeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:background="@null"
+            android:contentDescription="Back to Home"
+            android:padding="8dp"
+            android:src="@drawable/home" />
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="bottom"
+        android:background="@drawable/white_rectangle"
+        android:paddingTop="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginHorizontal="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="현재 위치 : "
+                    android:fontFamily="@font/scdream5"
+                    android:textSize="22sp"
+                    android:textColor="#000000"
+                    android:maxLines="1"
+                    android:scrollHorizontally="true" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="horizontal">
+                    <TextView
+                        android:id="@+id/currentText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Now Loading..."
+                        android:fontFamily="@font/scdream4"
+                        android:textSize="22sp"
+                        android:textColor="#000000"
+                        android:maxLines="1"
+                        android:scrollHorizontally="true" />
+                </HorizontalScrollView>
+            </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="목적지 : "
+                android:fontFamily="@font/scdream5"
+                android:textSize="22sp"
+                android:textColor="#000000"
+                android:maxLines="1"
+                android:scrollHorizontally="true" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="horizontal">
+                <TextView
+                    android:id="@+id/destText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Now Loading..."
+                    android:fontFamily="@font/scdream4"
+                    android:textSize="22sp"
+                    android:textColor="#000000"
+                    android:maxLines="1"
+                    android:scrollHorizontally="true" />
+            </HorizontalScrollView>
+        </LinearLayout>
+
+
+        <!-- 버튼들이 들어갈 레이아웃 -->
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="5dp"
+            >
+
+            <!-- 첫 번째 버튼 -->
+            <Button
+                android:id="@+id/leftButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:backgroundTint="@color/darkteal"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/scdream5"
+                android:text="탑승"
+                android:layout_marginHorizontal="5dp"/>
+
+            <!-- 두 번째 버튼 -->
+            <Button
+                android:id="@+id/rightButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:backgroundTint="@color/darkred"
+                android:textColor="@color/white"
+                android:fontFamily="@font/scdream5"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="비상 정지"
+                android:layout_marginHorizontal="5dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

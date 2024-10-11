@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/messageLayout"
+    android:padding="8dp">
+
+    <!-- 사용자 이름을 표시할 TextView -->
+    <TextView
+        android:id="@+id/chatUsernameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:fontFamily="@font/scdream6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginBottom="4dp"/>
+
+    <!-- 메시지와 시간을 감싸는 LinearLayout -->
+    <!-- width를 match parent로 해서 전부 채우게-->
+    <LinearLayout
+        android:id="@+id/messageTimeContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chatUsernameTextView"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- 채팅 메시지를 표시할 TextView -->
+        <TextView
+            android:id="@+id/chatMessageTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:fontFamily="@font/scdream3"
+            android:padding="10dp"/>
+
+        <!-- 시간 표시 TextView -->
+        <TextView
+            android:id="@+id/chatTimeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:fontFamily="@font/scdream5"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

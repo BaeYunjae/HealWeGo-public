@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginTop="5dp"
+    android:layout_marginLeft="15dp"
+    android:layout_marginRight="13dp">
+
+    <!-- 예약된 일정 버튼 -->
+    <LinearLayout
+        android:id="@+id/buttonReserve"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="15dp"
+        android:paddingLeft="20dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/button_background"
+        android:gravity="start">
+
+        <!-- 혼자가기 텍스트 -->
+        <TextView
+            android:id="@+id/textRoom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="방 이름"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:fontFamily="@font/scdream5"
+            android:layout_gravity="center"
+            android:layout_marginRight="10dp"
+            android:textSize="20sp"/>
+
+        <!-- 출발 시각과 목적지 텍스트를 수평으로 배치 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="10dp">
+
+            <!-- 고정된 출발 시각 레이블 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="출발 시각 :"
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/scdream5"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+            <!-- 동적으로 바뀔 출발 시각 데이터 -->
+            <TextView
+                android:id="@+id/textDepartureTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Now Loading..."
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/scdream5"
+                android:layout_marginStart="5dp"
+                android:textSize="18sp"/>
+        </LinearLayout>
+
+        <!-- 목적지 텍스트 수평 배치 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="3dp"
+            android:layout_marginRight="10dp">
+
+            <!-- 고정된 목적지 레이블 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="목적지 :"
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/scdream5"
+                android:textStyle="bold"
+                android:textSize="18sp"/>
+
+            <!-- 동적으로 바뀔 목적지 데이터 -->
+            <TextView
+                android:id="@+id/textDestination"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Now Loading..."
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/scdream5"
+                android:layout_marginStart="5dp"
+                android:textSize="18sp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 예약 취소 버튼 -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/buttonCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="예약 취소"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:paddingTop="10dp"
+        android:paddingBottom="15dp"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="@font/scdream6"
+        android:background="@drawable/cancel_button"
+        android:gravity="center" />
+
+</LinearLayout>

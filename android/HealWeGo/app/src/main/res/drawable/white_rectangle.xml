@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 원하는 너비와 높이 설정 -->
+    <size
+        android:width="300dp"
+        android:height="130dp" />
+
+    <!-- 직사각형 모서리를 둥글게 하려면 여기에 추가 -->
+    <corners android:radius="8dp" />
+
+    <!-- 배경색 설정 -->
+    <solid android:color="@color/white" />
+</shape>

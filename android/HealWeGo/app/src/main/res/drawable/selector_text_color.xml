@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 선택되었을 때 글자색 -->
+    <item android:state_selected="true" android:color="@color/white"/> <!-- 선택되었을 때 글자색 white -->
+
+    <!-- 기본 글자색 -->
+    <item android:color="@color/darkteal"/> <!-- 기본 상태에서 글자색 darkteal -->
+</selector>

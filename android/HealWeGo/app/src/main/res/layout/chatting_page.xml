@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/palecyan"
+    tools:context=".ChatActivity">
+
+    <!-- 메인 화면 (채팅) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- 채팅 제목과 메뉴 아이콘 -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/chatToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/palecyan"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- 채팅 제목 -->
+            <TextView
+                android:id="@+id/chatTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="채팅 제목"
+                android:textSize="18sp"
+                android:fontFamily="@font/scdream6"
+                android:textColor="@android:color/black"
+                android:layout_gravity="center"/>
+
+            <!-- 메뉴 아이콘 -->
+            <ImageButton
+                android:id="@+id/menuButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/chat_menu"
+                android:background="@null"
+                android:contentDescription="메뉴"
+                android:layout_gravity="end"/>
+        </androidx.appcompat.widget.Toolbar>
+
+        <!-- 채팅 메시지 리스트 (RecyclerView) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatRecyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fontFamily="@font/scdream3"
+            app:layout_constraintTop_toBottomOf="@id/chatToolbar"
+            app:layout_constraintBottom_toTopOf="@id/messageInputLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="16dp"
+            android:background="@android:color/white"/>
+
+        <!-- 메시지 입력과 전송 버튼을 포함하는 영역 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/messageInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/palecyan"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:padding="8dp"
+            android:background="@android:color/white">
+
+            <!-- 메시지 입력 필드 -->
+            <EditText
+                android:id="@+id/messageInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="메시지 입력"
+                android:background="@android:color/white"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/sendButton"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:padding="12dp"
+                android:textSize="16sp"/>
+
+            <!-- 메시지 전송 버튼 -->
+            <ImageButton
+                android:id="@+id/sendButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_send"
+                android:scaleType="fitXY"
+                android:background="@null"
+                android:contentDescription="메시지 전송"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:padding="8dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 네비게이션 바 -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:background="@color/palecyan"
+        app:headerLayout="@layout/nav_header_parti"/>
+
+</androidx.drawerlayout.widget.DrawerLayout>

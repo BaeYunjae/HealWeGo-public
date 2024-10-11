@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".CreateRoomActivity"
+    android:background="@drawable/gradient">
+
+
+        <!-- 방 정보 입력 -->
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:layout_marginLeft="20dp"
+            android:text="방을 만들어 볼까요?"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:fontFamily="@font/scdream6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 방 제목 입력 -->
+        <EditText
+            android:id="@+id/editRoomTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:hint="생성할 방의 이름을 적어주세요"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textTitle" />
+
+        <!-- 출발 시간 설정 -->
+        <LinearLayout
+            android:id="@+id/time_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editRoomTitle"
+            app:layout_constraintBottom_toTopOf="@+id/buttonFindDestination">
+
+            <TextView
+                android:id="@+id/startTimeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/scdream6"
+                android:text="출발 시간"
+                android:textColor="@color/darkteal"
+                android:textSize="18sp"
+                android:layout_marginRight="10dp"/>
+
+            <!-- 출발시간 선택을 위한 Spinner -->
+            <Spinner
+                android:id="@+id/timeSpinner"
+                android:layout_width="240dp"
+                android:layout_height="50dp"
+                android:background="@drawable/spinner_background"
+                android:layout_marginLeft="10dp"/>
+
+        </LinearLayout>
+
+
+
+        <!-- 목적지 찾기 버튼 -->
+        <android.widget.Button
+            android:id="@+id/buttonFindDestination"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/tag_button"
+            android:text="목적지 찾기"
+            android:textSize="20sp"
+            android:fontFamily="@font/scdream5"
+            android:maxLines="1"
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/time_layout" />
+
+        <!-- 필터 설정 제목 -->
+        <TextView
+            android:id="@+id/textFilterTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="필터 설정"
+            android:textColor="@color/darkteal"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/scdream6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/buttonFindDestination" />
+
+        <!-- 필터 설정 영역 (ConstraintLayout으로 감싸기) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/filter_border"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textFilterTitle">
+
+            <!-- 성별 필터 -->
+            <android.widget.RadioGroup
+                android:id="@+id/radioGroupGender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <android.widget.RadioButton
+                    android:id="@+id/radioAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="성별무관"
+                    android:fontFamily="@font/scdream4"
+                    android:checked="true"
+                    android:buttonTint="@color/darkteal"
+                    android:layout_marginRight="20dp"/>
+                <android.widget.RadioButton
+                    android:id="@+id/radioMale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/darkteal"
+                    android:text="남성만"
+                    android:fontFamily="@font/scdream4"
+                    android:layout_marginRight="20dp"/>
+                <android.widget.RadioButton
+                    android:id="@+id/radioFemale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/darkteal"
+                    android:text="여성만"
+                    android:fontFamily="@font/scdream4"
+                    android:layout_marginRight="20dp"/>
+            </android.widget.RadioGroup>
+
+            <!-- 나이 필터 -->
+            <LinearLayout
+                android:id="@+id/setAge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/radioGroupGender">
+
+                <EditText
+                    android:id="@+id/editMinAge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="최소 나이"
+                    android:inputType="number" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="세 ~"
+                    android:fontFamily="@font/scdream5"/>
+
+                <EditText
+                    android:id="@+id/editMaxAge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="최대 나이"
+                    android:inputType="number"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="세"
+                    android:fontFamily="@font/scdream5"/>
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- 테마 설정 -->
+        <TextView
+            android:id="@+id/textThemeTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="테마 설정"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/darkteal"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/scdream6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/filter"/>
+
+
+        <LinearLayout
+            android:id="@+id/theme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/filter_border"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:padding="16dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textThemeTitle">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginBottom="5dp"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/buttonThemeHealing"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/lightteal"
+                    android:text="힐링"
+                    android:fontFamily="@font/scdream5"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:layout_marginRight="10dp"
+                    app:layout_constraintEnd_toStartOf="@+id/buttonThemeExtreme"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonThemeExtreme"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/lightteal"
+                    android:text="익스트림"
+                    android:fontFamily="@font/scdream5"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/buttonThemeHealing"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginTop="5dp"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/buttonThemeFood"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/lightteal"
+                    android:text="먹부림"
+                    android:fontFamily="@font/scdream5"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:layout_marginRight="10dp"
+                    app:layout_constraintTop_toBottomOf="@id/buttonThemeHealing"
+                    app:layout_constraintEnd_toStartOf="@id/buttonThemeMeeting"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <Button
+                    android:id="@+id/buttonThemeMeeting"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/lightteal"
+                    android:text="만남"
+                    android:fontFamily="@font/scdream5"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/buttonThemeHealing"
+                    app:layout_constraintStart_toEndOf="@id/buttonThemeFood" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <!-- 방 생성 및 취소 버튼 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/theme"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <android.widget.Button
+                android:id="@+id/buttonCancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginRight="10dp"
+                android:elevation="10dp"
+                android:background="@drawable/tag_button"
+                android:backgroundTint="@color/black"
+                android:text="생성 취소"
+                android:textSize="18dp"
+                android:textColor="@color/white"
+                android:fontFamily="@font/scdream5" />
+
+            <android.widget.Button
+                android:id="@+id/buttonCreateRoom"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:elevation="10dp"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/tag_button"
+                android:backgroundTint="@color/darkteal"
+                android:textColor="@color/white"
+                android:text="방 생성"
+                android:textSize="18dp"
+                android:fontFamily="@font/scdream5"/>
+
+        </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
