@@ -1,0 +1,34 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <!-- 첫 번째 레이어: 둥근 모서리 사각형 배경 (line.xml) -->
+  <item>
+    <shape xmlns:android="http://schemas.android.com/apk/res/android"
+        android:shape="rectangle">
+      <corners android:radius="10dp"/> <!-- 둥근 모서리 반경 설정 -->
+
+      <solid android:color="#90FFFFFF"/> <!-- 50% 투명도 흰색 배경 --></shape>
+  </item>
+
+  <!-- 두 번째 레이어: 벡터 드로어블 (벡터 이미지를 위에 표시) -->
+  <item
+      android:left="5dp"
+      android:right="5dp"
+      android:top="5dp"
+      android:bottom="5dp">
+    <vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="360dp"
+        android:height="360dp"
+        android:viewportWidth="360"
+        android:viewportHeight="360">
+      <path
+          android:pathData="M165,30.4l0,15.3 -9,1.7c-18.6,3.4 -37,11 -52.7,21.7 -10.7,7.4 -27.6,24.5 -34.5,34.9 -11,16.8 -18.1,33.9 -21.4,52.1l-1.7,8.9 -15.3,-0 -15.4,-0 0,15 0,15 15.4,-0 15.3,-0 1.7,9.2c5,27.2 17.5,50.8 37.5,70.9 20.1,20 43.7,32.5 70.9,37.5l9.2,1.7 0,15.3 0,15.4 15,-0 15,-0 0,-15.3 0,-15.4 11.1,-2.1c53.6,-10.6 95.5,-52.5 106.1,-106.1l2.1,-11.1 15.4,-0 15.3,-0 0,-15 0,-15 -15.4,-0 -15.3,-0 -1.8,-9.3c-5.2,-27.1 -17.7,-50.9 -37,-70.3 -5.5,-5.5 -13.4,-12.4 -17.5,-15.3 -15.3,-10.8 -35.8,-19.4 -54,-22.7l-9,-1.7 0,-15.3 0,-15.4 -15,-0 -15,-0 0,15.4zM198.1,76.5c40.2,7 72.9,37.1 83.6,77 2.4,8.9 2.7,11.8 2.7,26.5 0,13.8 -0.4,17.9 -2.2,24.8 -10.2,39.1 -39.7,68.2 -79,77.9 -9.7,2.4 -36.1,2.4 -46,-0 -40.3,-9.7 -70.1,-39.5 -79.9,-79.9 -2.5,-10.1 -2.5,-35.3 0,-45.6 8.6,-35.9 33.3,-63.7 67.7,-76.3 15.8,-5.7 36,-7.4 53.1,-4.4z"
+          android:fillColor="@color/darkcyan"
+          android:strokeColor="@color/darkcyan"/>
+      <path
+          android:pathData="M167.5,121.6c-22.6,4.8 -40.8,23.1 -45.9,46.1 -2,8.9 -2,15.7 -0.1,24.8 5.7,26.9 31,47.5 58.5,47.5 27.4,-0 52.8,-20.7 58.5,-47.6 1.9,-8.9 1.9,-14.7 -0.1,-24.2 -4.7,-23.5 -23.1,-41.9 -46.6,-46.6 -9.3,-1.9 -15.1,-1.9 -24.3,-0z"
+          android:fillColor="@color/darkcyan"
+          android:strokeColor="@color/darkcyan"/>
+    </vector>
+  </item>
+
+</layer-list>

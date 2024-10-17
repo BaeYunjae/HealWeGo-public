@@ -1,0 +1,41 @@
+[versions]
+agp = "8.5.1"
+awsAnalyticsPinpoint = "2.21.1"
+awsAndroidSdkCore = "2.77.0"
+junit = "4.13.2"
+junitVersion = "1.1.5"
+espressoCore = "3.5.1"
+appcompat = "1.6.1"
+material = "1.10.0"
+activity = "1.8.0"
+constraintlayout = "2.1.4"
+cronetEmbedded = "119.6045.31"
+navigationFragment = "2.6.0"
+navigationUi = "2.6.0"
+
+[libraries]
+aws-analytics-pinpoint = { module = "com.amplifyframework:aws-analytics-pinpoint", version.ref = "awsAnalyticsPinpoint" }
+aws-android-sdk-cognitoidentityprovider = { module = "com.amazonaws:aws-android-sdk-cognitoidentityprovider", version.ref = "awsAndroidSdkCore" }
+aws-android-sdk-core = { module = "com.amazonaws:aws-android-sdk-core", version.ref = "awsAndroidSdkCore" }
+aws-android-sdk-mobile-client = { module = "com.amazonaws:aws-android-sdk-mobile-client", version.ref = "awsAndroidSdkCore" }
+aws-api = { module = "com.amplifyframework:aws-api", version.ref = "awsAnalyticsPinpoint" }
+aws-auth-cognito = { module = "com.amplifyframework:aws-auth-cognito", version.ref = "awsAnalyticsPinpoint" }
+aws-datastore = { module = "com.amplifyframework:aws-datastore", version.ref = "awsAnalyticsPinpoint" }
+aws-geo-location = { module = "com.amplifyframework:aws-geo-location", version.ref = "awsAnalyticsPinpoint" }
+aws-predictions = { module = "com.amplifyframework:aws-predictions", version.ref = "awsAnalyticsPinpoint" }
+aws-push-notifications-pinpoint = { module = "com.amplifyframework:aws-push-notifications-pinpoint", version.ref = "awsAnalyticsPinpoint" }
+aws-storage-s3 = { module = "com.amplifyframework:aws-storage-s3", version.ref = "awsAnalyticsPinpoint" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronetEmbedded" }
+navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
+navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+

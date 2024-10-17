@@ -1,0 +1,8 @@
+<!-- res/drawable/rounded_button.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 배경색을 darkteal로 설정 -->
+    <solid android:color="@color/darkteal"/>
+
+    <!-- 모서리를 둥글게 (radius 값으로 모서리 둥글기 조절) -->
+    <corners android:radius="50dp"/>
+</shape>

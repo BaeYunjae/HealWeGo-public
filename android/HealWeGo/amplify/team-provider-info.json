@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-healwego-dev-c0b72-authRole",
+      "UnauthRoleArn": "arn:aws:iam::211125538943:role/amplify-healwego-dev-c0b72-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::211125538943:role/amplify-healwego-dev-c0b72-authRole",
+      "Region": "ap-northeast-2",
+      "DeploymentBucketName": "amplify-healwego-dev-c0b72-deployment",
+      "UnauthRoleName": "amplify-healwego-dev-c0b72-unauthRole",
+      "StackName": "amplify-healwego-dev-c0b72",
+      "StackId": "arn:aws:cloudformation:ap-northeast-2:211125538943:stack/amplify-healwego-dev-c0b72/2bfd6ff0-6e85-11ef-8b83-0a32f38fe059",
+      "AmplifyAppId": "d3afc3xfe9rt78"
+    },
+    "categories": {
+      "api": {
+        "healwego": {}
+      },
+      "auth": {
+        "healwegod7296f30": {}
+      }
+    }
+  }
+}

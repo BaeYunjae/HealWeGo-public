@@ -1,0 +1,73 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/line">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="예약 취소"
+        android:textStyle="bold"
+        android:textSize="23sp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/scdream6"
+        android:textAlignment="center"
+        android:layout_marginTop="10dp"/>
+        
+    <TextView
+        android:id="@+id/reserveText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="16dp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/scdream5"
+        android:backgroundTint="@color/teal"
+        android:background="@drawable/background_radius"
+        android:layout_margin="10dp"
+        android:padding="15dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="예약을 취소하시겠습니까?\n취소 후에는 다시 예약이 불가능합니다."
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/scdream4"
+        android:layout_marginLeft="20dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/noBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="아니오"
+            android:textSize="20sp"
+            android:background="@drawable/no_button"
+            android:textColor="@color/white"
+            android:fontFamily="@font/scdream5"
+            android:gravity="center"
+            android:layout_marginRight="30dp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/yesBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="예"
+            android:background="@drawable/yes_button"
+            android:fontFamily="@font/scdream5"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+</LinearLayout>
