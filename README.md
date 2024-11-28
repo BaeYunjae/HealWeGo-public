@@ -2,6 +2,7 @@
 <p align="center">
   <img src="./images/cover.jpg" align="center" width="80%">
 </p> 
+
 언제든 어디로든 **힐링**이 필요할 땐 
 <br>
 힐링 카풀택시 **HealWeGo**
